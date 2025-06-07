@@ -20,3 +20,7 @@ The repository excludes `backend/.env` from version control. Store your secrets 
 
 `REDIS_URL` controls the Redis connection used for rate limiting. If omitted, the API defaults to `redis://localhost:6379/0`.
 
+## Frontend Authentication
+
+Authentication tokens are stored in HTTP-only cookies. The Angular frontend automatically includes these cookies on each request using `withCredentials: true` and reads the `access_token` cookie when attaching authorization headers.
+

@@ -32,10 +32,8 @@ export class LoginComponent {
           this.error = 'Login failed';
           return of(null);
         })
-      ).subscribe(response => {
+        ).subscribe(response => {
         if (response) {
-          localStorage.setItem('token', response.access_token);
-          localStorage.setItem('tokenType', response.token_type);
           this.router.navigate(['/home']);
         }
       });

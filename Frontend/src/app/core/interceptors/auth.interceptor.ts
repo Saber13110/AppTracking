@@ -9,11 +9,10 @@ export class AuthInterceptor implements HttpInterceptor {
   constructor(private authService: AuthService, private router: Router) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const token = localStorage.getItem('token');
-    const tokenType = localStorage.getItem('tokenType') || 'Bearer';
+    const token = this.authService.getAccessToken();
     const authReq = token
-      ? req.clone({ setHeaders: { Authorization: `${tokenType} ${token}` } })
-      : req;
+      ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` }, withCredentials: true })
+      : req.clone({ withCredentials: true });
 
     return next.handle(authReq).pipe(
       catchError((error: HttpErrorResponse) => {
@@ -22,7 +21,8 @@ export class AuthInterceptor implements HttpInterceptor {
             switchMap((resp: any) => {
               if (resp && resp.access_token) {
                 const retryReq = req.clone({
-                  setHeaders: { Authorization: `Bearer ${resp.access_token}` }
+                  setHeaders: { Authorization: `Bearer ${resp.access_token}` },
+                  withCredentials: true
                 });
                 return next.handle(retryReq);
               } else {

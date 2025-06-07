@@ -12,6 +12,15 @@ export class AuthService {
 
   constructor(private http: HttpClient) { }
 
+  private getCookie(name: string): string | null {
+    const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+    return match ? decodeURIComponent(match[1]) : null;
+  }
+
+  getAccessToken(): string | null {
+    return this.getCookie('access_token');
+  }
+
   register(userData: any): Observable<any> {
     // Endpoint pour l'enregistrement
     return this.http.post(`${this.apiUrl}/register`, userData);
@@ -43,12 +52,11 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('tokenType');
+    this.http.post(`${this.apiUrl}/logout`, {}, { withCredentials: true }).subscribe();
   }
 
   isLoggedIn(): boolean {
-    return !!localStorage.getItem('token');
+    return !!this.getAccessToken();
   }
 
   refreshToken(): Observable<any> {
