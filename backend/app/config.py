@@ -26,8 +26,9 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
     # Google OAuth2 Configuration
-
-    
+    GOOGLE_CLIENT_ID: str
+    GOOGLE_CLIENT_SECRET: str
+    GOOGLE_REDIRECT_URI: str
     # Email Configuration
     SMTP_SERVER: str = "smtp.gmail.com"
     SMTP_PORT: int = 587
