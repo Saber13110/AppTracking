@@ -7,8 +7,6 @@ from sqlalchemy.orm import Session
 
 from ..models.user import User, UserCreate, Token, EmailVerification, UserDB
 from ..services.auth import (
-    verify_password,
-    get_password_hash,
     create_access_token,
     get_current_active_user,
     create_user,

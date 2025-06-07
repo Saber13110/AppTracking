@@ -6,7 +6,6 @@ from datetime import datetime
 import barcode
 from barcode.writer import ImageWriter
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_, desc, asc
 from typing import List, Dict, Any, Tuple, Optional
 from ..models.colis import ColisCreate, ColisUpdate, ColisFilter
 from ..models.database import ColisDB
