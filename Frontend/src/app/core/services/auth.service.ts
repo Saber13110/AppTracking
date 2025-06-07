@@ -51,5 +51,9 @@ export class AuthService {
     return !!localStorage.getItem('token');
   }
 
+  refreshToken(): Observable<any> {
+    return this.http.post(`${this.apiUrl}/refresh-token`, {});
+  }
+
   // Vous pourriez ajouter d'autres méthodes ici, comme logout, getUserInfo, etc.
 } 
