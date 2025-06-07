@@ -17,7 +17,7 @@ def send_verification_email(email: str, token: str):
     message["Subject"] = "Vérification de votre adresse email"
 
     # Corps du message
-    verification_link = f"http://localhost:4200/verify-email?token={token}"
+    verification_link = f"{settings.FRONTEND_URL}/verify-email?token={token}"
     body = f"""
     Bonjour,
 
