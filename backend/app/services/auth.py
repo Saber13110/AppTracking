@@ -6,7 +6,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
-from ..models.user import User, UserCreate, TokenData, UserDB
+from ..models.user import User, UserCreate, TokenData, UserDB, UserRole
 from ..config import settings
 from ..database import get_db
 
@@ -72,7 +72,8 @@ def create_user(db: Session, user: UserCreate) -> UserDB:
     db_user = UserDB(
         email=user.email,
         full_name=user.full_name,
-        hashed_password=hashed_password
+        hashed_password=hashed_password,
+        role=UserRole.client,
     )
     db.add(db_user)
     db.commit()
@@ -85,4 +86,7 @@ def authenticate_user(db: Session, email: str, password: str) -> Optional[UserDB
         return None
     if not verify_password(password, user.hashed_password):
         return None
-    return user 
+    user.last_login_at = datetime.utcnow()
+    db.commit()
+    db.refresh(user)
+    return user

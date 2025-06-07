@@ -1,11 +1,19 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import datetime
-from sqlalchemy import Boolean, Column, Integer, String, DateTime
+from sqlalchemy import Boolean, Column, Integer, String, DateTime, Enum as SQLEnum
 from sqlalchemy.sql import func
+from enum import Enum
 from ..database import Base
 
 # Modèle SQLAlchemy pour la base de données
+class UserRole(str, Enum):
+    admin = "admin"
+    driver = "driver"
+    client = "client"
+    support = "support"
+
+
 class UserDB(Base):
     __tablename__ = "users"
 
@@ -19,6 +27,8 @@ class UserDB(Base):
     google_id = Column(String, nullable=True)  # ID Google de l'utilisateur
     verification_token = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    role = Column(SQLEnum(UserRole), default=UserRole.client, nullable=False)
+    last_login_at = Column(DateTime(timezone=True), nullable=True)
 
 # Modèles Pydantic pour l'API
 class UserBase(BaseModel):
@@ -38,6 +48,8 @@ class User(UserBase):
     is_verified: bool = False
     is_google_user: bool = False
     created_at: datetime
+    role: UserRole = UserRole.client
+    last_login_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
