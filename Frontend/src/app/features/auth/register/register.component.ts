@@ -61,7 +61,7 @@ export class RegisterComponent {
         (response: any) => {
           if (response) {
             console.log('Registration successful', response);
-            this.router.navigate(['/login']);
+            this.router.navigate(['/auth/login']);
           }
         }
       );
