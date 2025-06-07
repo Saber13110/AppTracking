@@ -1,16 +1,20 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from typing import List, Optional, Dict, Any
-from pydantic import BaseModel
+import logging
 from datetime import datetime
+from typing import List, Optional
+
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from pydantic import BaseModel
 
 # Corrected absolute imports
 from app.models.tracking import (
-    TrackingResponse, TrackingFilter, TrackingInfo
+    TrackingResponse
 )
 from app.database import get_db
 from app.services.colis_service import ColisService
 from app.services.fedex_service import FedExService
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 

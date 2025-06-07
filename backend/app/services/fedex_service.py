@@ -1,13 +1,10 @@
 import os
-import sys
-import time
 import requests
 import json
 import yaml
 import logging
-from typing import Dict, Any, Optional
-from datetime import datetime, timedelta
-import pytz
+from typing import Dict, Any
+from datetime import datetime
 from ..models.tracking import (
     TrackingInfo, TrackingEvent, TrackingResponse, Location,
     PackageDetails, DeliveryDetails, PackageStatus, PackageType,
@@ -165,7 +162,6 @@ class FedExService:
             tracking_number = tracking_details.get('trackingNumberInfo', {}).get('trackingNumber', '')
             latest_status = tracking_details.get('latestStatusDetail', {})
             status = latest_status.get('code', 'UNKNOWN')
-            description = latest_status.get('description', '')
             service_detail = tracking_details.get('serviceDetail', {})
             service_type = self._get_service_type(service_detail.get('type', ''))
 

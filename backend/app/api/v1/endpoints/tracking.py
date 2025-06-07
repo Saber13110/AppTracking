@@ -3,7 +3,7 @@ from typing import List, Dict, Any, Optional
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from ....models.tracking import (
-    TrackingResponse, TrackingFilter, TrackingInfo
+    TrackingResponse, TrackingFilter
 )
 from ....services.tracking_service import TrackingService
 from ....database import get_db

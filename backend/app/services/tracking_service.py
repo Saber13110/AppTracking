@@ -1,12 +1,9 @@
-import os
 import logging
 from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime
-from uuid import uuid4
 from .fedex_service import FedExService
 from ..models.tracking import (
-    TrackingInfo, TrackingEvent, TrackingResponse, Location,
-    PackageDetails, DeliveryDetails, TrackingFilter
+    TrackingInfo, TrackingResponse, TrackingFilter
 )
 from sqlalchemy.orm import Session
 from sqlalchemy import asc, desc, and_
