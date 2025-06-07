@@ -159,3 +159,52 @@ def test_logout_revokes_refresh(db_session, patched_router):
     assert token_db.revoked is True
     assert cleared.get("refresh_token") == ""
     assert cleared.get("access_token") == ""
+
+def test_register_verify_login_logout_flow(db_session, patched_router):
+    user_data = UserCreate(email="flow@example.com", full_name="Flow", password="pw")
+    user = asyncio.run(patched_router.register(user_data, db_session))
+    asyncio.run(patched_router.verify_email(patched_router.EmailVerification(token=user.verification_token), db_session))
+
+    form = patched_router.OAuth2PasswordRequestForm(username=user.email, password="pw", scope="")
+    login_resp = patched_router.Response()
+    asyncio.run(patched_router.login(login_resp, form, db_session))
+    cookies = parse_cookies(login_resp.headers.getlist("set-cookie"))
+    assert "access_token" in cookies
+    assert "refresh_token" in cookies
+
+    req = Request({"type": "http", "headers": []})
+    req._cookies = cookies
+    logout_resp = patched_router.Response()
+    asyncio.run(patched_router.logout(req, logout_resp, db_session))
+    cleared = parse_cookies(logout_resp.headers.getlist("set-cookie"))
+    assert cleared.get("access_token") == ""
+    assert cleared.get("refresh_token") == ""
+
+    from backend.app.models.refresh_token import RefreshTokenDB
+    token_db = db_session.query(RefreshTokenDB).filter_by(token=cookies["refresh_token"]).first()
+    assert token_db.revoked is True
+
+
+
+def test_google_callback_sets_cookies(db_session, monkeypatch):
+    os.environ.setdefault('GOOGLE_CLIENT_ID', 'dummy')
+    os.environ.setdefault('GOOGLE_CLIENT_SECRET', 'dummy')
+    os.environ.setdefault('GOOGLE_REDIRECT_URI', 'http://localhost')
+
+    from backend.app.routers import google_auth
+
+    async def fake_authorize_access_token(request):
+        return {"access_token": "tok", "id_token": "id"}
+
+    async def fake_parse_id_token(request, token):
+        return {"email": "g@example.com", "sub": "1", "name": "G"}
+
+    monkeypatch.setattr(google_auth.oauth.google, "authorize_access_token", fake_authorize_access_token)
+    monkeypatch.setattr(google_auth.oauth.google, "parse_id_token", fake_parse_id_token)
+
+    req = Request({"type": "http", "headers": [], "query_string": b""})
+    response = asyncio.run(google_auth.google_auth_callback(req, db_session))
+    cookies = parse_cookies(response.headers.getlist("set-cookie"))
+    assert cookies.get("access_token")
+    assert cookies.get("refresh_token")
+
