@@ -4,6 +4,7 @@ import { RegisterComponent } from './features/auth/register/register.component';
 import { LoginComponent } from './features/auth/login/login.component';
 import { TrackResultComponent } from './features/tracking/track-result/track-result.component';
 import { GoogleCallbackComponent } from './features/auth/google-callback/google-callback.component';
+import { VerifyEmailComponent } from './features/auth/verify-email/verify-email.component';
 
 // Assuming you might have other standalone components or lazy-loaded routes
 // import { HomeComponent } from './features/home/home.component';
@@ -24,4 +25,5 @@ export const routes: Routes = [
   { path: 'track/:identifier', component: TrackResultComponent },
   { path: 'auth/login', component: LoginComponent },
   { path: 'auth/callback', component: GoogleCallbackComponent },
+  { path: 'verify-email', component: VerifyEmailComponent },
 ];

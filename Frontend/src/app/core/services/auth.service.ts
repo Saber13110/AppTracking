@@ -25,5 +25,9 @@ export class AuthService {
     window.location.href = `${this.apiUrl}/google/login`;
   }
 
+  verifyEmail(token: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/verify-email`, { token });
+  }
+
   // Vous pourriez ajouter d'autres méthodes ici, comme logout, getUserInfo, etc.
 } 
