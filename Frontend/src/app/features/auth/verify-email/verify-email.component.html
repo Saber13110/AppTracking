@@ -1,0 +1,6 @@
+<div class="verify-container">
+  <h2>Vérification de l'email</h2>
+  <p *ngIf="success === true" class="success-message">{{ message }}</p>
+  <p *ngIf="success === false" class="error-message">{{ message }}</p>
+  <p *ngIf="success === null">Traitement en cours...</p>
+</div>
