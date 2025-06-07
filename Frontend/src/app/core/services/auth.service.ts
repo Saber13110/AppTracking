@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -17,8 +17,20 @@ export class AuthService {
   }
 
   login(credentials: any): Observable<any> {
-    // Endpoint pour la connexion
-    return this.http.post(`${this.apiUrl}/token`, credentials);
+    // Endpoint pour la connexion avec envoi en x-www-form-urlencoded
+    const params = new HttpParams()
+      .set('username', credentials.email)
+      .set('password', credentials.password);
+
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/x-www-form-urlencoded'
+    });
+
+    return this.http.post(
+      `${this.apiUrl}/token`,
+      params.toString(),
+      { headers }
+    );
   }
 
   googleLogin(): void {
