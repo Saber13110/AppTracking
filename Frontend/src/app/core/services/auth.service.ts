@@ -52,7 +52,11 @@ export class AuthService {
   }
 
   refreshToken(): Observable<any> {
-    return this.http.post(`${this.apiUrl}/refresh-token`, {});
+    return this.http.post(
+      `${this.apiUrl}/refresh-token`,
+      {},
+      { withCredentials: true }
+    );
   }
 
   // Vous pourriez ajouter d'autres méthodes ici, comme logout, getUserInfo, etc.
