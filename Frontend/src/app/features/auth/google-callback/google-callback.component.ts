@@ -15,6 +15,10 @@ export class GoogleCallbackComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       const token = params['token'];
+      if (token) {
+        localStorage.setItem('token', token);
+        localStorage.setItem('tokenType', 'Bearer');
+      }
       this.router.navigate(['/home']);
     });
   }
