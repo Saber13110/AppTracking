@@ -1,0 +1,5 @@
+<div class="verify-email-container">
+  <p *ngIf="status === 'loading'">Vérification en cours...</p>
+  <p *ngIf="status === 'success'" class="success">{{ message }}</p>
+  <p *ngIf="status === 'error'" class="error">{{ message }}</p>
+</div>
