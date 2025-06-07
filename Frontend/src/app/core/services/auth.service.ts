@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -42,9 +43,17 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/verify-email`, { token });
   }
 
-  logout(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('tokenType');
+  logout(): Observable<any> {
+    return this.http.post(
+      `${this.apiUrl}/logout`,
+      {},
+      { withCredentials: true }
+    ).pipe(
+      tap(() => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('tokenType');
+      })
+    );
   }
 
   isLoggedIn(): boolean {
