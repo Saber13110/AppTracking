@@ -460,6 +460,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   logout(): void {
-    this.authService.logout();
+    this.authService.logout().subscribe();
   }
 }
