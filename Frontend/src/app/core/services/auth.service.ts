@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -17,8 +17,36 @@ export class AuthService {
   }
 
   login(credentials: any): Observable<any> {
-    // Endpoint pour la connexion
-    return this.http.post(`${this.apiUrl}/token`, credentials);
+    return this.http
+      .post<{ access_token: string }>(`${this.apiUrl}/token`, credentials)
+      .pipe(
+        tap(response => {
+          if (response && response.access_token) {
+            localStorage.setItem('token', response.access_token);
+          }
+        })
+      );
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem('token');
+  }
+
+  isLoggedIn(): boolean {
+    const token = this.getToken();
+    if (!token) {
+      return false;
+    }
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.exp * 1000 > Date.now();
+    } catch {
+      return false;
+    }
+  }
+
+  logout(): void {
+    localStorage.removeItem('token');
   }
 
   googleLogin(): void {
