@@ -3,18 +3,23 @@ import logging
 from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime
 from uuid import uuid4
+from sqlalchemy.orm import Session
+from sqlalchemy import and_, asc, desc
 from .fedex_service import FedExService
 from ..models.tracking import (
     TrackingInfo, TrackingEvent, TrackingResponse, Location,
-    PackageDetails, DeliveryDetails, TrackingFilter
+    PackageDetails, DeliveryDetails, TrackingFilter, KeyDates, CommercialInfo
 )
+from ..models.database import TrackingDB, TrackingEventDB
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class TrackingService:
-    def __init__(self):
+    def __init__(self, db: Session):
+        """Initialize service with a SQLAlchemy session."""
+        self.db = db
         self.fedex_service = FedExService()
 
     def _validate_tracking_number(self, tracking_number: str) -> bool:
@@ -83,7 +88,7 @@ class TrackingService:
             responses.append(response)
         return responses
 
-    async def update_tracking(self, tracking_id: str, 
+    async def update_tracking(self, tracking_id: str,
                             customer_name: Optional[str] = None,
                             note: Optional[str] = None) -> TrackingResponse:
         """
@@ -128,6 +133,74 @@ class TrackingService:
                     'tracking_number': tracking_id
                 }
             )
+
+    def _convert_db_to_tracking_info(self, db_tracking: TrackingDB) -> TrackingInfo:
+        """Convert a TrackingDB instance to a TrackingInfo model."""
+        origin_data = (db_tracking.meta_data or {}).get("origin", {})
+        destination_data = (db_tracking.meta_data or {}).get("destination", {})
+
+        origin = Location(**origin_data) if origin_data else Location(city="", state="", country="")
+        destination = Location(**destination_data) if destination_data else Location(city="", state="", country="")
+
+        package_details = PackageDetails()
+        if getattr(db_tracking, "package_details", None):
+            pd = db_tracking.package_details
+            package_details = PackageDetails(
+                weight={"value": pd.weight} if pd.weight is not None else None,
+                dimensions=pd.dimensions,
+                service_type=pd.service_type,
+            )
+
+        delivery_details = DeliveryDetails()
+        if getattr(db_tracking, "delivery_details", None):
+            dd = db_tracking.delivery_details
+            loc = None
+            if getattr(dd, "delivery_location", None):
+                dloc = dd.delivery_location
+                loc = Location(
+                    city=dloc.city,
+                    state=dloc.state,
+                    country=dloc.country,
+                    postal_code=dloc.postal_code,
+                )
+            delivery_details = DeliveryDetails(
+                actual_delivery=dd.actual_delivery.isoformat() if dd.actual_delivery else None,
+                estimated_delivery=dd.estimated_delivery.isoformat() if dd.estimated_delivery else None,
+                delivery_location=loc,
+            )
+
+        events: List[TrackingEvent] = []
+        for ev in getattr(db_tracking, "events", []):
+            loc = None
+            if ev.location:
+                loc = Location(
+                    city=ev.location.city,
+                    state=ev.location.state,
+                    country=ev.location.country,
+                    postal_code=ev.location.postal_code,
+                )
+            events.append(
+                TrackingEvent(
+                    status=ev.status,
+                    description=ev.description,
+                    timestamp=ev.timestamp.isoformat() if ev.timestamp else None,
+                    location=loc,
+                )
+            )
+
+        return TrackingInfo(
+            tracking_number=db_tracking.tracking_number,
+            status=db_tracking.status,
+            carrier=db_tracking.carrier,
+            origin=origin,
+            destination=destination,
+            package_details=package_details,
+            delivery_details=delivery_details,
+            events=events,
+            key_dates=KeyDates(),
+            commercial_info=CommercialInfo(),
+            tracking_url=(db_tracking.meta_data or {}).get("tracking_url"),
+        )
 
     async def search_trackings(self, filters: TrackingFilter) -> Tuple[List[TrackingInfo], int]:
         """
