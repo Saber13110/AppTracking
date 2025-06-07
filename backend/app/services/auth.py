@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from ..models.user import User, UserCreate, TokenData, UserDB
 from ..config import settings
+from ..database import get_db
 
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -31,27 +32,32 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
-async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
+async def get_current_user(
+    db: Session = Depends(get_db),
+    token: str = Depends(oauth2_scheme)
+) -> UserDB:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        email: str = payload.get("sub")
+        payload = jwt.decode(
+            token,
+            settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM]
+        )
+        email: str | None = payload.get("sub")
         if email is None:
             raise credentials_exception
         token_data = TokenData(email=email)
     except JWTError:
         raise credentials_exception
-    
-    # TODO: Get user from database
-    # user = get_user_by_email(db, email=token_data.email)
-    # if user is None:
-    #     raise credentials_exception
-    # return user
-    raise NotImplementedError("Database integration needed")
+
+    user = get_user_by_email(db, token_data.email)
+    if user is None:
+        raise credentials_exception
+    return user
 
 async def get_current_active_user(current_user: User = Depends(get_current_user)) -> User:
     if not current_user.is_active:
