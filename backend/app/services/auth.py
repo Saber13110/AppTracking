@@ -90,3 +90,35 @@ def authenticate_user(db: Session, email: str, password: str) -> Optional[UserDB
     db.commit()
     db.refresh(user)
     return user
+
+from secrets import token_urlsafe
+from ..models.refresh_token import RefreshTokenDB
+
+
+def create_refresh_token(db: Session, user: UserDB) -> str:
+    token = token_urlsafe(32)
+    expires = datetime.utcnow() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+    db_token = RefreshTokenDB(token=token, user_id=user.id, expires_at=expires)
+    db.add(db_token)
+    db.commit()
+    return token
+
+
+def verify_refresh_token(db: Session, token: str) -> Optional[UserDB]:
+    db_token = (
+        db.query(RefreshTokenDB)
+        .filter(RefreshTokenDB.token == token, RefreshTokenDB.revoked.is_(False))
+        .first()
+    )
+    if not db_token:
+        return None
+    if db_token.expires_at and db_token.expires_at < datetime.utcnow():
+        return None
+    return db.query(UserDB).filter(UserDB.id == db_token.user_id).first()
+
+
+def revoke_refresh_token(db: Session, token: str) -> None:
+    db_token = db.query(RefreshTokenDB).filter(RefreshTokenDB.token == token).first()
+    if db_token:
+        db_token.revoked = True
+        db.commit()
