@@ -4,9 +4,9 @@ from authlib.integrations.starlette_client import OAuth, OAuthError
 from sqlalchemy.orm import Session
 from ..config import settings
 from ..database import get_db
-from ..models.user import UserDB
+from ..models.user import UserDB, UserRole
 from ..services.auth import create_access_token
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 router = APIRouter(
     prefix="/auth/google",
@@ -47,7 +47,9 @@ async def google_auth_callback(request: Request, db: Session = Depends(get_db)):
                 is_verified=True,  # L'email est déjà vérifié par Google
                 is_google_user=True,
                 google_id=userinfo.get('sub'),  # ID unique Google
-                hashed_password=None  # Pas de mot de passe pour les utilisateurs Google
+                hashed_password=None,  # Pas de mot de passe pour les utilisateurs Google
+                role=UserRole.client,
+                last_login_at=datetime.utcnow(),
             )
             db.add(user)
             db.commit()
@@ -57,6 +59,7 @@ async def google_auth_callback(request: Request, db: Session = Depends(get_db)):
             user.is_google_user = True
             user.google_id = userinfo.get('sub')
             user.is_verified = True
+            user.last_login_at = datetime.utcnow()
             db.commit()
         
         # Créer un token JWT
