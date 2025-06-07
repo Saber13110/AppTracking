@@ -45,7 +45,6 @@ async def register(user: UserCreate, db: Session = Depends(get_db)):
     send_verification_email(db_user.email, verification_token)
 
     # Retourner l'utilisateur nouvellement créé
-    verification_link = f"http://localhost:4200/verify-email?token={verification_token}"
     return db_user
 
 @router.post("/verify-email")
