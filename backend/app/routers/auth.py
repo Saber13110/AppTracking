@@ -97,6 +97,13 @@ async def login(
     )
     refresh_token = create_refresh_token(db, user)
     response.set_cookie(
+        "access_token",
+        access_token,
+        httponly=True,
+        samesite="strict",
+        secure=not settings.DEBUG,
+    )
+    response.set_cookie(
         "refresh_token",
         refresh_token,
         httponly=True,
@@ -128,6 +135,13 @@ async def refresh_token(request: Request, response: Response, db: Session = Depe
         data={"sub": user.email},
         expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
     )
+    response.set_cookie(
+        "access_token",
+        access,
+        httponly=True,
+        samesite="strict",
+        secure=not settings.DEBUG,
+    )
     return Token(access_token=access, token_type="bearer")
 
 
@@ -137,6 +151,7 @@ async def logout(request: Request, response: Response, db: Session = Depends(get
     if token:
         revoke_refresh_token(db, token)
     response.delete_cookie("refresh_token")
+    response.delete_cookie("access_token")
     return {"message": "Logged out"}
 
 @router.get("/me", response_model=User)
