@@ -6,14 +6,16 @@ from datetime import datetime, timedelta
 load_dotenv()
 
 class FedExAuth:
-    def __init__(self):
-        self.client_id = os.getenv('FEDEX_CLIENT_ID', 'l7a3be758bf3b24fe487c2c2fcbf63800a')
-        self.client_secret = os.getenv('FEDEX_CLIENT_SECRET', '0f50edb9d00b4076baefbce8eddc93a1')
-        self.account_number = os.getenv('FEDEX_ACCOUNT_NUMBER', '740561073')
+   def __init__(self):
+    #    self.client_id = os.getenv('FEDEX_CLIENT_ID', 'l7a3be758bf3b24fe487c2c2fcbf63800a')
+     #   self.client_secret = os.getenv('FEDEX_CLIENT_SECRET', '0f50edb9d00b4076baefbce8eddc93a1')
+     #   self.account_number = os.getenv('FEDEX_ACCOUNT_NUMBER', '740561073')
         # Forcer l'utilisation de l'environnement sandbox pour le développement
         self.base_url = "https://apis-sandbox.fedex.com"
         self._access_token = None
         self._token_expiry = None
+        self.client_id = os.getenv('FEDEX_CLIENT_ID')
+        self.client_secret = os.getenv('FEDEX_CLIENT_SECRET')
 
     def get_access_token(self):
         """Get a new access token or return existing valid token"""

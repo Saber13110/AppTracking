@@ -26,9 +26,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
     # Google OAuth2 Configuration
-    GOOGLE_CLIENT_ID: str = "271500898181-sjrkoq8gpmru2jadsfel3di32ohvq7bk.apps.googleusercontent.com"
-    GOOGLE_CLIENT_SECRET: str = "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"
-    GOOGLE_REDIRECT_URI: str = "https://localhost:8000/auth/google/callback"
+
     
     # Email Configuration
     SMTP_SERVER: str = "smtp.gmail.com"
