@@ -43,6 +43,10 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/verify-email`, { token });
   }
 
+  me(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/me`, { withCredentials: true });
+  }
+
   logout(): Observable<any> {
     return this.http.post(
       `${this.apiUrl}/logout`,

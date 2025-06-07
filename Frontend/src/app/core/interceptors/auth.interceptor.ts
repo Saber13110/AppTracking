@@ -9,27 +9,13 @@ export class AuthInterceptor implements HttpInterceptor {
   constructor(private authService: AuthService, private router: Router) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const token = localStorage.getItem('token');
-    const tokenType = localStorage.getItem('tokenType') || 'Bearer';
-    const authReq = token
-      ? req.clone({ setHeaders: { Authorization: `${tokenType} ${token}` } })
-      : req;
+    const authReq = req.clone({ withCredentials: true });
 
     return next.handle(authReq).pipe(
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401) {
           return this.authService.refreshToken().pipe(
-            switchMap((resp: any) => {
-              if (resp && resp.access_token) {
-                const retryReq = req.clone({
-                  setHeaders: { Authorization: `Bearer ${resp.access_token}` }
-                });
-                return next.handle(retryReq);
-              } else {
-                this.router.navigate(['/auth/login']);
-                return throwError(() => error);
-              }
-            }),
+            switchMap(() => next.handle(authReq)),
             catchError(refreshErr => {
               this.router.navigate(['/auth/login']);
               return throwError(() => refreshErr);
