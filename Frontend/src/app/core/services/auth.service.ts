@@ -43,5 +43,9 @@ export class AuthService {
     localStorage.removeItem('tokenType');
   }
 
+  isLoggedIn(): boolean {
+    return !!localStorage.getItem('token');
+  }
+
   // Vous pourriez ajouter d'autres méthodes ici, comme logout, getUserInfo, etc.
 } 

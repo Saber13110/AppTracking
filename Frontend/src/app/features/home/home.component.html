@@ -5,6 +5,9 @@
   <div class="hero__content">
     <h1 class="hero__title">Track your packages in real-time</h1>
     <p class="hero__subtitle">Enter your tracking number to know the status of your delivery</p>
+    <button *ngIf="isLoggedIn" class="btn btn--secondary logout-btn" (click)="logout()">
+      Logout
+    </button>
 
     <div class="hero__features">
       <div class="hero__feature-card" [class.active]="selectedHeroFeature === 'barcode_scan'" (click)="selectHeroFeature('barcode_scan')">
