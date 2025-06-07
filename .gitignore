@@ -2,3 +2,7 @@ __pycache__/
 *.pyc
 .env
 venv/
+
+# Ignore backend dependencies
+backend/node_modules/
+backend/venv/
