@@ -38,6 +38,10 @@ export class AuthService {
     window.location.href = `${this.apiUrl}/google/login`;
   }
 
+  verifyEmail(token: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/verify-email`, { token });
+  }
+
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('tokenType');
