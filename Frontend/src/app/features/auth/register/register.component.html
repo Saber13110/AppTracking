@@ -1,0 +1,118 @@
+<div class="register-page-container">
+  <div class="register-header">
+    <h2>Bienvenue ! C'est parti.</h2>
+    <p>Vous avez déjà un ID d'utilisateur ? <a href="#">Connectez-vous.</a></p>
+  </div>
+
+  <!-- Première section du formulaire liée à identifierForm -->
+  <form [formGroup]="identifierForm" (ngSubmit)="createIdentifier()">
+    <div class="register-form-section">
+      <h3>Créer un ID d'utilisateur</h3>
+      <div class="form-group">
+        <label for="email">Adresse électronique*</label>
+        <input type="email" id="email" name="email" formControlName="email" [class.error]="isInvalidAndTouched('email', identifierForm)" required>
+        <!-- Messages d'erreur pour l'email -->
+        <div class="error-message" *ngIf="hasError('email', 'required', identifierForm)">
+          Vous devez saisir une adresse électronique.
+        </div>
+         <div class="error-message" *ngIf="hasError('email', 'email', identifierForm)">
+          Veuillez saisir une adresse électronique valide.
+        </div>
+      </div>
+      <div class="form-group checkbox-group">
+        <input type="checkbox" id="custom-id" name="custom-id" formControlName="customId">
+        <label for="custom-id">Créer un ID d'utilisateur personnalisé pour se connecter</label>
+      </div>
+      <div class="form-group">
+        <label for="password">Mot de passe*</label>
+        <input type="password" id="password" name="password" formControlName="password" [class.error]="isInvalidAndTouched('password', identifierForm)" required>
+        <!-- Icône oeil placeholder -->
+        <span class="password-toggle-icon">👁️</span>
+         <!-- Messages d'erreur pour le mot de passe -->
+        <div class="error-message" *ngIf="hasError('password', 'required', identifierForm)">
+          Vous devez saisir un mot de passe.
+        </div>
+         <div class="error-message" *ngIf="hasError('password', 'minlength', identifierForm)">
+          Le mot de passe doit contenir au moins 6 caractères.
+        </div>
+      </div>
+    </div>
+
+    <!-- Nouveau bouton pour passer à l'étape suivante -->
+    <button type="submit" class="create-id-button">CRÉER VOS IDENTIFIANTS</button>
+  </form>
+
+  <!-- Conteneur pour les sections affichées après avoir cliqué sur le bouton -->
+  <div class="contact-info-and-terms-container" *ngIf="showContactInfo">
+    <form [formGroup]="contactInfoForm" (ngSubmit)="onSubmit()">
+      <div class="register-form-section">
+        <h3>Saisissez vos informations de contact</h3>
+         <div class="alert-message">
+          <p>Vous ne pouvez créer qu'un seul ID d'utilisateur (qui n'est pas un compte d'expédition) sur cette page dans le pays suivant : Maroc. Vous pouvez utiliser un ID d'utilisateur pour vous connecter, suivre vos envois, créer un carnet d'adresses et bien plus.
+          Pour expédier, vous aurez besoin d'un compte d'expédition. Découvrez comment en ouvrir un <a href="#">ici</a>.</p>
+        </div>
+        <div class="form-group">
+          <label for="firstName">Prénom*</label>
+          <input type="text" id="firstName" name="firstName" formControlName="firstName" [class.error]="isInvalidAndTouched('firstName', contactInfoForm)" required>
+           <div class="error-message" *ngIf="hasError('firstName', 'required', contactInfoForm)">
+            Vous devez saisir votre prénom.
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="lastName">Nom*</label>
+          <input type="text" id="lastName" name="lastName" formControlName="lastName" [class.error]="isInvalidAndTouched('lastName', contactInfoForm)" required>
+           <div class="error-message" *ngIf="hasError('lastName', 'required', contactInfoForm)">
+            Vous devez saisir votre nom.
+          </div>
+        </div>
+         <div class="form-group">
+          <label for="country">Pays/territoire*</label>
+          <select id="country" name="country" formControlName="country" [class.error]="isInvalidAndTouched('country', contactInfoForm)" required>
+            <option value="maroc">Maroc</option>
+            <!-- Ajouter d'autres options si nécessaire -->
+          </select>
+           <div class="error-message" *ngIf="hasError('country', 'required', contactInfoForm)">
+            Vous devez sélectionner un pays/territoire.
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="contactAddress">Adresse du contact*</label>
+          <input type="text" id="contactAddress" name="contactAddress" formControlName="contactAddress" [class.error]="isInvalidAndTouched('contactAddress', contactInfoForm)" required>
+           <div class="error-message" *ngIf="hasError('contactAddress', 'required', contactInfoForm)">
+            Vous devez saisir votre adresse de contact.
+          </div>
+        </div>
+        <div class="form-group phone-group">
+          <div class="country-code">+212</div>
+          <label for="phone">Téléphone*</label>
+          <input type="tel" id="phone" name="phone" formControlName="phone" [class.error]="isInvalidAndTouched('phone', contactInfoForm)" required>
+           <div class="error-message" *ngIf="hasError('phone', 'required', contactInfoForm)">
+            Vous devez saisir votre numéro de téléphone.
+          </div>
+           <div class="error-message" *ngIf="hasError('phone', 'pattern', contactInfoForm)">
+            Veuillez saisir un numéro de téléphone valide.
+          </div>
+        </div>
+      </div>
+
+      <div class="register-terms">
+        <div class="form-group checkbox-group">
+          <input type="checkbox" id="agreeTerms" name="agreeTerms" formControlName="agreeTerms" required>
+          <label for="agreeTerms">J'ai lu et compris les <a href="#">Conditions d'utilisation de fedex.com</a> et j'accepte de m'y conformer. Je comprends également la manière dont FedEx compte utiliser mes informations conformément à la <a href="#">politique relative à la protection de la vie privée et à la sécurité</a>.</label>
+           <div class="error-message" *ngIf="hasError('agreeTerms', 'required', contactInfoForm)">
+            Vous devez accepter les conditions d'utilisation.
+          </div>
+        </div>
+        <div class="form-group checkbox-group">
+          <input type="checkbox" id="receiveEmails" name="receiveEmails" formControlName="receiveEmails">
+          <label for="receiveEmails">J'aimerais recevoir par e-mail des informations au sujet de FedEx, notamment les offres spéciales et les promotions. (Vous pouvez retirer votre consentement à n'importe quel moment.)</label>
+        </div>
+      </div>
+
+      <button type="submit" class="continue-button">CONTINUER</button>
+    </form>
+  </div>
+
+  <!-- Placeholder for other sections like Create new account for shipping, Add other accounts -->
+
+</div> 

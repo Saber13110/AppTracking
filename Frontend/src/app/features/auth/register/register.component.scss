@@ -1,0 +1,262 @@
+.register-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  max-width: 400px;
+  margin: 50px auto;
+  background-color: #f9f9f9;
+}
+
+.register-container h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.register-container form {
+  width: 100%;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-group input[type="email"],
+.form-group input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+.register-container button[type="submit"] {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.register-container button[type="submit"]:hover {
+  background-color: #0056b3;
+}
+
+.register-page-container {
+  max-width: 800px; /* Adjusted max-width based on image */
+  margin: 20px auto; /* Center the container */
+  padding: 20px; /* Add some padding around content */
+  font-family: Arial, sans-serif; /* Use a common font family */
+}
+
+.register-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.register-header h2 {
+  font-size: 2em; /* Adjust font size */
+  margin-bottom: 10px;
+  color: #333; /* Dark grey color */
+}
+
+.register-header p {
+  font-size: 1em;
+  color: #555; /* Medium grey color */
+}
+
+.register-header a {
+  color: #4f148c; /* FedEx purple-like color */
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.register-header a:hover {
+  text-decoration: underline;
+}
+
+.register-form-section {
+  background-color: #fff; /* White background for sections */
+  border: 1px solid #e0e0e0; /* Light grey border */
+  border-radius: 4px; /* Slightly rounded corners */
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.register-form-section h3 {
+  font-size: 1.5em;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  position: relative; /* Needed for positioning the password icon */
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #555;
+  font-size: 0.9em; /* Smaller font size for labels */
+}
+
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group input[type="text"],
+.form-group input[type="tel"],
+.form-group select {
+  width: 100%;
+  padding: 12px 10px; /* Adjust padding */
+  border: 1px solid #ccc; /* Default border */
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 1em;
+}
+
+/* Style for input with error */
+.form-group input.error {
+  border-color: #e31837; /* FedEx red for errors */
+}
+
+.error-message {
+  color: #e31837; /* FedEx red for errors */
+  font-size: 0.8em;
+  margin-top: 5px;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: flex-start; /* Align text to the top if it wraps */
+}
+
+.checkbox-group input[type="checkbox"] {
+  margin-top: 4px; /* Adjust alignment with label text */
+  margin-right: 10px;
+}
+
+.checkbox-group label {
+  font-weight: normal; /* Regular font weight for checkbox labels */
+  font-size: 1em; /* Standard font size */
+  color: #333;
+  display: inline; /* Allow label to flow with text */
+}
+
+.checkbox-group label a {
+   color: #4f148c; /* FedEx purple-like color */
+   text-decoration: none;
+}
+
+.checkbox-group label a:hover {
+  text-decoration: underline;
+}
+
+.password-toggle-icon {
+  position: absolute;
+  right: 10px;
+  top: 40px; /* Adjust based on input padding and label height */
+  cursor: pointer;
+  color: #555; /* Grey color */
+}
+
+.alert-message {
+  background-color: #f9f9f9; /* Light grey background */
+  border-left: 4px solid #ff9900; /* FedEx orange border on the left */
+  padding: 15px;
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 0.9em;
+}
+
+.alert-message a {
+  color: #4f148c; /* FedEx purple-like color */
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.alert-message a:hover {
+  text-decoration: underline;
+}
+
+.phone-group {
+  display: flex;
+  align-items: center;
+}
+
+.phone-group .country-code {
+  padding: 12px 10px; /* Match input padding */
+  border: 1px solid #ccc;
+  border-right: none; /* Remove border between country code and input */
+  border-radius: 4px 0 0 4px; /* Round left corners */
+  background-color: #eee; /* Light grey background */
+  font-size: 1em;
+  color: #555;
+  height: 40px; /* Match input height */
+  display: flex;
+  align-items: center;
+}
+
+.phone-group input[type="tel"] {
+  flex-grow: 1; /* Take remaining space */
+  border-radius: 0 4px 4px 0; /* Round right corners */
+}
+
+.register-terms {
+  margin-top: 20px;
+  margin-bottom: 30px;
+}
+
+.continue-button {
+  display: block; /* Make button full width */
+  width: 100%; /* Ensure button takes full width of its container */
+  padding: 15px 20px; /* Adjust padding */
+  background-color: #ff6600; /* FedEx orange */
+  color: white; /* White text */
+  border: none;
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer;
+  font-size: 1.2em; /* Larger font size */
+  font-weight: bold;
+  text-transform: uppercase; /* Uppercase text */
+  transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+.continue-button:hover {
+  background-color: #cc5200; /* Darker orange on hover */
+}
+
+.create-id-button {
+  display: block; /* Make button full width */
+  width: 100%; /* Ensure button takes full width of its container */
+  padding: 15px 20px; /* Adjust padding */
+  background-color: #ff6600; /* FedEx orange */
+  color: white; /* White text */
+  border: none;
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer;
+  font-size: 1.2em; /* Larger font size */
+  font-weight: bold;
+  text-transform: uppercase; /* Uppercase text */
+  transition: background-color 0.3s ease; /* Smooth hover effect */
+  margin-top: 20px; /* Add space above the button */
+  margin-bottom: 30px; /* Add space below the button */
+}
+
+.create-id-button:hover {
+  background-color: #cc5200; /* Darker orange on hover */
+}
+
+/* Add styles for other sections if needed (e.g., Create new account for shipping) */ 

@@ -1,0 +1,43 @@
+/* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background-color: #f5f5f5;
+}
+
+/* Material Overrides */
+.mat-mdc-form-field {
+  width: 100%;
+}
+
+.mat-mdc-toolbar {
+  background-color: #ffffff !important;
+  color: #4a154b !important;
+}
+
+.mat-mdc-button {
+  &.mat-primary {
+    color: #4a154b;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

@@ -1,0 +1,217 @@
+<!-- =======================
+🎯 HERO SECTION : INSTANT TRACKING
+======================= -->
+<section class="hero">
+  <div class="hero__content">
+    <h1 class="hero__title">Track your packages in real-time</h1>
+    <p class="hero__subtitle">Enter your tracking number to know the status of your delivery</p>
+
+    <div class="hero__features">
+      <div class="hero__feature-card" [class.active]="selectedHeroFeature === 'barcode_scan'" (click)="selectHeroFeature('barcode_scan')">
+        <i class="fas fa-barcode hero__feature-icon"></i>
+        <p class="hero__feature-text">Scan<br>Barcode</p>
+      </div>
+      <div class="hero__feature-card" [class.active]="selectedHeroFeature === null" (click)="selectHeroFeature(null)">
+        <i class="fas fa-search hero__feature-icon"></i>
+        <p class="hero__feature-text">TRACK</p>
+      </div>
+      <div class="hero__feature-card" [class.active]="selectedHeroFeature === 'obtain_proof'" (click)="selectHeroFeature('obtain_proof')">
+        <i class="fas fa-file-alt hero__feature-icon"></i>
+        <p class="hero__feature-text">Obtain your<br>proof</p>
+      </div>
+    </div>
+
+    <div class="hero__tracking">
+      <!-- Content displayed dynamically based on selectedHeroFeature -->
+
+      <!-- Default tracking form (TRACK) -->
+      <div *ngIf="selectedHeroFeature === null" class="tracking-form">
+        <form [formGroup]="trackingForm" (ngSubmit)="onSubmit()">
+          <div class="tracking-form__input-group">
+            <input type="text" formControlName="trackingNumber" class="tracking-form__input" placeholder="Enter your tracking number">
+            <button type="submit" class="tracking-form__btn">
+              <i class="fas fa-search"></i>
+              Track
+            </button>
+          </div>
+          <!-- Barcode scan option removed from default form -->
+        </form>
+      </div>
+
+      <!-- Barcode Scan Option -->
+      <div *ngIf="selectedHeroFeature === 'barcode_scan'" class="barcode-scan-option">
+        <p>Upload a barcode image or use Pro Scan to track your package.</p>
+        <div class="upload-box" (click)="fileInput.click()">
+          <i class="fas fa-cloud-upload-alt upload-icon"></i>
+          <p>Drag and drop or click to upload</p>
+          <input type="file" accept="image/*" (change)="onBarcodeFileSelected($event)" #fileInput hidden>
+        </div>
+        <button class="btn btn--primary mt-3">Pro Scan (Webcam - Coming Soon)</button>
+      </div>
+
+      <!-- Obtain Your Proof Option -->
+      <div *ngIf="selectedHeroFeature === 'obtain_proof'" class="obtain-proof-option">
+        <p>Enter tracking ID to download your proof of delivery.</p>
+        <form [formGroup]="trackingForm" (ngSubmit)="onSubmit()">
+          <div class="tracking-form__input-group">
+            <input type="text" formControlName="trackingNumber" class="tracking-form__input" placeholder="Enter tracking ID">
+            <button type="submit" class="tracking-form__btn">
+              <i class="fas fa-download"></i>
+              Download Proof
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- =======================
+🚀 SERVICES SECTION
+======================= -->
+<section class="services">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Our Services</h2>
+      <p class="section-subtitle">Delivery solutions tailored to your needs</p>
+    </div>
+
+    <div class="services__list">
+      <div class="service-item" *ngFor="let service of servicesList">
+        <div class="service-item__image">
+          <img [src]="service.image" [alt]="service.title">
+        </div>
+        <div class="service-item__content">
+          <i [class]="service.icon" class="service-item__icon"></i>
+          <h3>{{ service.title }}</h3>
+          <p>{{ service.description }}</p>
+          <a [href]="service.link" class="service-item__link btn btn--outline-primary">
+            CONTACT US FOR MORE INFO
+            <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- =======================
+📰 NEWS SECTION
+======================= -->
+<section class="news">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Latest News</h2>
+      <p class="section-subtitle">Stay informed about our latest news</p>
+    </div>
+    <div class="news__grid">
+      <div class="news__card" *ngFor="let item of news">
+        <div class="news__card-image">
+          <img [src]="item.image" [alt]="item.title">
+          <span class="news__card-category">{{item.category}}</span>
+        </div>
+        <div class="news__card-content">
+          <div class="news__card-date">{{item.date | date:'longDate'}}</div>
+          <h3>{{item.title}}</h3>
+          <p>{{item.content}}</p>
+          <a [routerLink]="['/news', item.slug]" class="news__card-link">
+            Read More
+            <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =======================
+🗺️ LOCATIONS SECTION
+======================= -->
+<section class="locations-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Our Locations</h2>
+      <p class="section-subtitle">Find the nearest agency to you</p>
+    </div>
+    <div class="locations-container">
+      <div id="map" class="map-container"></div>
+      <div class="locations-list">
+        <div class="location-card" *ngFor="let location of locations" 
+             [class.active]="location === selectedLocation"
+             (click)="selectLocation(location)">
+          <h3>{{location.name}}</h3>
+          <div class="location-details">
+            <p><i class="fas fa-map-marker-alt"></i> {{location.address}}</p>
+            <p><i class="fas fa-phone"></i> {{location.phone}}</p>
+            <p><i class="fas fa-envelope"></i> {{location.email}}</p>
+            <p><i class="fas fa-clock"></i> {{location.hours}}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =======================
+❓ FAQ SECTION
+======================= -->
+<section class="faq">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Frequently Asked Questions</h2>
+      <p class="section-subtitle">Find quick answers to your questions</p>
+    </div>
+    <div class="faq__container">
+      <div class="faq__item" *ngFor="let faq of faqList">
+        <button class="faq__question" (click)="toggleFaq(faq)">
+          <span>{{faq.question}}</span>
+          <i class="fas" [class.fa-chevron-down]="!faq.isOpen" [class.fa-chevron-up]="faq.isOpen"></i>
+        </button>
+        <div class="faq__answer" [class.active]="faq.isOpen">
+          <p>{{faq.answer}}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =======================
+📞 CTA SECTION
+======================= -->
+<section class="cta">
+  <div class="cta__content">
+    <h2>Need Help?</h2>
+    <p>Our team is available 24/7 to assist you</p>
+    <div class="cta__buttons">
+      <a href="/contact" class="btn btn--primary">
+        <i class="fas fa-headset"></i>
+        Contact Us
+      </a>
+      <a href="/support" class="btn btn--secondary">
+        <i class="fas fa-question-circle"></i>
+        Help Center
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- =======================
+🔔 NOTIFICATIONS
+======================= -->
+<div class="notifications">
+  <div *ngFor="let notification of notifications" 
+       class="notification"
+       [class.notification--success]="notification.type === 'success'"
+       [class.notification--warning]="notification.type === 'warning'"
+       [class.notification--error]="notification.type === 'error'">
+    <div class="notification__header">
+      <span class="notification__title">{{notification.title}}</span>
+      <button class="notification__close" (click)="removeNotification(notification)">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <p class="notification__message">{{notification.message}}</p>
+  </div>
+</div>
