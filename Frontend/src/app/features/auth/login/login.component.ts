@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { catchError } from 'rxjs/operators';
+import { catchError, switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 
 @Component({
@@ -27,13 +27,14 @@ export class LoginComponent {
   onSubmit() {
     if (this.loginForm.valid) {
       this.authService.login(this.loginForm.value).pipe(
+        switchMap(() => this.authService.me()),
         catchError(err => {
           console.error('Login failed', err);
           this.error = 'Login failed';
           return of(null);
         })
-      ).subscribe(response => {
-        if (response) {
+      ).subscribe(user => {
+        if (user) {
           this.router.navigate(['/home']);
         }
       });
