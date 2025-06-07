@@ -33,8 +33,8 @@ class Settings(BaseSettings):
     # Email Configuration
     SMTP_SERVER: str = "smtp.gmail.com"
     SMTP_PORT: int = 587
-    SMTP_USERNAME: str = ""  # Votre adresse Gmail
-    SMTP_PASSWORD: str = ""  # Votre mot de passe d'application Gmail
+    SMTP_USERNAME: str = os.environ.get("SMTP_USERNAME", "")  # Votre adresse Gmail
+    SMTP_PASSWORD: str = os.environ.get("SMTP_PASSWORD", "")  # Votre mot de passe d'application Gmail
     
     # TrackingMore API
     TRACKINGMORE_API_KEY: Optional[str] = None
