@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from ..config import settings
 from ..database import get_db
 from ..models.user import UserDB
-from ..services.auth import create_access_token
+from ..services.auth import create_access_token, create_refresh_token
 from datetime import timedelta
 
 router = APIRouter(
@@ -59,17 +59,36 @@ async def google_auth_callback(request: Request, db: Session = Depends(get_db)):
             user.is_verified = True
             db.commit()
         
-        # Créer un token JWT
         access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        refresh_token_expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
+
         access_token = create_access_token(
             data={"sub": user.email},
             expires_delta=access_token_expires
         )
-        
-        # Rediriger vers le frontend avec le token
-        return RedirectResponse(
-            url=f"http://localhost:4200/auth/callback?token={access_token}"
+        refresh_token = create_refresh_token(
+            data={"sub": user.email},
+            expires_delta=refresh_token_expires
         )
+
+        response = RedirectResponse(url="http://localhost:4200/home")
+        response.set_cookie(
+            key="access_token",
+            value=access_token,
+            httponly=True,
+            secure=True,
+            max_age=int(access_token_expires.total_seconds()),
+            samesite="lax",
+        )
+        response.set_cookie(
+            key="refresh_token",
+            value=refresh_token,
+            httponly=True,
+            secure=True,
+            max_age=int(refresh_token_expires.total_seconds()),
+            samesite="lax",
+        )
+        return response
         
     except OAuthError as e:
         raise HTTPException(

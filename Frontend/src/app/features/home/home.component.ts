@@ -87,9 +87,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   trackingNumber: string = '';
 
   // === Auth pour afficher outils avancés
-  get isLoggedIn(): boolean {
-    return this.authService.isLoggedIn();
-  }
+  isLoggedIn$ = this.authService.isLoggedIn();
 
   // === Notifications en file d'attente
   notifications: Notification[] = [];
@@ -460,6 +458,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   logout(): void {
-    this.authService.logout();
+    this.authService.logout().subscribe();
   }
 }

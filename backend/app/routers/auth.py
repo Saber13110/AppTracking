@@ -1,6 +1,7 @@
 from datetime import timedelta
 import secrets
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Response
+from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
@@ -9,6 +10,7 @@ from ..services.auth import (
     verify_password,
     get_password_hash,
     create_access_token,
+    create_refresh_token,
     get_current_active_user,
     create_user,
     authenticate_user
@@ -64,6 +66,7 @@ async def verify_email(verification: EmailVerification, db: Session = Depends(ge
 
 @router.post("/token", response_model=Token)
 async def login(
+    response: Response,
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
@@ -83,12 +86,44 @@ async def login(
         )
     
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    refresh_token_expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
+
     access_token = create_access_token(
         data={"sub": user.email},
         expires_delta=access_token_expires
     )
-    return Token(access_token=access_token, token_type="bearer")
+    refresh_token = create_refresh_token(
+        data={"sub": user.email},
+        expires_delta=refresh_token_expires
+    )
+
+    cookie_response = JSONResponse(content={"access_token": access_token, "token_type": "bearer"})
+    cookie_response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=True,
+        max_age=int(access_token_expires.total_seconds()),
+        samesite="lax",
+    )
+    cookie_response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=True,
+        max_age=int(refresh_token_expires.total_seconds()),
+        samesite="lax",
+    )
+    return cookie_response
 
 @router.get("/me", response_model=User)
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
-    return current_user 
+    return current_user
+
+
+@router.post("/logout")
+async def logout():
+    response = JSONResponse(content={"message": "Logged out"})
+    response.delete_cookie("access_token")
+    response.delete_cookie("refresh_token")
+    return response
