@@ -8,8 +8,13 @@ import { Router } from '@angular/router';
 export class AuthInterceptor implements HttpInterceptor {
   constructor(private authService: AuthService, private router: Router) {}
 
+  private getCookie(name: string): string | null {
+    const match = document.cookie.match(new RegExp('(^|; )' + name + '=([^;]+)'));
+    return match ? decodeURIComponent(match[2]) : null;
+  }
+
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const token = localStorage.getItem('token');
+    const token = this.getCookie('access_token');
     const authReq = token
       ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
       : req;
@@ -20,10 +25,6 @@ export class AuthInterceptor implements HttpInterceptor {
           return this.authService.refreshToken().pipe(
             switchMap((resp: any) => {
               if (resp && resp.access_token) {
-                localStorage.setItem('token', resp.access_token);
-                if (resp.token_type) {
-                  localStorage.setItem('tokenType', resp.token_type);
-                }
                 const retryReq = req.clone({
                   setHeaders: { Authorization: `Bearer ${resp.access_token}` }
                 });
