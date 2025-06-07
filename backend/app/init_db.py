@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from .models.database import Base
+from .models.database import Base, TrackingDB
 from .config import settings
 
 def init_db():
