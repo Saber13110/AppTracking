@@ -1,6 +1,8 @@
 __pycache__/
 *.pyc
 .env
+backend/.env
+backend/.env.local
 venv/
 
 # Ignore backend dependencies

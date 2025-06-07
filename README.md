@@ -3,7 +3,7 @@
 ## Environment Variables
 
 The backend requires several FedEx credentials to be provided via environment variables.
-Create a `.env` file in the `backend` directory or export them in your shell:
+Create an **untracked** file named `.env.local` in the `backend` directory or export them in your shell:
 
 ```
 FEDEX_AUTH_URL=<FedEx OAuth URL>
@@ -13,4 +13,6 @@ FEDEX_ACCOUNT_NUMBER=<your FedEx account number>
 ```
 
 Optionally set `FEDEX_BASE_URL` to override the default `https://apis-sandbox.fedex.com`.
+
+The repository excludes `backend/.env` from version control. Store your secrets in `backend/.env.local` or set them as environment variables when running the application.
 
