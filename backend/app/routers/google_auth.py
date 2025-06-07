@@ -71,7 +71,7 @@ async def google_auth_callback(request: Request, db: Session = Depends(get_db)):
         
         # Rediriger vers le frontend avec le token
         return RedirectResponse(
-            url=f"http://localhost:4200/auth/callback?token={access_token}"
+            url=f"{settings.FRONTEND_URL}/auth/callback?token={access_token}"
         )
         
     except OAuthError as e:
