@@ -9,6 +9,8 @@ from sqlalchemy.orm import Session
 from ..models.user import User, UserCreate, TokenData, UserDB, UserRole
 from ..config import settings
 from ..database import get_db
+from secrets import token_urlsafe
+from ..models.refresh_token import RefreshTokenDB
 
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -98,11 +100,6 @@ def authenticate_user(db: Session, email: str, password: str) -> Optional[UserDB
     db.commit()
     db.refresh(user)
     return user
-
-from secrets import token_urlsafe
-from ..models.refresh_token import RefreshTokenDB
-
-
 def create_refresh_token(db: Session, user: UserDB) -> str:
     token = token_urlsafe(32)
     expires = datetime.utcnow() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)

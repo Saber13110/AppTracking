@@ -1,7 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
 from datetime import datetime
-from .tracking import PackageStatus # Assuming PackageStatus is used or might be needed for status consistency
 
 class ColisBase(BaseModel):
     description: str

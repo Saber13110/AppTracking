@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 from ....models.colis import ColisCreate, ColisUpdate, ColisOut, ColisFilter, ColisSearchResponse
 from ....services.colis_service import ColisService
 from ....database import get_db

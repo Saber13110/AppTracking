@@ -13,9 +13,9 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 # Correct import for settings
 from app.config import settings
 
-from app.models.database import Base, ColisDB
+from app.models.database import ColisDB
 from app.services.colis_service import ColisService
-from app.models.colis import ColisCreate, ColisUpdate
+from app.models.colis import ColisCreate, ColisUpdate, ColisFilter
 
 # Database setup
 engine = create_engine(settings.DATABASE_URL)

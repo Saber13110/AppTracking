@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 from uuid import uuid4
 from sqlalchemy.orm import Session
 from ..models.notification import (
@@ -8,8 +8,7 @@ from ..models.notification import (
     NotificationCreate,
     NotificationUpdate,
     NotificationResponse,
-    NotificationType,
-    NotificationPriority
+    NotificationType
 )
 from ..models.database import NotificationDB
 
@@ -118,7 +117,7 @@ class NotificationService:
             query = self.db.query(NotificationDB)
             
             if unread_only:
-                query = query.filter(NotificationDB.is_read == False)
+                query = query.filter(NotificationDB.is_read.is_(False))
             if notification_type:
                 query = query.filter(NotificationDB.type == notification_type)
             
@@ -234,7 +233,7 @@ class NotificationService:
         try:
             now = datetime.now()
             self.db.query(NotificationDB).filter(
-                NotificationDB.is_read == False
+                NotificationDB.is_read.is_(False)
             ).update({
                 "is_read": True,
                 "read_at": now
