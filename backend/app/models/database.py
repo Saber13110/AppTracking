@@ -60,6 +60,7 @@ class TrackingEventDB(Base):
 
     id = Column(String, primary_key=True, index=True)
     colis_id = Column(String, ForeignKey("colis.id"))
+    tracking_id = Column(String, ForeignKey("trackings.id"), nullable=True)
     status = Column(String)
     description = Column(String)
     timestamp = Column(DateTime(timezone=True))
@@ -68,6 +69,7 @@ class TrackingEventDB(Base):
 
     # Relations
     colis = relationship("ColisDB", back_populates="tracking_events")
+    tracking = relationship("TrackingDB", back_populates="events")
     location = relationship("LocationDB")
 
 class PackageDetailsDB(Base):
@@ -75,6 +77,7 @@ class PackageDetailsDB(Base):
 
     id = Column(String, primary_key=True, index=True)
     colis_id = Column(String, ForeignKey("colis.id"))
+    tracking_id = Column(String, ForeignKey("trackings.id"), nullable=True)
     weight = Column(Float)
     dimensions = Column(JSON)
     service_type = Column(String)
@@ -82,12 +85,14 @@ class PackageDetailsDB(Base):
 
     # Relations
     colis = relationship("ColisDB", back_populates="package_details")
+    tracking = relationship("TrackingDB", back_populates="package_details")
 
 class DeliveryDetailsDB(Base):
     __tablename__ = "delivery_details"
 
     id = Column(String, primary_key=True, index=True)
     colis_id = Column(String, ForeignKey("colis.id"))
+    tracking_id = Column(String, ForeignKey("trackings.id"), nullable=True)
     estimated_delivery = Column(DateTime(timezone=True))
     actual_delivery = Column(DateTime(timezone=True))
     delivery_location_id = Column(String, ForeignKey("locations.id"))
@@ -95,4 +100,23 @@ class DeliveryDetailsDB(Base):
 
     # Relations
     colis = relationship("ColisDB", back_populates="delivery_details")
-    delivery_location = relationship("LocationDB") 
+    tracking = relationship("TrackingDB", back_populates="delivery_details")
+    delivery_location = relationship("LocationDB")
+
+
+class TrackingDB(Base):
+    __tablename__ = "trackings"
+
+    id = Column(String, primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
+    tracking_number = Column(String, unique=True, index=True, nullable=False)
+    carrier = Column(String, nullable=False)
+    status = Column(SQLEnum(PackageStatus), nullable=False, default=PackageStatus.PENDING)
+    package_type = Column(SQLEnum(PackageType), default=PackageType.UNKNOWN)
+    meta_data = Column(JSON, default=dict)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    # Relations
+    events = relationship("TrackingEventDB", back_populates="tracking")
+    package_details = relationship("PackageDetailsDB", back_populates="tracking", uselist=False)
+    delivery_details = relationship("DeliveryDetailsDB", back_populates="tracking", uselist=False)
