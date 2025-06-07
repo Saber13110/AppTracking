@@ -25,5 +25,10 @@ export class AuthService {
     window.location.href = `${this.apiUrl}/google/login`;
   }
 
+  logout(): void {
+    localStorage.removeItem('token');
+    localStorage.removeItem('tokenType');
+  }
+
   // Vous pourriez ajouter d'autres méthodes ici, comme logout, getUserInfo, etc.
 } 
