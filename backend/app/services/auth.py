@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import secrets
 from typing import Optional
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -8,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from ..models.user import User, UserCreate, TokenData, UserDB
 from ..config import settings
+from ..models.refresh_token import RefreshTokenDB
 from ..database import get_db
 
 # Password hashing
@@ -86,3 +88,30 @@ def authenticate_user(db: Session, email: str, password: str) -> Optional[UserDB
     if not verify_password(password, user.hashed_password):
         return None
     return user 
+def create_refresh_token(db: Session, user_id: int, expires_delta: Optional[timedelta] = None) -> RefreshTokenDB:
+    token = secrets.token_urlsafe(32)
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(days=7)
+    db_token = RefreshTokenDB(token=token, user_id=user_id, expires_at=expire)
+    db.add(db_token)
+    db.commit()
+    db.refresh(db_token)
+    return db_token
+
+
+def verify_refresh_token(db: Session, token: str) -> Optional[RefreshTokenDB]:
+    db_token = db.query(RefreshTokenDB).filter(RefreshTokenDB.token == token, RefreshTokenDB.revoked == False).first()
+    if not db_token:
+        return None
+    if db_token.expires_at and db_token.expires_at < datetime.utcnow():
+        return None
+    return db_token
+
+
+def revoke_refresh_token(db: Session, token: str) -> None:
+    db_token = db.query(RefreshTokenDB).filter(RefreshTokenDB.token == token).first()
+    if db_token:
+        db_token.revoked = True
+        db.commit()

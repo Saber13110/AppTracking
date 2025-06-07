@@ -51,3 +51,9 @@ class TokenData(BaseModel):
 
 class EmailVerification(BaseModel):
     token: str 
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
+
+class TokenWithRefresh(Token):
+    refresh_token: str

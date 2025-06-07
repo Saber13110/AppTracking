@@ -5,10 +5,13 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from ..models.user import User, UserCreate, Token, EmailVerification, UserDB
-from ..services.auth import (
+from ..models.user import User, UserCreate, Token, EmailVerification, TokenWithRefresh, RefreshTokenRequest, UserDB
     verify_password,
     get_password_hash,
     create_access_token,
+    create_refresh_token,
+    verify_refresh_token,
+    revoke_refresh_token,
     get_current_active_user,
     create_user,
     authenticate_user
@@ -62,7 +65,7 @@ async def verify_email(verification: EmailVerification, db: Session = Depends(ge
     
     return {"message": "Email verified successfully"}
 
-@router.post("/token", response_model=Token)
+@router.post("/token", response_model=TokenWithRefresh)
 async def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
@@ -87,8 +90,33 @@ async def login(
         data={"sub": user.email},
         expires_delta=access_token_expires
     )
-    return Token(access_token=access_token, token_type="bearer")
-
+    refresh_token = create_refresh_token(db, user.id)
+    return TokenWithRefresh(access_token=access_token, refresh_token=refresh_token, token_type="bearer")
 @router.get("/me", response_model=User)
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
     return current_user 
+@router.post("/refresh-token", response_model=Token)
+async def refresh_access_token(request: RefreshTokenRequest, db: Session = Depends(get_db)):
+    db_token = verify_refresh_token(db, request.refresh_token)
+    if not db_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid refresh token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    user = db.query(UserDB).filter(UserDB.id == db_token.user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.email},
+        expires_delta=access_token_expires
+    )
+    return Token(access_token=access_token, token_type="bearer")
+
+
+@router.post("/logout")
+async def logout(request: RefreshTokenRequest, db: Session = Depends(get_db)):
+    revoke_refresh_token(db, request.refresh_token)
+    return {"message": "Logged out"}
+
