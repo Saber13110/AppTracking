@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     REDIS_URL: str = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
     
     # Security
-    SECRET_KEY: str = "your-secret-key-here"  # Change this in production!
+    SECRET_KEY: Optional[str] = os.environ.get("SECRET_KEY")
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
