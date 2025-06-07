@@ -24,13 +24,13 @@ class FedExService:
             logger.info(f"Loading FedEx configuration from {config_path}")
             with open(config_path, 'r') as file:
                 config = yaml.safe_load(file)['prod']
-            
-            self.base_url = "https://apis-sandbox.fedex.com"
-            self.auth_url = config['api_url']
+
+            self.base_url = os.getenv("FEDEX_BASE_URL", "https://apis-sandbox.fedex.com")
+            self.auth_url = os.path.expandvars(config['api_url'])
             self.cdict = {
-                'client_id': config['client_id'],
-                'client_secret': config['client_secret'],
-                'account_number': config['account_number']
+                'client_id': os.path.expandvars(config['client_id']),
+                'client_secret': os.path.expandvars(config['client_secret']),
+                'account_number': os.path.expandvars(config['account_number'])
             }
             self.payload = {
                 "grant_type": "client_credentials",
