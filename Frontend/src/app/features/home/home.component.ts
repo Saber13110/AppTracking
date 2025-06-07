@@ -5,7 +5,7 @@ import { RouterModule, Router } from '@angular/router';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
-import { Subject } from 'rxjs';
+import { Subject, Observable } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 // Import Google Maps types
@@ -87,9 +87,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   trackingNumber: string = '';
 
   // === Auth pour afficher outils avancés
-  get isLoggedIn(): boolean {
-    return this.authService.isLoggedIn();
-  }
+  isLoggedIn$!: Observable<boolean>;
 
   // === Notifications en file d'attente
   notifications: Notification[] = [];
@@ -134,6 +132,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.isLoggedIn$ = this.authService.isLoggedIn();
     this.autoPushNotifications();
     this.initializeNews();
     this.initializeLocations();

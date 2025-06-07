@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -52,16 +52,14 @@ export class AuthService {
       `${this.apiUrl}/logout`,
       {},
       { withCredentials: true }
-    ).pipe(
-      tap(() => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('tokenType');
-      })
     );
   }
 
-  isLoggedIn(): boolean {
-    return !!localStorage.getItem('token');
+  isLoggedIn(): Observable<boolean> {
+    return this.me().pipe(
+      map(() => true),
+      catchError(() => of(false))
+    );
   }
 
   refreshToken(): Observable<any> {
