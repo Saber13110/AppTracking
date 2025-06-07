@@ -8,13 +8,15 @@ from ..models.tracking import (
     TrackingInfo, TrackingEvent, TrackingResponse, Location,
     PackageDetails, DeliveryDetails, TrackingFilter
 )
+from sqlalchemy.orm import Session
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class TrackingService:
-    def __init__(self):
+    def __init__(self, db: Session):
+        self.db = db
         self.fedex_service = FedExService()
 
     def _validate_tracking_number(self, tracking_number: str) -> bool:
