@@ -8,15 +8,11 @@ import { Router } from '@angular/router';
 export class AuthInterceptor implements HttpInterceptor {
   constructor(private authService: AuthService, private router: Router) {}
 
-  private getCookie(name: string): string | null {
-    const match = document.cookie.match(new RegExp('(^|; )' + name + '=([^;]+)'));
-    return match ? decodeURIComponent(match[2]) : null;
-  }
-
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const token = this.getCookie('access_token');
+    const token = localStorage.getItem('token');
+    const tokenType = localStorage.getItem('tokenType') || 'Bearer';
     const authReq = token
-      ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
+      ? req.clone({ setHeaders: { Authorization: `${tokenType} ${token}` } })
       : req;
 
     return next.handle(authReq).pipe(

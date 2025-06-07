@@ -30,7 +30,7 @@ export class AuthService {
     return this.http.post(
       `${this.apiUrl}/token`,
       params.toString(),
-      { headers }
+      { headers, withCredentials: true }
     );
   }
 
