@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { AuthGuard } from './core/guards/auth.guard';
 import { HomeComponent } from './features/home/home.component';
 import { RegisterComponent } from './features/auth/register/register.component';
 import { LoginComponent } from './features/auth/login/login.component';
@@ -14,7 +15,7 @@ export const routes: Routes = [
   { path: '', redirectTo: '/', pathMatch: 'full' },
   
   // Route vers la page d'accueil
-  { path: 'home', component: HomeComponent },
+  { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
 
   // Route vers la page d'enregistrement
   { path: 'auth/register', component: RegisterComponent },
@@ -22,7 +23,7 @@ export const routes: Routes = [
   // { path: 'home', component: HomeComponent }, // If you still have a home component
 
   // Add other routes here, including for other standalone components
-  { path: 'track/:identifier', component: TrackResultComponent },
+  { path: 'track/:identifier', component: TrackResultComponent, canActivate: [AuthGuard] },
   { path: 'auth/login', component: LoginComponent },
   { path: 'verify-email', component: VerifyEmailComponent },
   { path: 'auth/callback', component: GoogleCallbackComponent },
