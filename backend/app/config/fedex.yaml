@@ -1,0 +1,5 @@
+prod:
+  api_url: "https://apis-sandbox.fedex.com/oauth/token"
+  client_id: "l713d722ef2f2d48269e1d33f7cade563c"
+  client_secret: "4a99540fcd654b4393e9c3dd11432850"
+  account_number: "740561073" 
