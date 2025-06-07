@@ -21,5 +21,9 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/token`, credentials);
   }
 
+  googleLogin(): void {
+    window.location.href = `${this.apiUrl}/google/login`;
+  }
+
   // Vous pourriez ajouter d'autres méthodes ici, comme logout, getUserInfo, etc.
 } 

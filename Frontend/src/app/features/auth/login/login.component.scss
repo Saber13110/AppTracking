@@ -1,0 +1,26 @@
+.login-container {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.error-message {
+  color: red;
+  font-size: 0.9em;
+}
+
+button {
+  padding: 10px;
+  margin-top: 10px;
+}
+
+.google-button {
+  background-color: #db4437;
+  color: #fff;
+  border: none;
+  width: 100%;
+}

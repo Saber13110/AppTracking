@@ -1,0 +1,28 @@
+<div class="login-container">
+  <h2>Se connecter</h2>
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input id="email" type="email" formControlName="email" />
+      <div class="error-message" *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+        Adresse email invalide
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="password">Mot de passe</label>
+      <input id="password" type="password" formControlName="password" />
+      <div class="error-message" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+        Mot de passe requis
+      </div>
+    </div>
+
+    <button type="submit">Connexion</button>
+  </form>
+
+  <button type="button" class="google-button" (click)="loginWithGoogle()">
+    Connexion avec Google
+  </button>
+
+  <div class="error-message" *ngIf="error">{{ error }}</div>
+</div>
