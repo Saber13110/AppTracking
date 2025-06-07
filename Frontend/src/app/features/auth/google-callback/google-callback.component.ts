@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-google-callback',
@@ -10,11 +11,29 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrls: ['./google-callback.component.scss']
 })
 export class GoogleCallbackComponent implements OnInit {
-  constructor(private route: ActivatedRoute, private router: Router) {}
+  error: string | null = null;
+
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe(() => {
-      this.router.navigate(['/home']);
+    this.route.queryParams.subscribe(params => {
+      const token = params['token'];
+      if (token) {
+        this.authService.me().subscribe({
+          next: () => this.router.navigate(['/home']),
+          error: () => {
+            this.error = "Échec de l'authentification";
+            this.router.navigate(['/auth/login']);
+          }
+        });
+      } else {
+        this.error = 'Token manquant';
+        this.router.navigate(['/auth/login']);
+      }
     });
   }
 }
