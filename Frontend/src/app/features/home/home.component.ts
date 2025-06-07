@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AuthService } from '../../core/services/auth.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -85,8 +86,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   trackingForm: FormGroup;
   trackingNumber: string = '';
 
-  // === Auth fake pour afficher outils avancés (à remplacer plus tard)
-  isLoggedIn = true;
+  // === Auth pour afficher outils avancés
+  get isLoggedIn(): boolean {
+    return this.authService.isLoggedIn();
+  }
 
   // === Notifications en file d'attente
   notifications: Notification[] = [];
@@ -118,7 +121,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   constructor(
     private fb: FormBuilder,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {
     this.trackingForm = this.fb.group({
       trackingNumber: ['', [Validators.required, Validators.pattern('^[A-Z0-9]{10,}$')]]
@@ -453,5 +457,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         'Please enter a valid tracking ID (minimum 10 alphanumeric characters).'
       );
     }
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 }
