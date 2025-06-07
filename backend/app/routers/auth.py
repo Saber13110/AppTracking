@@ -2,6 +2,7 @@ from datetime import timedelta
 import secrets
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi_limiter.depends import RateLimiter
 from sqlalchemy.orm import Session
 
 from ..models.user import User, UserCreate, Token, EmailVerification, UserDB
@@ -62,7 +63,11 @@ async def verify_email(verification: EmailVerification, db: Session = Depends(ge
     
     return {"message": "Email verified successfully"}
 
-@router.post("/token", response_model=Token)
+@router.post(
+    "/token",
+    response_model=Token,
+    dependencies=[Depends(RateLimiter(times=5, minutes=1))],
+)
 async def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)

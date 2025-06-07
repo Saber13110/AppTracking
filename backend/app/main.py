@@ -2,6 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from dotenv import load_dotenv
+from fastapi_limiter import FastAPILimiter
+import redis.asyncio as redis
+
 from .config import settings
 from .routers import auth, google_auth
 from .api.v1.api import api_router
@@ -27,6 +30,19 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.on_event("startup")
+async def startup() -> None:
+    redis_client = redis.from_url(
+        settings.REDIS_URL, encoding="utf8", decode_responses=True
+    )
+    await FastAPILimiter.init(redis_client)
+
+
+@app.on_event("shutdown")
+async def shutdown() -> None:
+    await FastAPILimiter.close()
+
 
 # Inclusion des routeurs
 app.include_router(auth.router, prefix=settings.API_V1_STR)
