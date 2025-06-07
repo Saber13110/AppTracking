@@ -16,3 +16,5 @@ Optionally set `FEDEX_BASE_URL` to override the default `https://apis-sandbox.fe
 
 The repository excludes `backend/.env` from version control. Store your secrets in `backend/.env.local` or set them as environment variables when running the application.
 
+`REDIS_URL` controls the Redis connection used for rate limiting. If omitted, the API defaults to `redis://localhost:6379/0`.
+

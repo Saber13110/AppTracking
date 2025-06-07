@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     
     # Configuration de la base de données
     DATABASE_URL: str = os.environ.get("DATABASE_URL", "postgresql://postgres:postgres@localhost/tracking_app")
+    REDIS_URL: str = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
     
     # Security
     SECRET_KEY: str = "your-secret-key-here"  # Change this in production!
