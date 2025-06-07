@@ -26,9 +26,9 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
     # Google OAuth2 Configuration
-    GOOGLE_CLIENT_ID: Optional[str] = None
-    GOOGLE_CLIENT_SECRET: Optional[str] = None
-    GOOGLE_REDIRECT_URI: Optional[str] = None
+    GOOGLE_CLIENT_ID: Optional[str] = os.environ.get("GOOGLE_CLIENT_ID")
+    GOOGLE_CLIENT_SECRET: Optional[str] = os.environ.get("GOOGLE_CLIENT_SECRET")
+    GOOGLE_REDIRECT_URI: Optional[str] = os.environ.get("GOOGLE_REDIRECT_URI")
 
     # Email Configuration
     SMTP_SERVER: str = "smtp.gmail.com"
