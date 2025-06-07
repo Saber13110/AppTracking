@@ -15,6 +15,7 @@ from ..services.auth import (
 )
 from ..config import settings
 from ..database import get_db
+from ..services.email import send_verification_email
 
 router = APIRouter(
     prefix="/auth",
@@ -38,8 +39,11 @@ async def register(user: UserCreate, db: Session = Depends(get_db)):
     db_user = create_user(db, user)
     db_user.verification_token = verification_token
     db.commit()
-    
-    # Retourner le lien de vérification
+
+    # Envoyer l'email de vérification
+    send_verification_email(db_user.email, verification_token)
+
+    # Retourner l'utilisateur nouvellement créé
     verification_link = f"http://localhost:4200/verify-email?token={verification_token}"
     return db_user
 
