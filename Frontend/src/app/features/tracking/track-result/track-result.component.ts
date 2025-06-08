@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { TrackingService, TrackingInfo } from '../services/tracking.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-track-result',
@@ -49,4 +50,33 @@ export class TrackResultComponent implements OnInit {
       }
     });
   }
-} 
+
+  copyTracking() {
+    if (this.trackingInfo?.tracking_number) {
+      navigator.clipboard.writeText(this.trackingInfo.tracking_number);
+    }
+  }
+
+  shareTracking() {
+    if (navigator.share && this.trackingInfo) {
+      navigator.share({
+        title: 'Suivi de colis',
+        text: `Suivi ${this.trackingInfo.tracking_number}`,
+        url: window.location.href,
+      });
+    } else {
+      this.copyTracking();
+    }
+  }
+
+  downloadProof() {
+    if (this.trackingInfo) {
+      const url = `${environment.apiUrl}/tracking/${this.trackingInfo.tracking_number}/proof`;
+      window.open(url, '_blank');
+    }
+  }
+
+  contactSupport() {
+    window.location.href = '/support';
+  }
+}
