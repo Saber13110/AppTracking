@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { NotificationService, NotificationPreferences } from '../../core/services/notification.service';
+import { AnalyticsService } from '../../core/services/analytics.service';
 
 @Component({
   selector: 'app-notification-options',
@@ -13,7 +14,11 @@ import { NotificationService, NotificationPreferences } from '../../core/service
 export class NotificationOptionsComponent implements OnInit {
   form: FormGroup;
 
-  constructor(private fb: FormBuilder, private notifService: NotificationService) {
+  constructor(
+    private fb: FormBuilder,
+    private notifService: NotificationService,
+    private analytics: AnalyticsService
+  ) {
     this.form = this.fb.group({
       email_updates: [true]
     });
@@ -27,6 +32,7 @@ export class NotificationOptionsComponent implements OnInit {
 
   save() {
     const prefs: NotificationPreferences = this.form.value;
+    this.analytics.logAction('save_notification_options');
     this.notifService.updatePreferences(prefs).subscribe();
   }
 }

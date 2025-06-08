@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { TrackingService, TrackingInfo } from '../services/tracking.service';
+import { AnalyticsService } from '../../../core/services/analytics.service';
 import { environment } from '../../../../environments/environment';
 
 declare global {
@@ -28,7 +29,8 @@ export class TrackResultComponent implements OnInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private analytics: AnalyticsService
   ) {}
 
   ngOnInit() {
@@ -65,6 +67,7 @@ export class TrackResultComponent implements OnInit, OnDestroy {
   copyTracking() {
     if (this.trackingInfo?.tracking_number) {
       navigator.clipboard.writeText(this.trackingInfo.tracking_number);
+      this.analytics.logAction('copy_tracking', this.trackingInfo.tracking_number);
     }
   }
 
@@ -78,16 +81,19 @@ export class TrackResultComponent implements OnInit, OnDestroy {
     } else {
       this.copyTracking();
     }
+    this.analytics.logAction('share_tracking', this.trackingInfo?.tracking_number);
   }
 
   downloadProof() {
     if (this.trackingInfo) {
       const url = `${environment.apiUrl}/tracking/${this.trackingInfo.tracking_number}/proof`;
       window.open(url, '_blank');
+      this.analytics.logAction('download_proof', this.trackingInfo.tracking_number);
     }
   }
 
   contactSupport() {
+    this.analytics.logAction('contact_support');
     window.location.href = '/support';
   }
 

@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TrackingService } from '../tracking/services/tracking.service';
+import { AnalyticsService } from '../../core/services/analytics.service';
 
 @Component({
   selector: 'app-all-tracking-services',
@@ -16,7 +17,11 @@ export class AllTrackingServicesComponent {
   singleForm: FormGroup;
   bulkForm: FormGroup;
 
-  constructor(private fb: FormBuilder, private trackingService: TrackingService) {
+  constructor(
+    private fb: FormBuilder,
+    private trackingService: TrackingService,
+    private analytics: AnalyticsService
+  ) {
     this.singleForm = this.fb.group({
       trackingNumber: ['', [Validators.required, Validators.pattern('^[A-Z0-9]{10,}$')]],
       packageName: ['']
@@ -28,6 +33,7 @@ export class AllTrackingServicesComponent {
 
   switchTab(tab: 'single' | 'bulk' | 'barcode'): void {
     this.activeTab = tab;
+    this.analytics.logAction('switch_tab', tab);
   }
 
   submitSingle(): void {
@@ -36,6 +42,7 @@ export class AllTrackingServicesComponent {
       return;
     }
     const { trackingNumber, packageName } = this.singleForm.value;
+    this.analytics.logAction('submit_single', trackingNumber);
     this.trackingService.trackNumber(trackingNumber, packageName).subscribe();
   }
 
@@ -49,11 +56,13 @@ export class AllTrackingServicesComponent {
       .map((n: string) => n.trim())
       .filter((n: string) => n);
     console.log('Track bulk', numbers);
+    this.analytics.logAction('submit_bulk', numbers.length);
     // Placeholder for bulk tracking logic
   }
 
   startBarcodeScan(): void {
     // Placeholder for barcode scanning implementation
+    this.analytics.logAction('start_barcode_scan');
     console.log('Barcode scan feature coming soon');
   }
 }
