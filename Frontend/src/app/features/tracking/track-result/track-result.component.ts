@@ -91,7 +91,7 @@ export class TrackResultComponent implements OnInit, OnDestroy {
           this.fetchProof();
         } else {
           this.error = response.error || 'Impossible de récupérer les informations de suivi';
-          showNotification(this.error, 'error');
+          showNotification(this.error!, 'error');
         }
         this.loading = false;
         this.refreshing = false;
@@ -101,7 +101,7 @@ export class TrackResultComponent implements OnInit, OnDestroy {
         this.loading = false;
         this.refreshing = false;
         console.error('Erreur de suivi:', err);
-        showNotification(this.error, 'error');
+        showNotification(this.error!, 'error');
       }
     });
   }
@@ -148,7 +148,7 @@ export class TrackResultComponent implements OnInit, OnDestroy {
       error: (err) => {
         this.error = err.error?.error || 'Aucune preuve de livraison disponible';
         console.error('Erreur de preuve:', err);
-        showNotification(this.error, 'error');
+        showNotification(this.error!, 'error');
       }
     });
   }
@@ -282,11 +282,11 @@ export class TrackResultComponent implements OnInit, OnDestroy {
         strokeOpacity: 1.0,
         strokeWeight: 2
       });
-      this.polyline.setMap(this.map);
+      this.polyline!.setMap(this.map!);
 
       const bounds = new window.google.maps.LatLngBounds();
       path.forEach(p => bounds.extend(p));
-      this.map.fitBounds(bounds);
+      this.map!.fitBounds(bounds);
     }
   }
 
