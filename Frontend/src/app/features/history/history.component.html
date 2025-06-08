@@ -18,14 +18,31 @@
             <span *ngIf="sortAsc">&#9650;</span>
             <span *ngIf="!sortAsc">&#9660;</span>
           </th>
+          <th>Note</th>
+          <th>Pin</th>
           <th></th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let item of sortedHistory">
+        <tr *ngFor="let item of sortedHistory" [ngClass]="{'pinned-row': item.pinned}">
           <td><a [routerLink]="['/track', item.tracking_number]">{{item.tracking_number}}</a></td>
           <td>{{item.status || '-'}}</td>
           <td>{{item.created_at | date:'short'}}</td>
+          <td>
+            <input type="text"
+                   [(ngModel)]="item.note"
+                   (blur)="save(item)"
+                   aria-label="Note for {{item.tracking_number}}">
+          </td>
+          <td>
+            <button type="button"
+                    class="pin-btn"
+                    [attr.aria-pressed]="item.pinned"
+                    aria-label="Toggle pin for {{item.tracking_number}}"
+                    (click)="togglePin(item)">
+              <span class="material-icons" [ngClass]="{'pinned': item.pinned}">push_pin</span>
+            </button>
+          </td>
           <td>
             <button role="button"
                     tabindex="0"

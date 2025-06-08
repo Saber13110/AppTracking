@@ -54,6 +54,18 @@ export class HistoryComponent implements OnInit {
     this.loadHistory();
   }
 
+  save(item: TrackedShipment): void {
+    if (!item.id) return;
+    this.historyService.updateRecord(item.id, { note: item.note ?? null });
+  }
+
+  togglePin(item: TrackedShipment): void {
+    if (!item.id) return;
+    const newVal = !item.pinned;
+    item.pinned = newVal;
+    this.historyService.updateRecord(item.id, { pinned: newVal });
+  }
+
   clear(): void {
     this.historyService.deleteAll();
     this.loadHistory();

@@ -31,3 +31,17 @@
 .sortable {
   cursor: pointer;
 }
+
+.pinned-row {
+  background-color: #fffbeb;
+}
+
+.pin-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.pin-btn .material-icons.pinned {
+  color: #d97706;
+}

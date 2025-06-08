@@ -15,7 +15,10 @@ from backend.app.database import Base, engine, SessionLocal
 from backend.app.models.database import Base as ModelsBase, TrackedShipmentDB
 from backend.app.services.tracking_history_service import TrackingHistoryService
 from backend.app.api.v1.endpoints import history as history_router
-from backend.app.models.tracking_history import TrackedShipmentCreate
+from backend.app.models.tracking_history import (
+    TrackedShipmentCreate,
+    TrackedShipmentUpdate,
+)
 from backend.app.services import auth
 from backend.app.models.user import UserCreate
 
@@ -43,13 +46,21 @@ def create_user(db, email="user@example.com"):
 
 def test_log_search_stores_fields(db_session):
     service = TrackingHistoryService(db_session)
-    service.log_search(1, "123", status="IN_TRANSIT", meta_data={"a": 1}, note="n")
+    service.log_search(
+        1,
+        "123",
+        status="IN_TRANSIT",
+        meta_data={"a": 1},
+        note="n",
+        pinned=True,
+    )
 
     record = db_session.query(TrackedShipmentDB).first()
     assert record.tracking_number == "123"
     assert record.status == "IN_TRANSIT"
     assert record.meta_data["a"] == 1
     assert record.note == "n"
+    assert record.pinned is True
 
 
 def test_post_history_endpoint(db_session):
@@ -69,3 +80,17 @@ def test_delete_history_endpoint(db_session):
     asyncio.run(history_router.delete_history(user, db_session))
     remaining = service.get_history(user.id)
     assert remaining == []
+
+
+def test_update_history_endpoint(db_session):
+    user = create_user(db_session)
+    service = TrackingHistoryService(db_session)
+    record = service.log_search(user.id, "321")
+
+    update = TrackedShipmentUpdate(note="updated", pinned=True)
+    result = asyncio.run(
+        history_router.update_history(record.id, update, user, db_session)
+    )
+
+    assert result.note == "updated"
+    assert result.pinned is True

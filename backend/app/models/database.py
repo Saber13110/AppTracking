@@ -158,4 +158,5 @@ class TrackedShipmentDB(Base):
     status = Column(String, nullable=True)
     meta_data = Column(JSON, default=dict)
     note = Column(String, nullable=True)
+    pinned = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
