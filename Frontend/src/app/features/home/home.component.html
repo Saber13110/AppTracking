@@ -55,7 +55,10 @@
           <p>Drag and drop or click to upload</p>
           <input type="file" accept="image/*" (change)="onBarcodeFileSelected($event)" #fileInput hidden>
         </div>
-        <button class="btn btn--primary mt-3">Pro Scan (Webcam - Coming Soon)</button>
+        <button class="btn btn--primary mt-3" (click)="startWebcamScan()">
+          {{ isScanning ? 'Stop Scan' : 'Pro Scan (Webcam)' }}
+        </button>
+        <video #videoPreview *ngIf="isScanning" class="webcam-preview" autoplay></video>
       </div>
 
       <!-- Obtain Your Proof Option -->
