@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { TrackingService, TrackingInfo } from '../services/tracking.service';
+import { TrackingHistoryService } from '../services/tracking-history.service';
 import { environment } from '../../../../environments/environment';
 
 declare global {
@@ -28,7 +29,8 @@ export class TrackResultComponent implements OnInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private historyService: TrackingHistoryService
   ) {}
 
   ngOnInit() {
@@ -41,6 +43,7 @@ export class TrackResultComponent implements OnInit, OnDestroy {
   }
 
   private loadTrackingInfo(identifier: string) {
+    this.historyService.add(identifier);
     this.loading = true;
     this.error = null;
 

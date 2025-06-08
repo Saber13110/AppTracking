@@ -1,0 +1,9 @@
+<h2>Historique des recherches</h2>
+<ul class="history-list">
+  <li *ngFor="let item of history">
+    <a (click)="view(item.identifier)">{{ item.identifier }}</a>
+    <span class="date">{{ item.date | date:'short' }}</span>
+    <button (click)="remove(item.identifier)">Supprimer</button>
+  </li>
+</ul>
+<button *ngIf="history.length" (click)="clear()">Tout supprimer</button>

@@ -6,12 +6,15 @@ from ....models.tracking import (
     TrackingResponse, TrackingFilter
 )
 from ....services.tracking_service import TrackingService
+from ....services.tracking_history_service import TrackingHistoryService
 from ....database import get_db
 from ....services.colis_service import ColisService
 from ....services.fedex_service import FedExService
 from datetime import datetime
 import logging
 from ....models.colis import ColisCreate
+from ....services.auth import get_optional_user
+from ....models.user import UserDB
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -92,7 +95,8 @@ async def create_package(
 @router.get("/{identifier}", response_model=TrackingResponse)
 async def track_package(
     identifier: str,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: Optional[UserDB] = Depends(get_optional_user)
 ):
     """
     Track a single package by any identifier (FedEx ID, reference, TCN, or barcode)
@@ -139,6 +143,10 @@ async def track_package(
 
         # Track via FedEx
         response = await fedex_service.track_package(fedex_id)
+
+        if current_user:
+            history_service = TrackingHistoryService(db)
+            await history_service.log_search(current_user.id, identifier)
 
         # Add metadata about the identifier used
         if response.metadata:

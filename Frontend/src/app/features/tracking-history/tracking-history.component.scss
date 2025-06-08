@@ -1,0 +1,21 @@
+.history-list {
+  list-style: none;
+  padding: 0;
+}
+
+.history-list li {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.history-list a {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.date {
+  flex: 1;
+  color: gray;
+}

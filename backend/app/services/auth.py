@@ -86,6 +86,16 @@ def require_role(*roles: UserRole):
 
     return dependency
 
+async def get_optional_user(
+    request: Request,
+    db: Session = Depends(get_db),
+    token: str | None = Depends(oauth2_scheme),
+) -> Optional[UserDB]:
+    try:
+        return await get_current_user(request, db, token)
+    except HTTPException:
+        return None
+
 def get_user_by_email(db: Session, email: str) -> Optional[UserDB]:
     return db.query(UserDB).filter(UserDB.email == email).first()
 
