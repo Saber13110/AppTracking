@@ -108,7 +108,7 @@ def test_register_and_verify_email(db_session, patched_router):
 
 
 def test_verify_email_expired_token(db_session, patched_router):
-    user_data = UserCreate(email="expire@example.com", full_name="Expire", password="pw")
+    user_data = UserCreate(email="expire@example.com", full_name="Expire", password="Password1")
     user = asyncio.run(patched_router.register(user_data, db_session))
     # Expire the token
     user.verification_token_expires_at = datetime.utcnow() - timedelta(hours=1)
@@ -268,7 +268,7 @@ def test_last_login_timestamp_updated(db_session, patched_router):
 
 def test_resend_verification_generates_new_token(db_session, patched_router):
     user = asyncio.run(patched_router.register(
-        UserCreate(email="resend@example.com", full_name="Res", password="pw"),
+        UserCreate(email="resend@example.com", full_name="Res", password="Password1"),
         db_session
     ))
     old_token = user.verification_token
@@ -282,7 +282,7 @@ def test_resend_verification_generates_new_token(db_session, patched_router):
 
 def test_resend_verification_ignored_for_verified_user(db_session, patched_router):
     user = asyncio.run(patched_router.register(
-        UserCreate(email="checked@example.com", full_name="Chk", password="pw"),
+        UserCreate(email="checked@example.com", full_name="Chk", password="Password1"),
         db_session
     ))
     asyncio.run(patched_router.verify_email(
