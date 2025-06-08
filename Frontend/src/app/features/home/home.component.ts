@@ -9,7 +9,7 @@ import { TrackingService } from '../tracking/services/tracking.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { Subject, Observable } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { BrowserMultiFormatContinuousReader, BrowserCodeReader, IScannerControls } from '@zxing/browser';
+import { BrowserMultiFormatContinuousReader, BrowserCodeReader, IScannerControls, BrowserMultiFormatReader } from '@zxing/browser';
 
 // Import Google Maps types
 declare global {
