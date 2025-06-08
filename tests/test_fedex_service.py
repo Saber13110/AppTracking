@@ -20,6 +20,19 @@ from backend.app.services.fedex_service import FedExService
 import backend.app.services.fedex_service as fs
 
 
+class FakeRedis:
+    """Simple in-memory stand-in for redis.Redis used in tests."""
+
+    def __init__(self):
+        self.store = {}
+
+    def get(self, key):
+        return self.store.get(key)
+
+    def set(self, key, value, ex=None):
+        self.store[key] = value
+
+
 def test_track_package_success(monkeypatch):
     service = FedExService()
 
@@ -164,8 +177,7 @@ def test_track_package_http_error(monkeypatch):
 
 
 def test_token_cached_between_instances(monkeypatch):
-    fs._token_cache["token"] = None
-    fs._token_cache["expiry"] = None
+    fs._redis_client = FakeRedis()
 
     call_count = 0
 
@@ -193,9 +205,41 @@ def test_token_cached_between_instances(monkeypatch):
     assert call_count == 1
 
 
+def test_single_authentication_with_concurrency(monkeypatch):
+    """Ensure only one authentication occurs when instances run in parallel."""
+    fs._redis_client = FakeRedis()
+
+    call_count = 0
+
+    class DummyClient:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            pass
+
+        def post(self, url, data=None, headers=None):
+            nonlocal call_count
+            call_count += 1
+            request = httpx.Request("POST", url)
+            return httpx.Response(200, json={"access_token": "abc", "expires_in": 3600}, request=request)
+
+    monkeypatch.setattr(httpx, "Client", lambda: DummyClient())
+
+    service1 = FedExService()
+    service2 = FedExService()
+
+    from concurrent.futures import ThreadPoolExecutor
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        results = list(executor.map(lambda s: s._get_auth_token(), [service1, service2]))
+
+    assert results[0] == results[1] == "abc"
+    assert call_count == 1
+
+
 def test_token_refresh_after_expiry(monkeypatch):
-    fs._token_cache["token"] = None
-    fs._token_cache["expiry"] = None
+    fs._redis_client = FakeRedis()
 
     tokens = ["t1", "t2"]
 
@@ -219,7 +263,10 @@ def test_token_refresh_after_expiry(monkeypatch):
     tok2 = service._get_auth_token()
     assert tok2 == "t1"
 
-    fs._token_cache["expiry"] = datetime.utcnow() - timedelta(seconds=1)
+    fs._redis_client.set(
+        "fedex_expiry",
+        (datetime.utcnow() - timedelta(seconds=1)).isoformat(),
+    )
 
     tok3 = service._get_auth_token()
     assert tok3 == "t2"

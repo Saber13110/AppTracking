@@ -5,9 +5,11 @@ import logging
 import asyncio
 from typing import Dict, Any
 from datetime import datetime, timedelta
+import redis
 from importlib import resources
 from pathlib import Path
 from threading import Lock
+from ..config import settings
 from ..models.tracking import (
     TrackingInfo, TrackingEvent, TrackingResponse, Location,
     PackageDetails, DeliveryDetails, PackageStatus, PackageType,
@@ -16,9 +18,13 @@ from ..models.tracking import (
 
 logger = logging.getLogger(__name__)
 
-# Global cache for authentication token shared across service instances
+# Global lock for authentication token updates
 _token_lock = Lock()
-_token_cache: dict[str, datetime | str | None] = {"token": None, "expiry": None}
+
+# Redis client used as persistent cache for the auth token
+_redis_client = redis.Redis.from_url(
+    settings.REDIS_URL, decode_responses=True
+)
 
 class FedExService:
     def __init__(self, account: str | None = None, config_path: str | None = None):
@@ -55,7 +61,7 @@ class FedExService:
             raise
 
     def _authenticate(self) -> None:
-        """Fetch a new OAuth token from FedEx"""
+        """Fetch a new OAuth token from FedEx and store it in Redis."""
         with httpx.Client() as client:
             response = client.post(self.auth_url, data=self.payload, headers=self.headers)
             response.raise_for_status()
@@ -65,22 +71,24 @@ class FedExService:
         expires_in = int(data.get('expires_in', 3600))
         expiry = datetime.utcnow() + timedelta(seconds=expires_in)
 
-        # Update both instance and global cache inside the lock for thread safety
+        # Persist token and expiry so all service instances can share them
         with _token_lock:
-            _token_cache["token"] = token
-            _token_cache["expiry"] = expiry
+            _redis_client.set("fedex_token", token, ex=expires_in)
+            _redis_client.set("fedex_expiry", expiry.isoformat(), ex=expires_in)
             self._token = token
             self._token_expiry = expiry
 
     def _get_auth_token(self) -> str:
+        """Return a valid OAuth token, refreshing it if necessary."""
         with _token_lock:
-            token = _token_cache.get("token")
-            expiry = _token_cache.get("expiry")
+            token = _redis_client.get("fedex_token")
+            expiry_str = _redis_client.get("fedex_expiry")
+            expiry = datetime.fromisoformat(expiry_str) if expiry_str else None
 
         if not token or not expiry or datetime.utcnow() >= expiry:
             self._authenticate()
             with _token_lock:
-                token = _token_cache.get("token")
+                token = _redis_client.get("fedex_token")
 
         return token  # type: ignore[return-value]
 
