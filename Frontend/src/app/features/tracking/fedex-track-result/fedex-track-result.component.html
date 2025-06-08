@@ -1,0 +1,9 @@
+<div class="fedex-container">
+  <div *ngIf="loading" class="loading">Loading...</div>
+  <div *ngIf="!loading && error" class="error">{{ error }}</div>
+  <div *ngIf="!loading && trackingData" class="content">
+    <h2>Tracking #{{ trackingData.tracking_number }}</h2>
+    <p class="status">{{ trackingData.status.status }} - {{ trackingData.status.description }}</p>
+    <div id="fedex-map" class="map"></div>
+  </div>
+</div>

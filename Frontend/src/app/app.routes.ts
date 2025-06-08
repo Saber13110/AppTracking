@@ -7,6 +7,7 @@ import { VerifyEmailComponent } from './features/auth/verify-email/verify-email.
 import { ForgotPasswordComponent } from './features/auth/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './features/auth/reset-password/reset-password.component';
 import { TrackResultComponent } from './features/tracking/track-result/track-result.component';
+import { FedexTrackResultComponent } from './features/tracking/fedex-track-result/fedex-track-result.component';
 import { GoogleCallbackComponent } from './features/auth/google-callback/google-callback.component';
 import { NotificationsComponent } from './features/notifications/notifications.component';
 import { TrackByMailComponent } from './features/track-by-mail/track-by-mail.component';
@@ -36,6 +37,7 @@ export const routes: Routes = [
 
   // Add other routes here, including for other standalone components
   { path: 'track/:identifier', component: TrackResultComponent, canActivate: [AuthGuard] },
+  { path: 'fedex-track/:identifier', component: FedexTrackResultComponent, canActivate: [AuthGuard] },
   { path: 'notifications', component: NotificationsComponent, canActivate: [AuthGuard] },
   // Service routes
   { path: 'services/track-by-mail', component: TrackByMailComponent, canActivate: [AuthGuard] },
