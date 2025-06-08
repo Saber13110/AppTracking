@@ -28,24 +28,12 @@
   </div>
 
   <div class="tab-content">
-    <form *ngIf="activeTab==='single'" [formGroup]="singleForm" (ngSubmit)="submitSingle()" class="single-form">
-      <div class="form-group">
-        <label>Tracking Number</label>
-        <input formControlName="trackingNumber" />
-      </div>
-      <div class="form-group">
-        <label>Package Name</label>
-        <input formControlName="packageName" />
-      </div>
-      <div class="error" *ngIf="singleForm.get('trackingNumber')?.touched && singleForm.get('trackingNumber')?.invalid">
-        Invalid tracking number
-      </div>
-      <button type="submit"
-              class="btn btn--primary"
-              role="button"
-              tabindex="0"
-              aria-label="Track single package">Track</button>
-    </form>
+    <app-tracking-form *ngIf="activeTab==='single'"
+                       class="single-form"
+                       [form]="singleForm"
+                       (formSubmit)="submitSingle()">
+      Track
+    </app-tracking-form>
 
     <form *ngIf="activeTab==='bulk'" [formGroup]="bulkForm" (ngSubmit)="submitBulk()" class="bulk-form">
       <div class="form-group">

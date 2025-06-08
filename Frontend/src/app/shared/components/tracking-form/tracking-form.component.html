@@ -1,0 +1,16 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="tracking-form">
+  <div class="tracking-form__input-group">
+    <input type="text" formControlName="trackingNumber" class="tracking-form__input" placeholder="Enter your tracking number">
+    <input *ngIf="includePackageName" type="text" formControlName="packageName" class="tracking-form__input" placeholder="Package name (optional)">
+    <button type="submit" class="tracking-form__btn">
+      <i [class]="buttonIcon"></i>
+      <ng-content></ng-content>
+    </button>
+  </div>
+  <div class="error-message" *ngIf="form.get('trackingNumber')?.errors?.required && form.get('trackingNumber')?.touched">
+    Tracking number is required.
+  </div>
+  <div class="error-message" *ngIf="form.get('trackingNumber')?.errors?.pattern && form.get('trackingNumber')?.touched">
+    Tracking number must be alphanumeric.
+  </div>
+</form>
