@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { TrackingService, TrackingInfo } from '../services/tracking.service';
 import { AnalyticsService } from '../../../core/services/analytics.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { environment } from '../../../../environments/environment';
 
 declare global {
@@ -42,7 +43,8 @@ export class TrackResultComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private trackingService: TrackingService,
-    private analytics: AnalyticsService
+    private analytics: AnalyticsService,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit() {
@@ -91,7 +93,8 @@ export class TrackResultComponent implements OnInit, OnDestroy {
         url: window.location.href,
       });
     } else {
-      this.copyTracking();
+      navigator.clipboard.writeText(window.location.href);
+      this.notificationService.showMessage('Lien copié dans le presse-papiers');
     }
     this.analytics.logAction('share_tracking', this.trackingInfo?.tracking_number);
   }

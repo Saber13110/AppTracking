@@ -45,4 +45,26 @@ export class NotificationService {
   updatePreferences(prefs: NotificationPreferences): Observable<NotificationPreferences> {
     return this.http.post<NotificationPreferences>(`${this.baseUrl}/preferences`, prefs);
   }
+
+  showMessage(message: string): void {
+    if ('Notification' in window) {
+      if (Notification.permission === 'granted') {
+        const n = new Notification(message);
+        setTimeout(() => n.close(), 2000);
+      } else if (Notification.permission !== 'denied') {
+        Notification.requestPermission().then((perm) => {
+          if (perm === 'granted') {
+            const n = new Notification(message);
+            setTimeout(() => n.close(), 2000);
+          } else {
+            alert(message);
+          }
+        });
+      } else {
+        alert(message);
+      }
+    } else {
+      alert(message);
+    }
+  }
 }
