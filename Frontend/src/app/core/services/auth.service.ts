@@ -70,5 +70,16 @@ export class AuthService {
     );
   }
 
+  requestPasswordReset(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/request-reset`, { email });
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/reset-password`, {
+      token,
+      new_password: newPassword,
+    });
+  }
+
   // Vous pourriez ajouter d'autres méthodes ici, comme logout, getUserInfo, etc.
 } 
