@@ -1,1 +1,17 @@
 /* Styles for TrackByMailComponent */
+
+.tbm-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 400px;
+  margin: 0 auto;
+
+  button {
+    align-self: flex-start;
+    &:focus {
+      outline: 2px solid #4d148c;
+      outline-offset: 2px;
+    }
+  }
+}
