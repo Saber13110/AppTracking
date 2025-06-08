@@ -94,3 +94,52 @@ def test_update_history_endpoint(db_session):
 
     assert updated.note == "new note"
     assert updated.pinned is True
+
+
+async def _collect_stream(response):
+    data = b""
+    async for chunk in response.body_iterator:
+        if isinstance(chunk, str):
+            chunk = chunk.encode()
+        data += chunk
+    return data
+
+
+def test_get_history_endpoint(db_session):
+    """Authenticated users should receive their history records."""
+    user = create_user(db_session)
+    service = TrackingHistoryService(db_session)
+    service.log_search(user.id, "TN1")
+    service.log_search(user.id, "TN2")
+
+    records = asyncio.run(history_router.get_history(user, db_session))
+    numbers = [r.tracking_number for r in records]
+    assert set(numbers) == {"TN1", "TN2"}
+
+
+def test_get_history_unauthenticated(db_session):
+    """Calling the endpoint without a user should fail."""
+    with pytest.raises(Exception):
+        asyncio.run(history_router.get_history(None, db_session))
+
+
+def test_export_history_csv(db_session):
+    user = create_user(db_session)
+    service = TrackingHistoryService(db_session)
+    service.log_search(user.id, "EX1", status="OK")
+    resp = asyncio.run(history_router.export_history("csv", user, db_session))
+
+    body = asyncio.run(_collect_stream(resp)).decode()
+    assert "created_at,tracking_number,status,note,pinned" in body.splitlines()[0]
+    assert resp.headers["Content-Disposition"] == "attachment; filename=history.csv"
+
+
+def test_export_history_pdf(db_session):
+    user = create_user(db_session)
+    service = TrackingHistoryService(db_session)
+    service.log_search(user.id, "EX2", status="OK")
+    resp = asyncio.run(history_router.export_history("pdf", user, db_session))
+
+    body = asyncio.run(_collect_stream(resp))
+    assert body.startswith(b"%PDF")
+    assert resp.headers["Content-Disposition"] == "attachment; filename=history.pdf"
