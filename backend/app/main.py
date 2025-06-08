@@ -5,8 +5,13 @@ from starlette.middleware.sessions import SessionMiddleware
 from dotenv import load_dotenv
 from fastapi_limiter import FastAPILimiter
 import redis.asyncio as redis
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.interval import IntervalTrigger
+from datetime import datetime, timedelta
 
 from .config import settings
+from .database import SessionLocal
+from .services.tracking_history_service import TrackingHistoryService
 from .routers import auth, google_auth
 from .api.v1.api import api_router
 
@@ -22,6 +27,18 @@ app = FastAPI(
     version="1.0.0",
     openapi_url=f"{settings.API_V1_STR}/openapi.json"
 )
+
+scheduler = AsyncIOScheduler()
+
+def purge_old_history() -> None:
+    db = SessionLocal()
+    try:
+        service = TrackingHistoryService(db)
+        deleted = service.purge_old_records(settings.HISTORY_RETENTION_DAYS)
+        if deleted:
+            logging.info(f"Purged {deleted} old history records")
+    finally:
+        db.close()
 
 # Ajout du middleware de session
 app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
@@ -41,11 +58,14 @@ async def startup() -> None:
         settings.REDIS_URL, encoding="utf8", decode_responses=True
     )
     await FastAPILimiter.init(redis_client)
+    scheduler.add_job(purge_old_history, IntervalTrigger(days=1))
+    scheduler.start()
 
 
 @app.on_event("shutdown")
 async def shutdown() -> None:
     await FastAPILimiter.close()
+    scheduler.shutdown()
 
 
 # Inclusion des routeurs

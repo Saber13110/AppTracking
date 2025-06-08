@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from ..models.database import TrackedShipmentDB
 
@@ -86,3 +87,14 @@ class TrackingHistoryService:
             self.db.rollback()
             logger.error(f"Failed to update history item: {e}")
             return None
+
+    def purge_old_records(self, retention_days: int) -> int:
+        """Delete history records older than the given number of days."""
+        threshold = datetime.utcnow() - timedelta(days=retention_days)
+        count = (
+            self.db.query(TrackedShipmentDB)
+            .filter(TrackedShipmentDB.created_at < threshold)
+            .delete()
+        )
+        self.db.commit()
+        return count

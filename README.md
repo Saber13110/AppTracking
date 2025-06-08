@@ -23,6 +23,7 @@ Both `backend/.env` and `backend/.env.local` are ignored by Git. Store your secr
 `SECRET_KEY` must be provided in production. Define it in `backend/.env.local` or set the environment variable before starting the backend.
 
 `REDIS_URL` controls the Redis connection used for rate limiting. If omitted, the API defaults to `redis://localhost:6379/0`.
+`HISTORY_RETENTION_DAYS` sets how many days of tracking history to keep. Entries older than this are purged automatically. Defaults to `30` days.
 
 The frontend needs a Google Maps API key. Set `GOOGLE_MAPS_API_KEY` in a `.env` file at the project root or export it in your shell before running the Angular app.
 
@@ -51,6 +52,11 @@ Follow these steps to run the project locally:
 
    Update `backend/.env.local` with your FedEx credentials and a `SECRET_KEY`.
    Set `GOOGLE_MAPS_API_KEY` in `.env` for the frontend.
+   Optionally adjust `HISTORY_RETENTION_DAYS` if you want a different cleanup period:
+
+   ```bash
+   echo HISTORY_RETENTION_DAYS=60 >> backend/.env.local
+   ```
 3. **Install backend dependencies and start the API**:
 
    ```bash

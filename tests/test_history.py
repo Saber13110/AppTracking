@@ -1,6 +1,7 @@
 import os
 import sys
 import asyncio
+from datetime import datetime, timedelta
 
 # Set required env vars before importing the app modules
 os.environ.setdefault("DATABASE_URL", "sqlite:///:memory:")
@@ -16,6 +17,7 @@ from backend.app.models.database import Base as ModelsBase, TrackedShipmentDB
 from backend.app.services.tracking_history_service import TrackingHistoryService
 from backend.app.api.v1.endpoints import history as history_router
 from backend.app.models.tracking_history import TrackedShipmentCreate, TrackedShipmentUpdate
+from backend.app.config import settings
 from backend.app.services import auth
 from backend.app.models.user import UserCreate
 
@@ -83,3 +85,20 @@ def test_update_history_endpoint(db_session):
 
     assert updated.note == "new note"
     assert updated.pinned is True
+
+
+def test_purge_old_records(db_session, monkeypatch):
+    service = TrackingHistoryService(db_session)
+    old_date = datetime.utcnow() - timedelta(days=settings.HISTORY_RETENTION_DAYS + 1)
+    recent_date = datetime.utcnow() - timedelta(days=settings.HISTORY_RETENTION_DAYS - 1)
+    old = TrackedShipmentDB(user_id=1, tracking_number="old", created_at=old_date)
+    new = TrackedShipmentDB(user_id=1, tracking_number="new", created_at=recent_date)
+    db_session.add_all([old, new])
+    db_session.commit()
+
+    deleted = service.purge_old_records(settings.HISTORY_RETENTION_DAYS)
+    remaining = db_session.query(TrackedShipmentDB).all()
+
+    assert deleted == 1
+    assert len(remaining) == 1
+    assert remaining[0].tracking_number == "new"
