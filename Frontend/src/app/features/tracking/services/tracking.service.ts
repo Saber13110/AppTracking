@@ -35,7 +35,7 @@ export class TrackingService {
   decodeBarcodeServer(file: File): Observable<{ value: string }> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<{ value: string }>(`${this.baseUrl}/decode-barcode`, formData);
+    return this.http.post<{ value: string }>(`${this.baseUrl}/barcode/decode`, formData);
   }
 
 
@@ -45,7 +45,7 @@ export class TrackingService {
   }
 
   downloadProof(trackingNumber: string): Observable<Blob> {
-    const url = `${this.baseUrl}/${trackingNumber}/proof`;
+    const url = `${this.baseUrl}/proof/${trackingNumber}`;
     return this.http.get(url, { responseType: 'blob' });
   }
 
