@@ -45,7 +45,7 @@ class DummyFedExService:
     def __init__(self, *a, **k):
         pass
 
-    def track_package(self, tracking_number: str) -> TrackingResponse:
+    async def track_package(self, tracking_number: str) -> TrackingResponse:
         return TrackingResponse(success=True, data=None, error=None, metadata={})
 
 
