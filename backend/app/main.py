@@ -8,6 +8,7 @@ import redis.asyncio as redis
 
 from .config import settings
 from .routers import auth, google_auth
+from .routers import webhook
 from .api.v1.api import api_router
 
 # Chargement des variables d'environnement
@@ -52,6 +53,7 @@ async def shutdown() -> None:
 app.include_router(auth.router, prefix=settings.API_V1_STR)
 app.include_router(google_auth.router, prefix=settings.API_V1_STR)
 app.include_router(api_router)
+app.include_router(webhook.router)
 
 @app.get("/")
 async def root():

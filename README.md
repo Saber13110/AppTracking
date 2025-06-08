@@ -17,6 +17,7 @@ The `.env.local` file should include values for `FEDEX_CLIENT_ID`,
 required secrets.
 
 Optionally set `FEDEX_BASE_URL` to override the default `https://apis-sandbox.fedex.com`.
+Set `FEDEX_WEBHOOK_SECRET` if you enable signed webhooks in your FedEx account.
 
 Both `backend/.env` and `backend/.env.local` are ignored by Git. Store your secrets in `backend/.env.local` so they are not committed and are automatically loaded by the backend.
 
@@ -166,6 +167,14 @@ curl -X POST http://localhost:8000/api/v1/auth/resend-verification \
 
 L'interface Angular propose un formulaire accessible à l'adresse
 `/auth/resend-verification` pour effectuer cette action.
+
+## FedEx Webhook Setup
+
+Configure a FedEx webhook so that shipment updates are sent to
+`/webhook/fedex` on your backend. When enabling signature verification in
+the FedEx dashboard, set the same secret in `FEDEX_WEBHOOK_SECRET` inside
+`backend/.env.local`. FedEx will send events as POST requests and the
+application will refresh the tracking information automatically.
 
 ## License
 
