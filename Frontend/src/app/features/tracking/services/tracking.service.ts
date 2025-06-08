@@ -32,7 +32,7 @@ export class TrackingService {
     return this.trackPackage(tcn);
   }
 
-  decodeBarcode(file: File): Observable<{ value: string }> {
+  decodeBarcodeServer(file: File): Observable<{ value: string }> {
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post<{ value: string }>(`${this.baseUrl}/decode-barcode`, formData);
@@ -56,7 +56,7 @@ export class TrackingService {
     return this.http.post<TrackingResponse>(`${this.baseUrl}/email`, { tracking_number, email });
   }
 
-  decodeBarcode(file: File): Promise<string> {
+  decodeBarcodeClient(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = async () => {

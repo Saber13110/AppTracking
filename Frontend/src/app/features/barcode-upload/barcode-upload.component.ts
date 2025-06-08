@@ -35,7 +35,7 @@ export class BarcodeUploadComponent {
   }
 
   private decode(file: File) {
-    this.trackingService.decodeBarcode(file)
+    this.trackingService.decodeBarcodeClient(file)
       .then(code => {
         if (this.control) {
           this.control.setValue(code);
