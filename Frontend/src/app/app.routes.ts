@@ -15,6 +15,7 @@ import { GenerateBarcodeComponent } from './features/generate-barcode/generate-b
 import { SetupTwofaComponent } from './features/auth/setup-twofa/setup-twofa.component';
 import { VerifyTwofaComponent } from './features/auth/verify-twofa/verify-twofa.component';
 import { ResendVerificationComponent } from './features/auth/resend-verification/resend-verification.component';
+import { NotFoundComponent } from './shared/not-found.component';
 
 // Assuming you might have other standalone components or lazy-loaded routes
 // import { HomeComponent } from './features/home/home.component';
@@ -46,4 +47,5 @@ export const routes: Routes = [
   { path: 'auth/resend-verification', component: ResendVerificationComponent },
   { path: 'auth/setup-2fa', component: SetupTwofaComponent, canActivate: [AuthGuard] },
   { path: 'auth/verify-2fa', component: VerifyTwofaComponent, canActivate: [AuthGuard] },
+  { path: '**', component: NotFoundComponent }
 ];
