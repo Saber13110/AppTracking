@@ -2,7 +2,7 @@ import os
 import sys
 import asyncio
 import httpx
-from datetime import timedelta
+from datetime import datetime, timedelta
 import pytest
 
 # Ensure env vars so FedExService loads config without errors
@@ -17,6 +17,7 @@ os.environ.setdefault('SECRET_KEY', 'testsecret')
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from backend.app.services.fedex_service import FedExService
+import backend.app.services.fedex_service as fs
 
 
 def test_track_package_success(monkeypatch):
@@ -160,3 +161,65 @@ def test_track_package_http_error(monkeypatch):
 
     assert resp.success is False
     assert "FedEx API returned an error" in resp.error
+
+
+def test_token_cached_between_instances(monkeypatch):
+    fs._token_cache["token"] = None
+    fs._token_cache["expiry"] = None
+
+    call_count = 0
+
+    class DummyClient:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            pass
+
+        def post(self, url, data=None, headers=None):
+            nonlocal call_count
+            call_count += 1
+            request = httpx.Request("POST", url)
+            return httpx.Response(200, json={"access_token": "abc", "expires_in": 3600}, request=request)
+
+    monkeypatch.setattr(httpx, "Client", lambda: DummyClient())
+
+    service1 = FedExService()
+    token1 = service1._get_auth_token()
+    service2 = FedExService()
+    token2 = service2._get_auth_token()
+
+    assert token1 == "abc" and token2 == "abc"
+    assert call_count == 1
+
+
+def test_token_refresh_after_expiry(monkeypatch):
+    fs._token_cache["token"] = None
+    fs._token_cache["expiry"] = None
+
+    tokens = ["t1", "t2"]
+
+    class DummyClient:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            pass
+
+        def post(self, url, data=None, headers=None):
+            token = tokens.pop(0)
+            request = httpx.Request("POST", url)
+            return httpx.Response(200, json={"access_token": token, "expires_in": 1}, request=request)
+
+    monkeypatch.setattr(httpx, "Client", lambda: DummyClient())
+
+    service = FedExService()
+    tok1 = service._get_auth_token()
+    assert tok1 == "t1"
+    tok2 = service._get_auth_token()
+    assert tok2 == "t1"
+
+    fs._token_cache["expiry"] = datetime.utcnow() - timedelta(seconds=1)
+
+    tok3 = service._get_auth_token()
+    assert tok3 == "t2"
