@@ -2,19 +2,21 @@
   padding: 1rem;
 }
 
-.history ul {
-  list-style: none;
-  padding: 0;
+.history table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.history li {
+.history th,
+.history td {
+  padding: 0.5rem;
+  border-bottom: 1px solid #ccc;
+}
+
+.history .filters {
+  margin-bottom: 1rem;
   display: flex;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-
-.history li a {
-  flex: 1;
+  gap: 0.5rem;
 }
 
 .history button {
@@ -24,4 +26,8 @@
     outline: 2px solid #4d148c;
     outline-offset: 2px;
   }
+}
+
+.sortable {
+  cursor: pointer;
 }
