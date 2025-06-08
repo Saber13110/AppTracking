@@ -1,6 +1,5 @@
 from sqlalchemy import Column, String, Boolean, DateTime, JSON, Enum as SQLEnum, ForeignKey, Float, Integer
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, declarative_base
 from datetime import datetime
 from .notification import NotificationType, NotificationPriority
 from .tracking import PackageStatus, PackageType
