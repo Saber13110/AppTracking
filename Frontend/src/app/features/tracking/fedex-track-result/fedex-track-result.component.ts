@@ -2,6 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { TrackingService, TrackingInfo } from '../services/tracking.service';
+import { NotifierService } from '../../../core/utils/notifier.service';
+import { environment } from '../../../../environments/environment';
 
 interface FedexTrackingInfo extends TrackingInfo {
   currentLocation?: {
@@ -27,7 +29,11 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
   private marker: google.maps.Marker | null = null;
   private identifier = '';
 
-  constructor(private route: ActivatedRoute, private trackingService: TrackingService) {}
+  constructor(
+    private route: ActivatedRoute,
+    private trackingService: TrackingService,
+    private notifier: NotifierService
+  ) {}
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -51,24 +57,35 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
 
   private loadData(): void {
     this.loading = true;
+
+    if (!environment.production) {
+      // Simulate failure in development to verify notifications
+      this.handleError();
+      return;
+    }
+
     this.trackingService.trackPackage(this.identifier).subscribe({
       next: res => {
         if (res.success && res.data) {
           this.trackingData = res.data as FedexTrackingInfo;
           this.initializeMap();
         } else {
-          this.useMockData();
+          this.handleError();
         }
         this.loading = false;
       },
       error: () => {
-        this.useMockData();
+        this.handleError();
         this.loading = false;
       }
     });
   }
 
   private updateLocation(): void {
+    if (!environment.production) {
+      return; // skip polling when simulating failure
+    }
+
     this.trackingService.trackPackage(this.identifier).subscribe({
       next: res => {
         const loc = (res.data as FedexTrackingInfo | undefined)?.currentLocation;
@@ -80,6 +97,11 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
       },
       error: () => {}
     });
+  }
+
+  private handleError(): void {
+    this.notifier.error('Unable to fetch tracking information. Please try again.');
+    this.useMockData();
   }
 
   private initializeMap(): void {
