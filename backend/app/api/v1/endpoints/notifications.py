@@ -17,11 +17,12 @@ from ....models.user import UserDB, UserRole
 
 router = APIRouter()
 
+
 @router.post("/", response_model=NotificationResponse)
 async def create_notification(
     notification: NotificationCreate,
     db: Session = Depends(get_db),
-    current_user: UserDB = Depends(require_role(UserRole.admin))
+    current_user: UserDB = Depends(require_role(UserRole.admin)),
 ):
     """
     Create a new notification
@@ -32,10 +33,10 @@ async def create_notification(
         raise HTTPException(status_code=400, detail=response.error)
     return response
 
+
 @router.get("/{notification_id}", response_model=NotificationResponse)
 async def get_notification(
-    notification_id: str,
-    db: Session = Depends(get_db)
+    notification_id: str, db: Session = Depends(get_db)
 ):
     """
     Get a notification by ID
@@ -46,13 +47,14 @@ async def get_notification(
         raise HTTPException(status_code=404, detail=response.error)
     return response
 
+
 @router.get("/", response_model=List[Notification])
 async def get_notifications(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=100),
     unread_only: bool = False,
     notification_type: Optional[NotificationType] = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Get all notifications with optional filtering
@@ -62,33 +64,34 @@ async def get_notifications(
         skip=skip,
         limit=limit,
         unread_only=unread_only,
-        notification_type=notification_type
+        notification_type=notification_type,
     )
+
 
 @router.patch("/{notification_id}", response_model=NotificationResponse)
 async def update_notification(
     notification_id: str,
     update_data: NotificationUpdate,
     db: Session = Depends(get_db),
-    current_user: UserDB = Depends(require_role(UserRole.admin))
+    current_user: UserDB = Depends(require_role(UserRole.admin)),
 ):
     """
     Update a notification
     """
     notification_service = NotificationService(db)
     response = notification_service.update_notification(
-        notification_id,
-        update_data
+        notification_id, update_data
     )
     if not response.success:
         raise HTTPException(status_code=404, detail=response.error)
     return response
 
+
 @router.delete("/{notification_id}", response_model=NotificationResponse)
 async def delete_notification(
     notification_id: str,
     db: Session = Depends(get_db),
-    current_user: UserDB = Depends(require_role(UserRole.admin))
+    current_user: UserDB = Depends(require_role(UserRole.admin)),
 ):
     """
     Delete a notification
@@ -99,10 +102,11 @@ async def delete_notification(
         raise HTTPException(status_code=404, detail=response.error)
     return response
 
+
 @router.post("/mark-all-read", response_model=NotificationResponse)
 async def mark_all_as_read(
     db: Session = Depends(get_db),
-    current_user: UserDB = Depends(require_role(UserRole.admin))
+    current_user: UserDB = Depends(require_role(UserRole.admin)),
 ):
     """
     Mark all notifications as read
@@ -114,7 +118,7 @@ async def mark_all_as_read(
 @router.get("/preferences", response_model=NotificationPreferenceResponse)
 async def get_preferences(
     db: Session = Depends(get_db),
-    current_user: UserDB = Depends(get_current_active_user)
+    current_user: UserDB = Depends(get_current_active_user),
 ):
     service = NotificationService(db)
     return service.get_preferences(current_user.id)
@@ -124,7 +128,7 @@ async def get_preferences(
 async def update_preferences(
     prefs: NotificationPreference,
     db: Session = Depends(get_db),
-    current_user: UserDB = Depends(get_current_active_user)
+    current_user: UserDB = Depends(get_current_active_user),
 ):
     service = NotificationService(db)
     return service.update_preferences(current_user.id, prefs)

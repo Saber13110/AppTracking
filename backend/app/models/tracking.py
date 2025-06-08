@@ -3,12 +3,14 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime
 from enum import Enum
 
+
 class PackageStatus(str, Enum):
     PENDING = "PENDING"
     IN_TRANSIT = "IN_TRANSIT"
     DELIVERED = "DELIVERED"
     EXCEPTION = "EXCEPTION"
     UNKNOWN = "UNKNOWN"
+
 
 class PackageType(str, Enum):
     GROUND = "GROUND"
@@ -18,6 +20,7 @@ class PackageType(str, Enum):
     STANDARD_OVERNIGHT = "STANDARD_OVERNIGHT"
     INTERNATIONAL = "INTERNATIONAL"
     UNKNOWN = "UNKNOWN"
+
 
 class ServiceType(str, Enum):
     GROUND = "GROUND"
@@ -33,9 +36,11 @@ class ServiceType(str, Enum):
     SMART_POST = "SMART_POST"
     UNKNOWN = "UNKNOWN"
 
+
 class Coordinates(BaseModel):
     latitude: Optional[float] = None
     longitude: Optional[float] = None
+
 
 class Location(BaseModel):
     city: str
@@ -43,6 +48,7 @@ class Location(BaseModel):
     country: str
     postal_code: Optional[str] = None
     coordinates: Optional[Coordinates] = None
+
 
 class TrackingEvent(BaseModel):
     status: str
@@ -54,6 +60,7 @@ class TrackingEvent(BaseModel):
     exception_code: Optional[str] = None
     exception_description: Optional[str] = None
 
+
 class PackageDetails(BaseModel):
     weight: Optional[Dict[str, Any]] = None
     dimensions: Optional[Dict[str, Any]] = None
@@ -64,6 +71,7 @@ class PackageDetails(BaseModel):
     customs_value: Optional[float] = None
     package_count: Optional[int] = None
     packaging_description: Optional[str] = None
+
 
 class DeliveryDetails(BaseModel):
     delivery_date: Optional[str] = None
@@ -77,6 +85,7 @@ class DeliveryDetails(BaseModel):
     received_by_name: Optional[str] = None
     delivery_option_eligibility: Optional[Dict[str, bool]] = None
 
+
 class KeyDates(BaseModel):
     actual_delivery: Optional[str] = None
     actual_pickup: Optional[str] = None
@@ -84,11 +93,13 @@ class KeyDates(BaseModel):
     actual_tender: Optional[str] = None
     anticipated_tender: Optional[str] = None
 
+
 class CommercialInfo(BaseModel):
     tracking_number_unique_id: Optional[str] = None
     package_identifiers: Optional[List[Dict[str, str]]] = None
     service_detail: Optional[str] = None
     available_notifications: Optional[List[str]] = None
+
 
 class TrackingInfo(BaseModel):
     tracking_number: str
@@ -104,11 +115,13 @@ class TrackingInfo(BaseModel):
     commercial_info: CommercialInfo
     tracking_url: Optional[str] = None
 
+
 class TrackingResponse(BaseModel):
     success: bool
     data: Optional[TrackingInfo] = None
     error: Optional[str] = None
     metadata: Optional[Dict[str, Any]] = None
+
 
 class TrackingFilter(BaseModel):
     tracking_number: Optional[str] = None
@@ -122,4 +135,4 @@ class TrackingFilter(BaseModel):
     sort_by: Optional[str] = None
     sort_order: Optional[str] = "desc"
     page: Optional[int] = 1
-    page_size: Optional[int] = 10 
+    page_size: Optional[int] = 10

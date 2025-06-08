@@ -47,7 +47,9 @@ class ColisDB(Base):
     estimated_delivery = Column(DateTime, nullable=True)
     meta_data = Column(JSON, default=dict)
     created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = Column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
 
     # Relations
     tracking_events = relationship("TrackingEventDB", back_populates="colis")
@@ -126,7 +128,9 @@ class DeliveryDetailsDB(Base):
 class TrackingDB(Base):
     __tablename__ = "trackings"
 
-    id = Column(String, primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
+    id = Column(
+        String, primary_key=True, index=True, default=lambda: str(uuid.uuid4())
+    )
     tracking_number = Column(String, unique=True, index=True, nullable=False)
     carrier = Column(String, nullable=False)
     status = Column(

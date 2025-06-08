@@ -13,6 +13,7 @@ from sqlalchemy.sql import func
 
 logger = logging.getLogger(__name__)
 
+
 class ColisService:
     def __init__(self, db: Session):
         self.db = db
@@ -45,7 +46,8 @@ class ColisService:
         return filename
 
     def create_colis(self, colis_data: ColisCreate) -> ColisDB:
-        """Crée un nouveau colis avec l'identifiant FedEx réel et génère les alias"""
+        """Crée un nouveau colis avec l'identifiant FedEx réel et génère
+        les alias"""
         try:
             # Utiliser l'ID FedEx réel fourni
             colis_id = colis_data.id
@@ -63,7 +65,7 @@ class ColisService:
                 code_barre=code_barre,
                 description=colis_data.description,
                 status="En attente",
-                meta_data={}
+                meta_data={},
             )
             self.db.add(db_colis)
             self.db.commit()
@@ -75,7 +77,10 @@ class ColisService:
             return db_colis
         except Exception as e:
             self.db.rollback()
-            logger.error(f"Erreur lors de la création du colis avec ID {colis_data.id}: {str(e)}")
+            logger.error(
+                "Erreur lors de la création du colis avec ID "
+                f"{colis_data.id}: {str(e)}"
+            )
             raise
 
     def get_colis_by_id(self, colis_id: str) -> Optional[ColisDB]:
@@ -84,7 +89,11 @@ class ColisService:
 
     def get_colis_by_reference(self, reference: str) -> Optional[ColisDB]:
         """Récupère un colis par sa référence"""
-        return self.db.query(ColisDB).filter(ColisDB.reference == reference).first()
+        return (
+            self.db.query(ColisDB)
+            .filter(ColisDB.reference == reference)
+            .first()
+        )
 
     def get_colis_by_tcn(self, tcn: str) -> Optional[ColisDB]:
         """Récupère un colis par son TCN"""
@@ -92,7 +101,11 @@ class ColisService:
 
     def get_colis_by_code_barre(self, code_barre: str) -> Optional[ColisDB]:
         """Récupère un colis par son code-barre"""
-        return self.db.query(ColisDB).filter(ColisDB.code_barre == code_barre).first()
+        return (
+            self.db.query(ColisDB)
+            .filter(ColisDB.code_barre == code_barre)
+            .first()
+        )
 
     def get_colis_by_identifier(self, identifier: str) -> Optional[ColisDB]:
         """Récupère un colis par n'importe quel type d'identifiant"""
@@ -118,7 +131,9 @@ class ColisService:
 
         return None
 
-    def update_colis(self, colis_id: str, colis_update: ColisUpdate) -> Optional[ColisDB]:
+    def update_colis(
+        self, colis_id: str, colis_update: ColisUpdate
+    ) -> Optional[ColisDB]:
         """Met à jour un colis existant"""
         try:
             db_colis = self.get_colis_by_id(colis_id)
@@ -138,7 +153,6 @@ class ColisService:
             logger.error(f"Erreur lors de la mise à jour du colis: {str(e)}")
             raise
 
-
     def search_colis(self, filters: ColisFilter) -> Tuple[List[ColisDB], int]:
         """Recherche des colis avec filtres"""
         query = self.db.query(ColisDB)
@@ -148,14 +162,22 @@ class ColisService:
         if filters.location:
             query = query.filter(ColisDB.location == filters.location)
         if filters.reference:
-            query = query.filter(ColisDB.reference.ilike(f"%{filters.reference}%"))
+            query = query.filter(
+                ColisDB.reference.ilike(f"%{filters.reference}%")
+            )
         if filters.tcn:
             query = query.filter(ColisDB.tcn.ilike(f"%{filters.tcn}%"))
         if filters.code_barre:
-            query = query.filter(ColisDB.code_barre.ilike(f"%{filters.code_barre}%"))
+            query = query.filter(
+                ColisDB.code_barre.ilike(f"%{filters.code_barre}%")
+            )
 
         total = query.count()
-        colis = query.offset((filters.page - 1) * filters.page_size).limit(filters.page_size).all()
+        colis = (
+            query.offset((filters.page - 1) * filters.page_size)
+            .limit(filters.page_size)
+            .all()
+        )
         return colis, total
 
     def get_colis_stats(self) -> Dict[str, Any]:
@@ -175,7 +197,7 @@ class ColisService:
         return {
             "total": total,
             "status_distribution": dict(status_counts),
-            "location_distribution": dict(location_counts)
+            "location_distribution": dict(location_counts),
         }
 
     def delete_colis(self, colis_id: str) -> bool:
@@ -185,17 +207,23 @@ class ColisService:
             if not db_colis:
                 return False
 
-            image_path = os.path.join(self.barcode_folder, f"{db_colis.code_barre}.png")
+            image_path = os.path.join(
+                self.barcode_folder, f"{db_colis.code_barre}.png"
+            )
             if os.path.exists(image_path):
                 try:
                     os.remove(image_path)
                 except Exception:
-                    logger.warning(f"Unable to remove barcode image {image_path}")
+                    logger.warning(
+                        f"Unable to remove barcode image {image_path}"
+                    )
 
             self.db.delete(db_colis)
             self.db.commit()
             return True
         except Exception as e:
             self.db.rollback()
-            logger.error(f"Erreur lors de la suppression du colis {colis_id}: {str(e)}")
+            logger.error(
+                f"Erreur lors de la suppression du colis {colis_id}: {str(e)}"
+            )
             raise

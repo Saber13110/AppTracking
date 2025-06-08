@@ -1,7 +1,16 @@
 from datetime import timedelta, datetime
 import secrets
-from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
-from fastapi.security import OAuth2PasswordRequestForm as BaseOAuth2PasswordRequestForm
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    status,
+    Response,
+    Request,
+)
+from fastapi.security import (
+    OAuth2PasswordRequestForm as BaseOAuth2PasswordRequestForm,
+)
 from fastapi import Form
 from fastapi_limiter.depends import RateLimiter
 from sqlalchemy.orm import Session
@@ -48,10 +57,8 @@ class OAuth2PasswordRequestForm(BaseOAuth2PasswordRequestForm):
         )
         self.totp_code = totp_code
 
-router = APIRouter(
-    prefix="/auth",
-    tags=["authentication"]
-)
+
+router = APIRouter(prefix="/auth", tags=["authentication"])
 
 
 class PasswordResetRequest(BaseModel):
@@ -70,23 +77,23 @@ class TwoFACode(BaseModel):
 class ResendVerificationRequest(BaseModel):
     email: EmailStr
 
+
 @router.post("/register", response_model=User)
 async def register(user: UserCreate, db: Session = Depends(get_db)):
     # Vérifier si l'utilisateur existe déjà
     db_user = db.query(UserDB).filter(UserDB.email == user.email).first()
     if db_user:
-        raise HTTPException(
-            status_code=400,
-            detail="Email already registered"
-        )
-    
+        raise HTTPException(status_code=400, detail="Email already registered")
+
     # Créer un token de vérification
     verification_token = secrets.token_urlsafe(32)
-    
+
     # Créer l'utilisateur
     db_user = create_user(db, user)
     db_user.verification_token = verification_token
-    db_user.verification_token_expires_at = datetime.utcnow() + timedelta(hours=24)
+    db_user.verification_token_expires_at = datetime.utcnow() + timedelta(
+        hours=24
+    )
     db.commit()
 
     # Envoyer l'email de vérification
@@ -95,18 +102,24 @@ async def register(user: UserCreate, db: Session = Depends(get_db)):
     # Retourner l'utilisateur nouvellement créé
     return db_user
 
+
 @router.post("/verify-email")
-async def verify_email(verification: EmailVerification, db: Session = Depends(get_db)):
-    user = db.query(UserDB).filter(UserDB.verification_token == verification.token).first()
+async def verify_email(
+    verification: EmailVerification, db: Session = Depends(get_db)
+):
+    user = (
+        db.query(UserDB)
+        .filter(UserDB.verification_token == verification.token)
+        .first()
+    )
     if not user or (
-        user.verification_token_expires_at is not None and
-        user.verification_token_expires_at < datetime.utcnow()
+        user.verification_token_expires_at is not None
+        and user.verification_token_expires_at < datetime.utcnow()
     ):
         raise HTTPException(
-            status_code=400,
-            detail="Invalid or expired verification token"
+            status_code=400, detail="Invalid or expired verification token"
         )
-    
+
     user.is_verified = True
     user.verification_token = None
     db.commit()
@@ -115,19 +128,33 @@ async def verify_email(verification: EmailVerification, db: Session = Depends(ge
 
 
 @router.post("/resend-verification")
-async def resend_verification(payload: ResendVerificationRequest, db: Session = Depends(get_db)):
+async def resend_verification(
+    payload: ResendVerificationRequest, db: Session = Depends(get_db)
+):
     user = db.query(UserDB).filter(UserDB.email == payload.email).first()
     if not user or user.is_verified:
-        return {"message": "If the account exists and is not verified, a verification email has been sent"}
+        return {
+            "message": (
+                "If the account exists and is not verified, a verification "
+                "email has been sent"
+            )
+        }
     token = secrets.token_urlsafe(32)
     user.verification_token = token
     db.commit()
     send_verification_email(user.email, token)
-    return {"message": "If the account exists and is not verified, a verification email has been sent"}
+    return {
+        "message": (
+            "If the account exists and is not verified, a verification email "
+            "has been sent"
+        )
+    }
 
 
 @router.post("/request-reset")
-async def request_password_reset(data: PasswordResetRequest, db: Session = Depends(get_db)):
+async def request_password_reset(
+    data: PasswordResetRequest, db: Session = Depends(get_db)
+):
     user = db.query(UserDB).filter(UserDB.email == data.email).first()
     if not user:
         # Return success even if user not found to avoid user enumeration
@@ -139,13 +166,20 @@ async def request_password_reset(data: PasswordResetRequest, db: Session = Depen
 
 
 @router.post("/reset-password")
-async def reset_password(payload: PasswordReset, db: Session = Depends(get_db)):
+async def reset_password(
+    payload: PasswordReset, db: Session = Depends(get_db)
+):
     user = verify_password_reset_token(payload.token, db)
     if not user:
         raise HTTPException(status_code=400, detail="Invalid or expired token")
 
     from ..models.password_reset import PasswordResetTokenDB
-    db_token = db.query(PasswordResetTokenDB).filter(PasswordResetTokenDB.token == payload.token).first()
+
+    db_token = (
+        db.query(PasswordResetTokenDB)
+        .filter(PasswordResetTokenDB.token == payload.token)
+        .first()
+    )
     if db_token:
         db_token.revoked = True
 
@@ -162,7 +196,9 @@ async def setup_2fa(
     secret = setup_twofa(db, current_user)
     import pyotp
 
-    uri = pyotp.totp.TOTP(secret).provisioning_uri(name=current_user.email, issuer_name="AppTracking")
+    uri = pyotp.totp.TOTP(secret).provisioning_uri(
+        name=current_user.email, issuer_name="AppTracking"
+    )
     return {"otpauth_url": uri, "secret": secret}
 
 
@@ -175,6 +211,7 @@ async def verify_2fa(
     if not verify_twofa(db, current_user, payload.code, activate=True):
         raise HTTPException(status_code=400, detail="Invalid TOTP code")
     return {"message": "2FA enabled"}
+
 
 @router.post(
     "/token",
@@ -202,17 +239,20 @@ async def login(
         )
 
     if user.is_twofa_enabled:
-        if not form_data.totp_code or not verify_twofa(db, user, form_data.totp_code):
+        if not form_data.totp_code or not verify_twofa(
+            db, user, form_data.totp_code
+        ):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid or missing TOTP code",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-    
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+
+    access_token_expires = timedelta(
+        minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+    )
     access_token = create_access_token(
-        data={"sub": user.email},
-        expires_delta=access_token_expires
+        data={"sub": user.email}, expires_delta=access_token_expires
     )
     refresh_token = create_refresh_token(db, user)
     response.set_cookie(
@@ -233,7 +273,9 @@ async def login(
 
 
 @router.post("/refresh-token", response_model=Token)
-async def refresh_token(request: Request, response: Response, db: Session = Depends(get_db)):
+async def refresh_token(
+    request: Request, response: Response, db: Session = Depends(get_db)
+):
     existing = request.cookies.get("refresh_token")
     if not existing:
         raise HTTPException(status_code=401, detail="Refresh token missing")
@@ -265,7 +307,9 @@ async def refresh_token(request: Request, response: Response, db: Session = Depe
 
 
 @router.post("/logout")
-async def logout(request: Request, response: Response, db: Session = Depends(get_db)):
+async def logout(
+    request: Request, response: Response, db: Session = Depends(get_db)
+):
     token = request.cookies.get("refresh_token")
     if token:
         revoke_refresh_token(db, token)
@@ -273,6 +317,7 @@ async def logout(request: Request, response: Response, db: Session = Depends(get
     response.delete_cookie("access_token")
     return {"message": "Logged out"}
 
+
 @router.get("/me", response_model=User)
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
-    return current_user 
+    return current_user

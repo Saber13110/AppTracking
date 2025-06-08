@@ -3,6 +3,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from ..config import settings
 
+
 def send_verification_email(email: str, token: str):
     # Configuration de l'email
     sender_email = settings.SMTP_USERNAME
@@ -18,10 +19,12 @@ def send_verification_email(email: str, token: str):
 
     # Corps du message
     verification_link = f"{settings.FRONTEND_URL}/verify-email?token={token}"
-    body = f"""
+    body = (
+        f"""
     Bonjour,
 
-    Merci de vous être inscrit. Pour vérifier votre adresse email, veuillez cliquer sur le lien suivant :
+    Merci de vous être inscrit. Pour vérifier votre adresse email,
+    veuillez cliquer sur le lien suivant :
 
     {verification_link}
 
@@ -30,6 +33,7 @@ def send_verification_email(email: str, token: str):
     Cordialement,
     L'équipe de Tracking App
     """
+    )
     message.attach(MIMEText(body, "plain"))
 
     try:
@@ -60,18 +64,23 @@ def send_password_reset_email(email: str, token: str) -> bool:
     message["Subject"] = "Réinitialisation de votre mot de passe"
 
     reset_link = f"{settings.FRONTEND_URL}/reset-password?token={token}"
-    body = f"""
+    body = (
+        f"""
     Bonjour,
 
-    Vous avez demandé la réinitialisation de votre mot de passe. Pour définir un nouveau mot de passe, veuillez cliquer sur le lien suivant :
+    Vous avez demandé la réinitialisation de votre mot de passe.
+    Pour définir un nouveau mot de passe,
+    veuillez cliquer sur le lien suivant :
 
     {reset_link}
 
-    Si vous n'avez pas demandé cette réinitialisation, vous pouvez ignorer cet email.
+    Si vous n'avez pas demandé cette réinitialisation,
+    vous pouvez ignorer cet email.
 
     Cordialement,
     L'équipe de Tracking App
     """
+    )
     message.attach(MIMEText(body, "plain"))
 
     try:
@@ -86,7 +95,9 @@ def send_password_reset_email(email: str, token: str) -> bool:
         return False
 
 
-def send_tracking_update_email(email: str, tracking_number: str, status: str) -> bool:
+def send_tracking_update_email(
+    email: str, tracking_number: str, status: str
+) -> bool:
     """Send a simple tracking update email."""
     sender_email = settings.SMTP_USERNAME
     sender_password = settings.SMTP_PASSWORD

@@ -22,21 +22,29 @@ oauth2_scheme = OAuth2PasswordBearer(
     auto_error=False,
 )
 
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
+
 
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+
+def create_access_token(
+    data: dict, expires_delta: Optional[timedelta] = None
+) -> str:
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    encoded_jwt = jwt.encode(
+        to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM
+    )
     return encoded_jwt
+
 
 async def get_current_user(
     request: Request,
@@ -54,9 +62,7 @@ async def get_current_user(
         raise credentials_exception
     try:
         payload = jwt.decode(
-            token,
-            settings.SECRET_KEY,
-            algorithms=[settings.ALGORITHM]
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
         )
         email: str | None = payload.get("sub")
         if email is None:
@@ -70,24 +76,32 @@ async def get_current_user(
         raise credentials_exception
     return user
 
-async def get_current_active_user(current_user: User = Depends(get_current_user)) -> User:
+
+async def get_current_active_user(
+    current_user: User = Depends(get_current_user),
+) -> User:
     if not current_user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
 
 def require_role(*roles: UserRole):
-    """FastAPI dependency factory to ensure the current user has one of the given roles."""
+    """FastAPI dependency factory to ensure the current user has one of
+    the given roles."""
 
-    async def dependency(current_user: UserDB = Depends(get_current_active_user)) -> UserDB:
+    async def dependency(
+        current_user: UserDB = Depends(get_current_active_user),
+    ) -> UserDB:
         if current_user.role not in roles:
             raise HTTPException(status_code=403, detail="Forbidden")
         return current_user
 
     return dependency
 
+
 def get_user_by_email(db: Session, email: str) -> Optional[UserDB]:
     return db.query(UserDB).filter(UserDB.email == email).first()
+
 
 def create_user(db: Session, user: UserCreate) -> UserDB:
     hashed_password = get_password_hash(user.password)
@@ -102,7 +116,10 @@ def create_user(db: Session, user: UserCreate) -> UserDB:
     db.refresh(db_user)
     return db_user
 
-def authenticate_user(db: Session, email: str, password: str) -> Optional[UserDB]:
+
+def authenticate_user(
+    db: Session, email: str, password: str
+) -> Optional[UserDB]:
     user = get_user_by_email(db, email)
     if not user:
         return None
@@ -112,10 +129,18 @@ def authenticate_user(db: Session, email: str, password: str) -> Optional[UserDB
     db.commit()
     db.refresh(user)
     return user
+
+
 def create_refresh_token(db: Session, user: UserDB) -> str:
     token = token_urlsafe(32)
-    expires = datetime.utcnow() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
-    db_token = RefreshTokenDB(token=token, user_id=user.id, expires_at=expires)
+    expires = datetime.utcnow() + timedelta(
+        days=settings.REFRESH_TOKEN_EXPIRE_DAYS
+    )
+    db_token = RefreshTokenDB(
+        token=token,
+        user_id=user.id,
+        expires_at=expires,
+    )
     db.add(db_token)
     db.commit()
     return token
@@ -124,7 +149,9 @@ def create_refresh_token(db: Session, user: UserDB) -> str:
 def verify_refresh_token(db: Session, token: str) -> Optional[UserDB]:
     db_token = (
         db.query(RefreshTokenDB)
-        .filter(RefreshTokenDB.token == token, RefreshTokenDB.revoked.is_(False))
+        .filter(
+            RefreshTokenDB.token == token, RefreshTokenDB.revoked.is_(False)
+        )
         .first()
     )
     if not db_token:
@@ -135,16 +162,21 @@ def verify_refresh_token(db: Session, token: str) -> Optional[UserDB]:
 
 
 def revoke_refresh_token(db: Session, token: str) -> None:
-    db_token = db.query(RefreshTokenDB).filter(RefreshTokenDB.token == token).first()
+    db_token = (
+        db.query(RefreshTokenDB).filter(RefreshTokenDB.token == token).first()
+    )
     if db_token:
         db_token.revoked = True
         db.commit()
+
 
 def create_password_reset_token(db: Session, user: UserDB) -> str:
     """Create and store a password reset token for the given user."""
     token = token_urlsafe(32)
     expires = datetime.utcnow() + timedelta(hours=1)
-    db_token = PasswordResetTokenDB(token=token, user_id=user.id, expires_at=expires)
+    db_token = PasswordResetTokenDB(
+        token=token, user_id=user.id, expires_at=expires
+    )
     db.add(db_token)
     db.commit()
     return token
@@ -155,7 +187,10 @@ def verify_password_reset_token(token: str, db: Session) -> Optional[UserDB]:
 
     db_token = (
         db.query(PasswordResetTokenDB)
-        .filter(PasswordResetTokenDB.token == token, PasswordResetTokenDB.revoked.is_(False))
+        .filter(
+            PasswordResetTokenDB.token == token,
+            PasswordResetTokenDB.revoked.is_(False),
+        )
         .first()
     )
     if not db_token:
@@ -177,7 +212,9 @@ def setup_twofa(db: Session, user: UserDB) -> str:
     return secret
 
 
-def verify_twofa(db: Session, user: UserDB, code: str, activate: bool = False) -> bool:
+def verify_twofa(
+    db: Session, user: UserDB, code: str, activate: bool = False
+) -> bool:
     """Verify a TOTP code. Optionally activate 2FA for the user."""
     import pyotp
 

@@ -110,7 +110,9 @@ async def export_history(
             pdf.drawString(
                 50,
                 y,
-                f"{rec.created_at} - {rec.tracking_number} - {rec.status or ''}",
+                f"{rec.created_at} - "
+                f"{rec.tracking_number} - "
+                f"{rec.status or ''}",
             )
             y -= 15
             if y < 50:
@@ -119,13 +121,29 @@ async def export_history(
         pdf.save()
         buffer.seek(0)
         headers = {"Content-Disposition": "attachment; filename=history.pdf"}
-        return StreamingResponse(buffer, media_type="application/pdf", headers=headers)
+        return StreamingResponse(
+            buffer, media_type="application/pdf", headers=headers
+        )
 
     out = io.StringIO()
     writer = csv.writer(out)
-    writer.writerow(["created_at", "tracking_number", "status", "note", "pinned"])
+    writer.writerow(
+        ["created_at", "tracking_number", "status", "note", "pinned"]
+    )
     for rec in records:
-        writer.writerow([rec.created_at, rec.tracking_number, rec.status, rec.note, rec.pinned])
+        writer.writerow(
+            [
+                rec.created_at,
+                rec.tracking_number,
+                rec.status,
+                rec.note,
+                rec.pinned,
+            ]
+        )
     out.seek(0)
     headers = {"Content-Disposition": "attachment; filename=history.csv"}
-    return StreamingResponse(io.BytesIO(out.getvalue().encode()), media_type="text/csv", headers=headers)
+    return StreamingResponse(
+        io.BytesIO(out.getvalue().encode()),
+        media_type="text/csv",
+        headers=headers,
+    )

@@ -2,18 +2,22 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from typing import List, Dict, Any
-from ....models.colis import ColisCreate, ColisUpdate, ColisOut, ColisFilter, ColisSearchResponse
+from ....models.colis import (
+    ColisCreate,
+    ColisUpdate,
+    ColisOut,
+    ColisFilter,
+    ColisSearchResponse,
+)
 from ....services.colis_service import ColisService
 from ....database import get_db
 import os
 
 router = APIRouter()
 
+
 @router.post("/", response_model=ColisOut)
-async def create_colis(
-    colis: ColisCreate,
-    db: Session = Depends(get_db)
-):
+async def create_colis(colis: ColisCreate, db: Session = Depends(get_db)):
     """
     Create a new colis
     """
@@ -23,32 +27,33 @@ async def create_colis(
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+
 @router.get("/", response_model=List[ColisOut])
-async def list_colis(
-    db: Session = Depends(get_db)
-):
+async def list_colis(db: Session = Depends(get_db)):
     """
     List all colis
     """
     colis_service = ColisService(db)
     try:
-        colis, _ = colis_service.search_colis(ColisFilter(page=1, page_size=100))
+        colis, _ = colis_service.search_colis(
+            ColisFilter(page=1, page_size=100)
+        )
         return colis
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.get("/{identifier_type}/{value}", response_model=ColisOut)
 async def get_colis(
-    identifier_type: str,
-    value: str,
-    db: Session = Depends(get_db)
+    identifier_type: str, value: str, db: Session = Depends(get_db)
 ):
     """
     Get a colis by any identifier value (FedEx ID, reference, TCN, or barcode)
     """
     colis_service = ColisService(db)
     try:
-        # identifier_type is ignored; search by value across all identifier types
+        # identifier_type is ignored; search by value across all identifier
+        # types
         colis = colis_service.get_colis_by_identifier(value)
         if not colis:
             raise HTTPException(status_code=404, detail="Colis not found")
@@ -58,11 +63,10 @@ async def get_colis(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.put("/{colis_id}", response_model=ColisOut)
 async def update_colis(
-    colis_id: str,
-    colis_update: ColisUpdate,
-    db: Session = Depends(get_db)
+    colis_id: str, colis_update: ColisUpdate, db: Session = Depends(get_db)
 ):
     """
     Update a colis
@@ -78,11 +82,9 @@ async def update_colis(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.delete("/{colis_id}")
-async def delete_colis(
-    colis_id: str,
-    db: Session = Depends(get_db)
-):
+async def delete_colis(colis_id: str, db: Session = Depends(get_db)):
     """Delete a colis"""
     colis_service = ColisService(db)
     try:
@@ -95,11 +97,9 @@ async def delete_colis(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.post("/search", response_model=ColisSearchResponse)
-async def search_colis(
-    filters: ColisFilter,
-    db: Session = Depends(get_db)
-):
+async def search_colis(filters: ColisFilter, db: Session = Depends(get_db)):
     """
     Search and filter colis records
     """
@@ -111,33 +111,28 @@ async def search_colis(
             "total": total,
             "page": filters.page,
             "page_size": filters.page_size,
-            "total_pages": (total + filters.page_size - 1) // filters.page_size
+            "total_pages": (total + filters.page_size - 1)
+            // filters.page_size,
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.get("/stats", response_model=Dict[str, Any])
-async def get_colis_stats(
-    db: Session = Depends(get_db)
-):
+async def get_colis_stats(db: Session = Depends(get_db)):
     """
     Get colis statistics
     """
     colis_service = ColisService(db)
     try:
         stats = colis_service.get_colis_stats()
-        return {
-            "success": True,
-            "data": stats
-        }
+        return {"success": True, "data": stats}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.get("/codebar-image/{value}")
-async def get_codebar_image(
-    value: str,
-    db: Session = Depends(get_db)
-):
+async def get_codebar_image(value: str, db: Session = Depends(get_db)):
     """
     Get barcode image
     """
@@ -150,4 +145,4 @@ async def get_codebar_image(
     if not os.path.exists(image_path):
         raise HTTPException(status_code=404, detail="Image not found")
 
-    return FileResponse(image_path, media_type="image/png") 
+    return FileResponse(image_path, media_type="image/png")

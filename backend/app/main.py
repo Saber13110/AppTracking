@@ -32,11 +32,12 @@ def purge_old_history() -> None:
     finally:
         db.close()
 
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     description="API pour le suivi des colis",
     version="1.0.0",
-    openapi_url=f"{settings.API_V1_STR}/openapi.json"
+    openapi_url=f"{settings.API_V1_STR}/openapi.json",
 )
 
 # Ajout du middleware de session
@@ -50,6 +51,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 @app.on_event("startup")
 async def startup() -> None:
@@ -73,10 +75,13 @@ app.include_router(google_auth.router, prefix=settings.API_V1_STR)
 app.include_router(api_router)
 app.include_router(webhook.router)
 
+
 @app.get("/")
 async def root():
     return {"message": "Welcome to the Tracking App API"}
 
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000) 
+
+    uvicorn.run(app, host="0.0.0.0", port=8000)
