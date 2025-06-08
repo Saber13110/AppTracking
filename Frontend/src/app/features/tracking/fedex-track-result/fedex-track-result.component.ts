@@ -10,6 +10,8 @@ import { catchError } from 'rxjs/operators';
 import { throwError, Subscription } from 'rxjs';
 import { ScheduleDialogComponent } from './schedule-dialog.component';
 import { ChangeAddressDialogComponent } from './change-address-dialog.component';
+import { HoldLocationDialogComponent } from './hold-location-dialog.component';
+import { DeliveryInstructionsDialogComponent } from './delivery-instructions-dialog.component';
 
 interface FedexTrackingInfo extends TrackingInfo {
   currentLocation?: {
@@ -26,7 +28,9 @@ interface FedexTrackingInfo extends TrackingInfo {
     MatButtonModule,
     MatDialogModule,
     ScheduleDialogComponent,
-    ChangeAddressDialogComponent
+    ChangeAddressDialogComponent,
+    HoldLocationDialogComponent,
+    DeliveryInstructionsDialogComponent
   ],
   templateUrl: './fedex-track-result.component.html',
   styleUrls: ['./fedex-track-result.component.scss']
@@ -264,6 +268,12 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
         break;
       case 'change-address':
         component = ChangeAddressDialogComponent;
+        break;
+      case 'hold-location':
+        component = HoldLocationDialogComponent;
+        break;
+      case 'instructions':
+        component = DeliveryInstructionsDialogComponent;
         break;
       default:
         component = null;

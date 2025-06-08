@@ -8,6 +8,8 @@ import { FedexTrackResultComponent } from './fedex-track-result.component';
 import { TrackingService } from '../services/tracking.service';
 import { AnalyticsService } from '../../../core/services/analytics.service';
 import { ScheduleDialogComponent } from './schedule-dialog.component';
+import { HoldLocationDialogComponent } from './hold-location-dialog.component';
+import { DeliveryInstructionsDialogComponent } from './delivery-instructions-dialog.component';
 import * as notificationUtil from '../../../shared/services/notification.util';
 
 declare const google: any;
@@ -124,6 +126,20 @@ describe('FedexTrackResultComponent', () => {
 
     expect(dialog.open).toHaveBeenCalledWith(ScheduleDialogComponent, { width: '400px' });
     expect(analytics.logAction).toHaveBeenCalledWith('open_dialog', 'schedule');
+  });
+
+  it("openDialog('hold-location') should open HoldLocationDialogComponent and log action", () => {
+    component.openDialog('hold-location');
+
+    expect(dialog.open).toHaveBeenCalledWith(HoldLocationDialogComponent, { width: '400px' });
+    expect(analytics.logAction).toHaveBeenCalledWith('open_dialog', 'hold-location');
+  });
+
+  it("openDialog('instructions') should open DeliveryInstructionsDialogComponent and log action", () => {
+    component.openDialog('instructions');
+
+    expect(dialog.open).toHaveBeenCalledWith(DeliveryInstructionsDialogComponent, { width: '400px' });
+    expect(analytics.logAction).toHaveBeenCalledWith('open_dialog', 'instructions');
   });
 
   it("exportData('pdf') should trigger a download and log action", () => {
