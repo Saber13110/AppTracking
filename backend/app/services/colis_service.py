@@ -140,6 +140,25 @@ class ColisService:
             logger.error(f"Erreur lors de la mise à jour du colis: {str(e)}")
             raise
 
+    async def delete_colis(self, colis_id: str) -> bool:
+        """Supprime un colis et son fichier de code-barres"""
+        try:
+            db_colis = await self.get_colis_by_id(colis_id)
+            if not db_colis:
+                return False
+
+            barcode_path = os.path.join(self.barcode_folder, f"{db_colis.code_barre}.png")
+            if os.path.exists(barcode_path):
+                os.remove(barcode_path)
+
+            self.db.delete(db_colis)
+            self.db.commit()
+            return True
+        except Exception as e:
+            self.db.rollback()
+            logger.error(f"Erreur lors de la suppression du colis {colis_id}: {str(e)}")
+            raise
+
     async def search_colis(self, filters: ColisFilter) -> Tuple[List[ColisDB], int]:
         """Recherche des colis avec filtres"""
         query = self.db.query(ColisDB)

@@ -248,10 +248,13 @@ async def main():
              return
          colis_id = args[1]
          db = get_db_session()
-         colis_service = ColisService(db)
-         await colis_service.delete_colis(colis_id)
-         print(f"Colis {colis_id} deleted.")
-         db.close()
+        colis_service = ColisService(db)
+        deleted = await colis_service.delete_colis(colis_id)
+        if deleted:
+            print(f"Colis {colis_id} deleted.")
+        else:
+            print(f"Colis {colis_id} not found.")
+        db.close()
     else:
         print(f"Unknown command: {command}")
         print("Usage: python -m app.scripts.manage_colis [command] [options]")
