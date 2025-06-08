@@ -153,7 +153,10 @@ On the first run Docker Compose builds the backend and frontend images. Once the
 ## Running Tests
 
 Install the backend dependencies and the packages listed in
-`requirements-test.txt` before executing the test suite:
+`requirements-test.txt` before executing the test suite. Ensure the
+[required variables](#required-variables) (for example `FEDEX_CLIENT_ID`,
+`FEDEX_CLIENT_SECRET`, `FEDEX_ACCOUNT_NUMBER` and `SECRET_KEY`) are set
+in `backend/.env.local` or exported in your shell:
 
 ```bash
 pip install -r backend/requirements.txt
