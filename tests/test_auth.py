@@ -4,6 +4,7 @@ import asyncio
 from starlette.requests import Request
 from starlette.datastructures import Headers
 import pytest
+from fastapi import HTTPException
 
 # Set required env vars before importing the app modules
 os.environ.setdefault('DATABASE_URL', 'sqlite:///:memory:')
@@ -227,4 +228,31 @@ def test_password_reset_flow(db_session, patched_router):
     db_session.refresh(user)
     assert auth.verify_password("newpw", user.hashed_password)
     assert token_db.revoked is True
+
+
+def test_twofa_flow(db_session, patched_router):
+    user_data = UserCreate(email="2fa@example.com", full_name="Two", password="pw")
+    user = asyncio.run(patched_router.register(user_data, db_session))
+    asyncio.run(patched_router.verify_email(patched_router.EmailVerification(token=user.verification_token), db_session))
+
+    # Setup 2FA
+    resp = asyncio.run(patched_router.setup_2fa(current_user=user, db=db_session))
+    secret = resp["secret"]
+    import pyotp
+    code = pyotp.TOTP(secret).now()
+    verify = asyncio.run(patched_router.verify_2fa(patched_router.TwoFACode(code=code), current_user=user, db=db_session))
+    assert verify["message"] == "2FA enabled"
+    db_session.refresh(user)
+    assert user.is_twofa_enabled is True
+
+    # Login requires totp
+    form_fail = patched_router.OAuth2PasswordRequestForm(username=user.email, password="pw", scope="")
+    resp_fail = patched_router.Response()
+    with pytest.raises(HTTPException):
+        asyncio.run(patched_router.login(resp_fail, form_fail, db_session))
+
+    form_ok = patched_router.OAuth2PasswordRequestForm(username=user.email, password="pw", scope="", totp_code=pyotp.TOTP(secret).now())
+    resp_ok = patched_router.Response()
+    token_model = asyncio.run(patched_router.login(resp_ok, form_ok, db_session))
+    assert token_model.access_token
 

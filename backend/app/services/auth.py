@@ -152,3 +152,23 @@ def verify_password_reset_token(token: str, db: Session) -> Optional[UserDB]:
     if db_token.expires_at and db_token.expires_at < datetime.utcnow():
         return None
     return db.query(UserDB).filter(UserDB.id == db_token.user_id).first()
+
+
+def setup_twofa(db: Session, user: UserDB) -> str:
+    """Generate and store a TOTP secret for the user."""
+    import pyotp
+
+    secret = pyotp.random_base32()
+    user.twofa_secret = secret
+    db.commit()
+    return secret
+
+
+def verify_twofa(user: UserDB, code: str) -> bool:
+    """Verify a TOTP code for a user."""
+    import pyotp
+
+    if not user.twofa_secret:
+        return False
+    totp = pyotp.TOTP(user.twofa_secret)
+    return totp.verify(code)
