@@ -13,3 +13,6 @@ backend/venv/
 # Ignore frontend dependencies and build outputs
 Frontend/node_modules/
 Frontend/dist/
+
+# Ignore test caches
+.pytest_cache/
