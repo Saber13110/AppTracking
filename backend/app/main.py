@@ -32,11 +32,24 @@ def purge_old_history() -> None:
     finally:
         db.close()
 
+async def lifespan(app: FastAPI):
+    redis_client = redis.from_url(
+        settings.REDIS_URL, encoding="utf8", decode_responses=True
+    )
+    await FastAPILimiter.init(redis_client)
+    scheduler.add_job(purge_old_history, "interval", days=1)
+    scheduler.start()
+    yield
+    await FastAPILimiter.close()
+    scheduler.shutdown()
+
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     description="API pour le suivi des colis",
     version="1.0.0",
-    openapi_url=f"{settings.API_V1_STR}/openapi.json"
+    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    lifespan=lifespan,
 )
 
 # Ajout du middleware de session
@@ -51,20 +64,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.on_event("startup")
-async def startup() -> None:
-    redis_client = redis.from_url(
-        settings.REDIS_URL, encoding="utf8", decode_responses=True
-    )
-    await FastAPILimiter.init(redis_client)
-    scheduler.add_job(purge_old_history, "interval", days=1)
-    scheduler.start()
-
-
-@app.on_event("shutdown")
-async def shutdown() -> None:
-    await FastAPILimiter.close()
-    scheduler.shutdown()
 
 
 # Inclusion des routeurs
