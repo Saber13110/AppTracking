@@ -1,10 +1,14 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from ....services.auth import get_current_active_user
 from ....database import get_db
 from ....models.user import UserDB
 from ....services.tracking_history_service import TrackingHistoryService
-from ....models.tracking_history import TrackedShipment, TrackedShipmentCreate
+from ....models.tracking_history import (
+    TrackedShipment,
+    TrackedShipmentCreate,
+    TrackedShipmentUpdate,
+)
 
 router = APIRouter()
 
@@ -32,5 +36,25 @@ async def add_history(
         status=shipment.status,
         meta_data=shipment.meta_data,
         note=shipment.note,
+        pinned=shipment.pinned,
     )
+    return record
+
+
+@router.patch("/{record_id}", response_model=TrackedShipment)
+async def update_history(
+    record_id: str,
+    update: TrackedShipmentUpdate,
+    current_user: UserDB = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    service = TrackingHistoryService(db)
+    record = service.update_record(
+        record_id,
+        current_user.id,
+        note=update.note,
+        pinned=update.pinned,
+    )
+    if not record:
+        raise HTTPException(status_code=404, detail="Record not found")
     return record

@@ -13,7 +13,7 @@ from sqlalchemy.orm import relationship, declarative_base
 from datetime import datetime
 from .notification import NotificationType, NotificationPriority
 from .tracking import PackageStatus, PackageType
-from sqlalchemy.sql import func
+from sqlalchemy.sql import func, text as sa_text
 import uuid
 
 Base = declarative_base()
@@ -158,4 +158,5 @@ class TrackedShipmentDB(Base):
     status = Column(String, nullable=True)
     meta_data = Column(JSON, default=dict)
     note = Column(String, nullable=True)
+    pinned = Column(Boolean, nullable=False, server_default=sa_text('0'))
     created_at = Column(DateTime(timezone=True), server_default=func.now())

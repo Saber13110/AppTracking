@@ -1,15 +1,17 @@
 <div class="history">
   <h2>Tracking History</h2>
-  <ng-container *ngIf="history.length; else none">
+  <ng-container *ngIf="records.length; else none">
     <ul>
-      <li *ngFor="let id of history">
-        <a [routerLink]="['/track', id]">{{ id }}</a>
+      <li *ngFor="let rec of records">
+        <a [routerLink]="['/track', rec.tracking_number]">{{ rec.tracking_number }}</a>
+        <button (click)="togglePin(rec)">{{ rec.pinned ? 'Unpin' : 'Pin' }}</button>
+        <input [(ngModel)]="rec.note" (blur)="updateNote(rec)" placeholder="note" />
         <button role="button"
                 tabindex="0"
-                aria-label="Delete {{id}} from history"
-                (click)="delete(id)"
-                (keydown.enter)="delete(id)"
-                (keydown.space)="delete(id)">Delete</button>
+                aria-label="Delete {{rec.tracking_number}} from history"
+                (click)="delete(rec.tracking_number)"
+                (keydown.enter)="delete(rec.tracking_number)"
+                (keydown.space)="delete(rec.tracking_number)">Delete</button>
       </li>
     </ul>
     <button role="button"

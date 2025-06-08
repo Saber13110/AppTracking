@@ -18,7 +18,7 @@ export class TrackingHistoryService {
     return raw ? JSON.parse(raw) as string[] : [];
   }
 
-  addIdentifier(id: string, status?: string, note?: string, metaData?: any): void {
+  addIdentifier(id: string, status?: string, note?: string, metaData?: any, pinned?: boolean): void {
     const history = this.getHistory().filter(item => item !== id);
     history.unshift(id);
     if (history.length > this.maxItems) {
@@ -30,11 +30,20 @@ export class TrackingHistoryService {
     if (status !== undefined) payload.status = status;
     if (note !== undefined) payload.note = note;
     if (metaData !== undefined) payload.meta_data = metaData;
+    if (pinned !== undefined) payload.pinned = pinned;
 
     this.http.post(`${environment.apiUrl}/history`, payload).subscribe({
       next: () => {},
       error: () => {}
     });
+  }
+
+  async getServerHistory(): Promise<any[]> {
+    return firstValueFrom(this.http.get<any[]>(`${environment.apiUrl}/history`));
+  }
+
+  updateRecord(id: string, data: { note?: string; pinned?: boolean }): void {
+    this.http.patch(`${environment.apiUrl}/history/${id}`, data).subscribe();
   }
 
   removeIdentifier(id: string): void {

@@ -17,6 +17,7 @@ class TrackingHistoryService:
         status: str | None = None,
         meta_data: dict | None = None,
         note: str | None = None,
+        pinned: bool | None = False,
     ) -> TrackedShipmentDB | None:
         """Persist a search in the user's tracking history."""
         try:
@@ -26,6 +27,7 @@ class TrackingHistoryService:
                 status=status,
                 meta_data=meta_data or {},
                 note=note,
+                pinned=pinned or False,
             )
             self.db.add(record)
             self.db.commit()
@@ -43,3 +45,34 @@ class TrackingHistoryService:
             .order_by(TrackedShipmentDB.created_at.desc())
             .all()
         )
+
+    def update_record(
+        self,
+        record_id: str,
+        user_id: int,
+        *,
+        note: str | None = None,
+        pinned: bool | None = None,
+    ) -> TrackedShipmentDB | None:
+        record = (
+            self.db.query(TrackedShipmentDB)
+            .filter(
+                TrackedShipmentDB.id == record_id,
+                TrackedShipmentDB.user_id == user_id,
+            )
+            .first()
+        )
+        if not record:
+            return None
+        if note is not None:
+            record.note = note
+        if pinned is not None:
+            record.pinned = pinned
+        try:
+            self.db.commit()
+            self.db.refresh(record)
+            return record
+        except Exception as e:
+            self.db.rollback()
+            logger.error(f"Failed to update tracking record: {e}")
+            return None
