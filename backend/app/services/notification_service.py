@@ -283,6 +283,7 @@ class NotificationService:
                     addresses=pref.addresses or [],
                     preferred_language=pref.preferred_language,
                     event_settings=pref.event_settings or {},
+                    default_account=pref.default_account,
                 ),
             )
         except Exception as e:
@@ -330,6 +331,7 @@ class NotificationService:
             pref.addresses = preferences.addresses[:5]
             pref.preferred_language = preferences.preferred_language
             pref.event_settings = preferences.event_settings
+            pref.default_account = preferences.default_account
 
             self.db.commit()
             self.db.refresh(pref)
@@ -340,6 +342,7 @@ class NotificationService:
                     addresses=pref.addresses or [],
                     preferred_language=pref.preferred_language,
                     event_settings=pref.event_settings or {},
+                    default_account=pref.default_account,
                 ),
             )
         except Exception as e:

@@ -13,15 +13,15 @@ export class TrackingService {
 
   constructor(private http: HttpClient) {}
 
-  trackPackage(identifier: string): Observable<TrackingResponse> {
-    return this.http.get<TrackingResponse>(`${this.baseUrl}/${identifier}`);
+  trackPackage(identifier: string, account?: string): Observable<TrackingResponse> {
+    const url = account ? `${this.baseUrl}/${identifier}?account=${account}` : `${this.baseUrl}/${identifier}`;
+    return this.http.get<TrackingResponse>(url);
   }
 
-  trackNumber(trackingNumber: string, packageName?: string): Observable<TrackingResponse> {
-    return this.http.post<TrackingResponse>(`${this.baseUrl}/create`, {
-      id: trackingNumber,
-      description: packageName
-    });
+  trackNumber(trackingNumber: string, packageName?: string, account?: string): Observable<TrackingResponse> {
+    const payload: any = { id: trackingNumber, description: packageName };
+    if (account) payload.account = account;
+    return this.http.post<TrackingResponse>(`${this.baseUrl}/create`, payload);
   }
 
   trackReference(reference: string): Observable<TrackingResponse> {

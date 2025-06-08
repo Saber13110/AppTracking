@@ -4,6 +4,9 @@
 </div>
 <div class="filter-box">
   <input type="text" [(ngModel)]="filterText" (ngModelChange)="applyFilter()" placeholder="Filter shipments" />
+  <select [(ngModel)]="selectedAccount" (change)="updateAccount()">
+    <option *ngFor="let acc of accounts" [value]="acc">{{ acc }}</option>
+  </select>
 </div>
 
 <div *ngIf="viewMode === 'list'">

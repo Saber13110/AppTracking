@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { TrackingService, TrackingInfo } from '../tracking/services/tracking.service';
 import { TrackingHistoryService } from '../../core/services/tracking-history.service';
+import { NotificationService } from '../../core/services/notification.service';
 
 @Component({
   selector: 'app-advanced-shipment-tracking',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './advanced-shipment-tracking.component.html',
   styleUrls: ['./advanced-shipment-tracking.component.scss']
 })
@@ -16,15 +17,21 @@ export class AdvancedShipmentTrackingComponent {
   result: TrackingInfo | null = null;
   error: string | null = null;
   loading = false;
+  accounts: string[] = ['A001', 'A002'];
+  selectedAccount = '';
 
   constructor(
     private fb: FormBuilder,
     private trackingService: TrackingService,
-    private history: TrackingHistoryService
+    private history: TrackingHistoryService,
+    private notif: NotificationService
   ) {
     this.form = this.fb.group({
       trackingNumber: ['', Validators.required],
       packageName: ['']
+    });
+    this.notif.getPreferences().subscribe(p => {
+      this.selectedAccount = p.default_account || this.accounts[0];
     });
   }
 
@@ -35,7 +42,7 @@ export class AdvancedShipmentTrackingComponent {
     const { trackingNumber, packageName } = this.form.value;
     this.loading = true;
     this.error = null;
-    this.trackingService.trackPackage(trackingNumber).subscribe({
+    this.trackingService.trackPackage(trackingNumber, this.selectedAccount).subscribe({
       next: res => {
         if (res.success && res.data) {
           this.result = res.data;
@@ -52,5 +59,15 @@ export class AdvancedShipmentTrackingComponent {
         this.result = null;
       }
     });
+  }
+
+  updateAccount() {
+    this.notif.updatePreferences({
+      email_updates: true,
+      addresses: [],
+      preferred_language: 'en',
+      event_settings: {},
+      default_account: this.selectedAccount
+    }).subscribe();
   }
 }

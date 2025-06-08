@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CalendarModule, CalendarEvent } from 'angular-calendar';
 import { startOfDay } from 'date-fns';
 import { ShipmentService, Shipment } from '../../core/services/shipment.service';
+import { NotificationService } from '../../core/services/notification.service';
 
 @Component({
   selector: 'app-shipments',
@@ -19,11 +20,16 @@ export class ShipmentsComponent implements OnInit {
   filterText = '';
   viewMode: 'list' | 'calendar' = 'list';
   viewDate: Date = new Date();
+  accounts: string[] = ['A001', 'A002'];
+  selectedAccount = '';
 
-  constructor(private shipmentService: ShipmentService) {}
+  constructor(private shipmentService: ShipmentService, private notif: NotificationService) {}
 
   ngOnInit() {
     this.loadShipments();
+    this.notif.getPreferences().subscribe(p => {
+      this.selectedAccount = p.default_account || this.accounts[0];
+    });
   }
 
   loadShipments() {
@@ -52,5 +58,15 @@ export class ShipmentsComponent implements OnInit {
 
   setView(mode: 'list' | 'calendar') {
     this.viewMode = mode;
+  }
+
+  updateAccount() {
+    this.notif.updatePreferences({
+      email_updates: true,
+      addresses: [],
+      preferred_language: 'en',
+      event_settings: {},
+      default_account: this.selectedAccount
+    }).subscribe();
   }
 }

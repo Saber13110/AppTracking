@@ -43,7 +43,8 @@ async def create_package(
     colis_data: ColisCreate,
     request: Request,
     db: Session = Depends(get_db),
-    token: str | None = Depends(oauth2_scheme)
+    token: str | None = Depends(oauth2_scheme),
+    account: str | None = None
 ):
     """
     Create a new package with the given FedEx ID
@@ -66,7 +67,7 @@ async def create_package(
             )
 
         # Track the newly created package
-        fedex_service = FedExService()
+        fedex_service = FedExService(account)
         response = await fedex_service.track_package(colis.id)
 
         # Add metadata about the identifier used
@@ -118,14 +119,15 @@ async def track_package(
     identifier: str,
     request: Request,
     db: Session = Depends(get_db),
-    token: str | None = Depends(oauth2_scheme)
+    token: str | None = Depends(oauth2_scheme),
+    account: str | None = None
 ):
     """
     Track a single package by any identifier (FedEx ID, reference, TCN, or barcode)
     """
     try:
         colis_service = ColisService(db)
-        fedex_service = FedExService()
+        fedex_service = FedExService(account)
 
         # Try to find the colis using any identifier type
         colis = colis_service.get_colis_by_identifier(identifier)
@@ -213,12 +215,13 @@ async def track_package(
 @router.post("/batch", response_model=List[TrackingResponse])
 async def track_multiple_packages(
     tracking_numbers: List[str],
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    account: str | None = None
 ):
     """
     Track multiple packages (max 40)
     """
-    tracking_service = TrackingService(db=db)
+    tracking_service = TrackingService(db=db, account=account)
     response = tracking_service.track_multiple_packages(tracking_numbers)
     if not response:
         raise HTTPException(status_code=400, detail="Failed to track packages")
@@ -229,9 +232,10 @@ async def track_multiple_packages(
 async def track_by_email(
     request: TrackByEmailRequest,
     db: Session = Depends(get_db),
+    account: str | None = None
 ):
     """Track a package and send the result via email."""
-    fedex_service = FedExService()
+    fedex_service = FedExService(account)
     response = await fedex_service.track_package(request.tracking_number)
     if response.success:
         status = response.data.status if response.data else ""
@@ -245,12 +249,13 @@ async def track_by_email(
 @router.post("/search", response_model=Dict[str, Any])
 async def search_trackings(
     filters: TrackingFilter,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    account: str | None = None
 ):
     """
     Search and filter tracking records
     """
-    tracking_service = TrackingService(db=db)
+    tracking_service = TrackingService(db=db, account=account)
     try:
         results, total_count = tracking_service.search_trackings(filters)
         return {
@@ -266,12 +271,13 @@ async def search_trackings(
 
 @router.get("/stats", response_model=Dict[str, Any])
 async def get_tracking_stats(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    account: str | None = None
 ):
     """
     Get tracking statistics
     """
-    tracking_service = TrackingService(db=db)
+    tracking_service = TrackingService(db=db, account=account)
     try:
         stats = tracking_service.get_tracking_stats()
         return {
@@ -283,29 +289,29 @@ async def get_tracking_stats(
 
 
 @router.get("/number/{tracking_number}", response_model=TrackingResponse)
-async def track_by_number(tracking_number: str, db: Session = Depends(get_db)):
+async def track_by_number(tracking_number: str, db: Session = Depends(get_db), account: str | None = None):
     """Track a package using its tracking number."""
-    return await track_package(tracking_number, db)
+    return await track_package(tracking_number, db=db, account=account)
 
 
 @router.get("/reference/{reference}", response_model=TrackingResponse)
-async def track_by_reference(reference: str, db: Session = Depends(get_db)):
+async def track_by_reference(reference: str, db: Session = Depends(get_db), account: str | None = None):
     """Track a package using its reference."""
     colis_service = ColisService(db)
     colis = colis_service.get_colis_by_reference(reference)
     if not colis:
         raise HTTPException(status_code=404, detail="Colis not found")
-    return await track_package(colis.id, db)
+    return await track_package(colis.id, db=db, account=account)
 
 
 @router.get("/tcn/{tcn}", response_model=TrackingResponse)
-async def track_by_tcn(tcn: str, db: Session = Depends(get_db)):
+async def track_by_tcn(tcn: str, db: Session = Depends(get_db), account: str | None = None):
     """Track a package using its TCN."""
     colis_service = ColisService(db)
     colis = colis_service.get_colis_by_tcn(tcn)
     if not colis:
         raise HTTPException(status_code=404, detail="Colis not found")
-    return await track_package(colis.id, db)
+    return await track_package(colis.id, db=db, account=account)
 
 
 @router.get("/{identifier}/export")
