@@ -75,3 +75,11 @@ On the first run Docker Compose builds the backend and frontend images. Once the
 - Backend: http://localhost:8000
 - Frontend: http://localhost:4200
 - Redis: localhost:6379
+
+## Double authentification
+
+- exécutez `/auth/setup-2fa` pour obtenir l'URL du QR à scanner ;
+- saisissez le code retourné dans `/auth/verify-2fa` pour activer la protection ;
+- lors de la connexion, renseignez le champ `totp_code` si l'option est activée.
+
+Le paquet `pyotp` utilisé pour générer les codes TOTP figure déjà dans `backend/requirements.txt`.
