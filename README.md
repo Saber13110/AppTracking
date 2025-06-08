@@ -99,6 +99,16 @@ npm install
 npm start
 ```
 
+## Supported browsers
+
+The application is tested with Playwright on the following browsers:
+
+- Google Chrome (Chromium)
+- Mozilla Firefox
+- Apple Safari (WebKit)
+
+Other browsers may work but are not officially supported.
+
 ## Setup
 
 After cloning the repository, copy the example environment files:
