@@ -20,3 +20,5 @@ The repository excludes `backend/.env` from version control. Store your secrets 
 
 `REDIS_URL` controls the Redis connection used for rate limiting. If omitted, the API defaults to `redis://localhost:6379/0`.
 
+The frontend needs a Google Maps API key. Set `GOOGLE_MAPS_API_KEY` in a `.env` file at the project root or export it in your shell before running the Angular app.
+
