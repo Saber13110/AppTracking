@@ -371,7 +371,7 @@ async def get_proof_of_delivery(identifier: str, db: Session = Depends(get_db)):
     colis_service = ColisService(db)
     fedex_service = FedExService()
 
-    colis = await colis_service.get_colis_by_identifier(identifier)
+    colis = colis_service.get_colis_by_identifier(identifier)
     tracking_number = colis.id if colis else identifier
 
     try:
