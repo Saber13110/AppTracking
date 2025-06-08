@@ -1,4 +1,9 @@
-<div class="upload-wrapper" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
+<div class="upload-wrapper"
+     [class.drag-over]="isDragOver"
+     [class.file-selected]="fileSelected"
+     (dragover)="onDragOver($event)"
+     (dragleave)="onDragLeave($event)"
+     (drop)="onDrop($event)">
   <p>Déposez une image ou choisissez un fichier :</p>
   <input type="file" accept="image/*" (change)="onFileSelected($event)" />
 </div>

@@ -13,11 +13,14 @@ import { showNotification } from '../../shared/services/notification.util';
 })
 export class BarcodeUploadComponent {
   @Input() control: AbstractControl | null = null;
+  isDragOver = false;
+  fileSelected = false;
 
   constructor(private trackingService: TrackingService) {}
 
   onFileSelected(event: any): void {
     const file: File = event.target.files?.[0];
+    this.fileSelected = !!file;
     if (file) {
       this.decode(file);
     }
@@ -25,7 +28,9 @@ export class BarcodeUploadComponent {
 
   onDrop(event: DragEvent): void {
     event.preventDefault();
+    this.isDragOver = false;
     const file = event.dataTransfer?.files?.[0];
+    this.fileSelected = !!file;
     if (file) {
       this.decode(file);
     }
@@ -33,6 +38,12 @@ export class BarcodeUploadComponent {
 
   onDragOver(event: DragEvent): void {
     event.preventDefault();
+    this.isDragOver = true;
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragOver = false;
   }
 
   private decode(file: File) {

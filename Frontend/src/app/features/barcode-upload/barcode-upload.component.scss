@@ -1,6 +1,29 @@
+@use "sass:color";
+
+$primary-color: #4d148c; // FedEx purple
+$light-gray: #f5f5f5;
+
 .upload-wrapper {
-  border: 2px dashed #ccc;
+  border: 2px dashed $primary-color;
   padding: 1rem;
   text-align: center;
   cursor: pointer;
+  background-color: $light-gray;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+
+  &:hover,
+  &.drag-over {
+    border-color: color.mix($primary-color, black, 10%);
+    background-color: color.mix($light-gray, $primary-color, 10%);
+  }
+
+  &.file-selected {
+    border-style: solid;
+    background-color: color.mix($light-gray, $primary-color, 20%);
+  }
+
+  input[type='file'] {
+    font-family: inherit;
+  }
 }
