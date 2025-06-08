@@ -14,7 +14,7 @@
 
   <!-- Tracking information -->
   <div *ngIf="!loading && trackingData">
-    <div class="summary-card mb-4">
+    <div class="summary-card mb-4" aria-label="Carte de suivi" role="region">
       <div class="summary-header">
         <h3>#{{ trackingData.tracking_number }}</h3>
         <span>{{ trackingData.carrier }} {{ trackingData.service_type }}</span>
@@ -113,8 +113,8 @@
 
     <div *ngIf="trackingData.tracking_history?.length">
       <h3 class="font-bold mb-2">Historique</h3>
-      <div class="timeline">
-        <div *ngFor="let event of trackingData.tracking_history; let i = index" [ngClass]="getItemClasses(event, i)">
+      <div class="timeline" role="list" aria-label="Historique du suivi">
+        <div *ngFor="let event of trackingData.tracking_history; let i = index" [ngClass]="getItemClasses(event, i)" role="listitem" tabindex="0">
           <div class="timeline-icon">
             <span class="material-icons">local_shipping</span>
           </div>
