@@ -35,11 +35,14 @@ declare global {
 export class TrackResultComponent implements OnInit, OnDestroy {
   trackingInfo: TrackingInfo | null = null;
   loading = true;
+  refreshing = false;
   error: string | null = null;
 
   map: google.maps.Map | null = null;
   markers: any[] = [];
   polyline: google.maps.Polyline | null = null;
+  private refreshIntervalId: any;
+  private identifier: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -52,13 +55,25 @@ export class TrackResultComponent implements OnInit, OnDestroy {
     this.route.params.subscribe(params => {
       const identifier = params['identifier'];
       if (identifier) {
+        this.identifier = identifier;
         this.loadTrackingInfo(identifier);
+        if (this.refreshIntervalId) {
+          clearInterval(this.refreshIntervalId);
+        }
+        this.refreshIntervalId = setInterval(() => {
+          if (this.identifier) {
+            this.refreshing = true;
+            this.loadTrackingInfo(this.identifier);
+          }
+        }, 30000);
       }
     });
   }
 
   private loadTrackingInfo(identifier: string) {
-    this.loading = true;
+    if (!this.refreshing) {
+      this.loading = true;
+    }
     this.error = null;
 
     this.trackingService.trackPackage(identifier).subscribe({
@@ -71,10 +86,12 @@ export class TrackResultComponent implements OnInit, OnDestroy {
           this.error = response.error || 'Impossible de récupérer les informations de suivi';
         }
         this.loading = false;
+        this.refreshing = false;
       },
       error: (err) => {
         this.error = 'Une erreur est survenue lors de la récupération des informations';
         this.loading = false;
+        this.refreshing = false;
         console.error('Erreur de suivi:', err);
       }
     });
@@ -149,6 +166,9 @@ export class TrackResultComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    if (this.refreshIntervalId) {
+      clearInterval(this.refreshIntervalId);
+    }
     this.markers.forEach(m => m.setMap(null));
     if (this.polyline) {
       this.polyline.setMap(null);
