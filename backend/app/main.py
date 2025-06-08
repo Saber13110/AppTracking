@@ -5,16 +5,21 @@ from starlette.middleware.sessions import SessionMiddleware
 from dotenv import load_dotenv
 from fastapi_limiter import FastAPILimiter
 import redis.asyncio as redis
+from apscheduler.schedulers.background import BackgroundScheduler
 
 from .config import settings
 from .routers import auth, google_auth
 from .api.v1.api import api_router
+from .tasks.cleanup import cleanup_tracked_shipments
 
 # Chargement des variables d'environnement
 load_dotenv()
 
 # Configure global logging
 logging.basicConfig(level=logging.INFO)
+
+# Scheduler for periodic tasks
+scheduler = BackgroundScheduler()
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -41,11 +46,14 @@ async def startup() -> None:
         settings.REDIS_URL, encoding="utf8", decode_responses=True
     )
     await FastAPILimiter.init(redis_client)
+    scheduler.add_job(cleanup_tracked_shipments, "interval", days=1)
+    scheduler.start()
 
 
 @app.on_event("shutdown")
 async def shutdown() -> None:
     await FastAPILimiter.close()
+    scheduler.shutdown()
 
 
 # Inclusion des routeurs

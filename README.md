@@ -23,6 +23,7 @@ Both `backend/.env` and `backend/.env.local` are ignored by Git. Store your secr
 `SECRET_KEY` must be provided in production. Define it in `backend/.env.local` or set the environment variable before starting the backend.
 
 `REDIS_URL` controls the Redis connection used for rate limiting. If omitted, the API defaults to `redis://localhost:6379/0`.
+`HISTORY_RETENTION_DAYS` sets how long tracked shipment history is kept before automatic cleanup. The default is 30 days.
 
 The frontend needs a Google Maps API key. Set `GOOGLE_MAPS_API_KEY` in a `.env` file at the project root or export it in your shell before running the Angular app.
 

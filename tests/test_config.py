@@ -18,3 +18,15 @@ def test_secret_key_required(monkeypatch):
         "SECRET_KEY must be set (see README: Environment Variables)"
         in str(excinfo.value)
     )
+
+
+def test_history_retention_default(monkeypatch):
+    monkeypatch.delenv("HISTORY_RETENTION_DAYS", raising=False)
+    importlib.reload(config_module)
+    assert config_module.settings.HISTORY_RETENTION_DAYS == 30
+
+
+def test_history_retention_from_env(monkeypatch):
+    monkeypatch.setenv("HISTORY_RETENTION_DAYS", "7")
+    importlib.reload(config_module)
+    assert config_module.settings.HISTORY_RETENTION_DAYS == 7
