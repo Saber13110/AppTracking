@@ -13,7 +13,7 @@ os.environ.setdefault('SECRET_KEY', 'testsecret')
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from backend.app.models.database import Base as ModelsBase
-from backend.app.models.colis import ColisCreate
+from backend.app.models.colis import ColisCreate, ColisUpdate
 from backend.app.services.colis_service import ColisService
 from backend.app.api.v1.endpoints import colis as colis_router
 
@@ -29,6 +29,23 @@ def setup_colis(db, monkeypatch, colis_id="TESTDEL"):
     service = ColisService(db)
     service.create_colis(ColisCreate(id=colis_id, description="d"))
     return service.get_colis_by_id, colis_id
+
+
+def test_create_colis(db_session, monkeypatch):
+    monkeypatch.setattr(ColisService, "generate_codebar_image", lambda self, v: "dummy.png")
+    create = ColisCreate(id="NEWID", description="hello")
+    resp = asyncio.run(colis_router.create_colis(create, db_session))
+    assert resp.id == "NEWID"
+    service = ColisService(db_session)
+    assert service.get_colis_by_id("NEWID") is not None
+
+
+def test_update_colis(db_session, monkeypatch):
+    get_colis, colis_id = setup_colis(db_session, monkeypatch)
+    update = ColisUpdate(description="updated")
+    resp = asyncio.run(colis_router.update_colis(colis_id, update, db_session))
+    assert resp.description == "updated"
+    assert get_colis(colis_id).description == "updated"
 
 
 def test_delete_colis_success(db_session, monkeypatch):

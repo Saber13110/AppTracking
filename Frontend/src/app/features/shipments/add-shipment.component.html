@@ -1,0 +1,12 @@
+<h2>Add Shipment</h2>
+<form [formGroup]="form" (ngSubmit)="submit()" class="ship-form">
+  <div class="form-group">
+    <label>ID</label>
+    <input formControlName="id" />
+  </div>
+  <div class="form-group">
+    <label>Description</label>
+    <input formControlName="description" />
+  </div>
+  <button type="submit" class="btn btn--primary">Save</button>
+</form>

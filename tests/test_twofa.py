@@ -14,6 +14,7 @@ os.environ.setdefault('SECRET_KEY', 'testsecret')
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from backend.app.models.user import UserCreate
+from backend.app.services import auth  # Ensure RefreshTokenDB is registered
 
 
 

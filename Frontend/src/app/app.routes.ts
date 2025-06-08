@@ -21,6 +21,8 @@ import { ResendVerificationComponent } from './features/auth/resend-verification
 import { NewsDetailComponent } from './features/news/news-detail.component';
 import { HistoryComponent } from './features/history/history.component';
 import { ShipmentsComponent } from './features/shipments/shipments.component';
+import { AddShipmentComponent } from './features/shipments/add-shipment.component';
+import { EditShipmentComponent } from './features/shipments/edit-shipment.component';
 import { NotFoundComponent } from './shared/not-found.component';
 
 // Assuming you might have other standalone components or lazy-loaded routes
@@ -43,6 +45,8 @@ export const routes: Routes = [
   { path: 'fedex-track/:identifier', component: FedexTrackResultComponent, canActivate: [AuthGuard] },
   { path: 'notifications', component: NotificationsComponent, canActivate: [AuthGuard] },
   { path: 'shipments', component: ShipmentsComponent, canActivate: [AuthGuard] },
+  { path: 'shipments/new', component: AddShipmentComponent, canActivate: [AuthGuard] },
+  { path: 'shipments/:id/edit', component: EditShipmentComponent, canActivate: [AuthGuard] },
   { path: 'history', component: HistoryComponent, canActivate: [AuthGuard] },
   {
     path: 'help',
