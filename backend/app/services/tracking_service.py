@@ -3,7 +3,11 @@ from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime
 from .fedex_service import FedExService
 from ..models.tracking import (
-    TrackingInfo, TrackingResponse, TrackingFilter
+    TrackingInfo,
+    TrackingResponse,
+    TrackingFilter,
+    PackageStatus,
+    PackageType,
 )
 from sqlalchemy.orm import Session
 from sqlalchemy import asc, desc, and_
@@ -82,16 +86,18 @@ class TrackingService:
             responses.append(response)
         return responses
 
-    def update_tracking(self, tracking_id: str,
-                        customer_name: Optional[str] = None,
-                        note: Optional[str] = None) -> TrackingResponse:
+    async def update_tracking(
+        self,
+        tracking_id: str,
+        customer_name: Optional[str] = None,
+        note: Optional[str] = None,
+    ) -> TrackingResponse:
         """
         Update tracking information
         """
         try:
             logger.info(f"Updating tracking info for package {tracking_id}")
-            
-            # Validate tracking number
+
             if not self._validate_tracking_number(tracking_id):
                 return TrackingResponse(
                     success=False,
@@ -99,21 +105,68 @@ class TrackingService:
                     error="Invalid tracking number format. FedEx tracking numbers must be 12 digits.",
                     metadata={
                         'timestamp': datetime.now().isoformat(),
-                        'tracking_number': tracking_id
-                    }
+                        'tracking_number': tracking_id,
+                    },
                 )
 
-            # Note: FedEx API doesn't support updating tracking information
-            # This is a placeholder for future implementation
-            return TrackingResponse(
-                success=False,
-                data=None,
-                error="Updating tracking information is not supported by FedEx API",
-                metadata={
-                    'timestamp': datetime.now().isoformat(),
-                    'tracking_number': tracking_id
-                }
-            )
+            # Fetch latest info from FedEx
+            tracking_resp = await self.fedex_service.track_package(tracking_id)
+            if not tracking_resp.success:
+                return tracking_resp
+
+            info = tracking_resp.data
+
+            try:
+                record = (
+                    self.db.query(TrackingDB)
+                    .filter(TrackingDB.tracking_number == tracking_id)
+                    .first()
+                )
+                if not record:
+                    status = PackageStatus.UNKNOWN
+                    ptype = PackageType.UNKNOWN
+                    if info:
+                        try:
+                            status = PackageStatus(info.status)
+                        except ValueError:
+                            status = PackageStatus.UNKNOWN
+                        try:
+                            ptype = PackageType(info.service_type)
+                        except ValueError:
+                            ptype = PackageType.UNKNOWN
+                    record = TrackingDB(
+                        tracking_number=tracking_id,
+                        carrier="FedEx",
+                        status=status,
+                        package_type=ptype,
+                        meta_data={},
+                    )
+                    self.db.add(record)
+                else:
+                    if info:
+                        try:
+                            record.status = PackageStatus(info.status)
+                        except ValueError:
+                            record.status = PackageStatus.UNKNOWN
+                        try:
+                            record.package_type = PackageType(info.service_type)
+                        except ValueError:
+                            record.package_type = PackageType.UNKNOWN
+
+                meta = record.meta_data or {}
+                if customer_name is not None:
+                    meta['customer_name'] = customer_name
+                if note is not None:
+                    meta['note'] = note
+                record.meta_data = meta
+
+                self.db.commit()
+                self.db.refresh(record)
+            except Exception as db_exc:
+                self.db.rollback()
+                logger.error(f"Database error while updating tracking {tracking_id}: {db_exc}")
+
+            return tracking_resp
 
         except Exception as e:
             error_msg = f"Unexpected error updating tracking info: {str(e)}"
@@ -124,8 +177,8 @@ class TrackingService:
                 error=error_msg,
                 metadata={
                     'timestamp': datetime.now().isoformat(),
-                    'tracking_number': tracking_id
-                }
+                    'tracking_number': tracking_id,
+                },
             )
 
     def search_trackings(self, filters: TrackingFilter) -> Tuple[List[TrackingInfo], int]:

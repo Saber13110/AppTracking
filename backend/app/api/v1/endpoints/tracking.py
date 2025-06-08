@@ -38,6 +38,11 @@ class TrackByEmailRequest(BaseModel):
     tracking_number: str
     email: str
 
+
+class UpdateTrackingRequest(BaseModel):
+    customer_name: Optional[str] = None
+    note: Optional[str] = None
+
 @router.post("/create", response_model=TrackingResponse)
 async def create_package(
     colis_data: ColisCreate,
@@ -211,6 +216,23 @@ async def track_package(
                 "identifier": identifier
             }
         )
+
+
+@router.patch("/{tracking_number}", response_model=TrackingResponse)
+async def update_tracking(
+    tracking_number: str,
+    update: UpdateTrackingRequest,
+    db: Session = Depends(get_db),
+    account: str | None = None,
+):
+    """Update stored tracking information."""
+    tracking_service = TrackingService(db=db, account=account)
+    response = await tracking_service.update_tracking(
+        tracking_number,
+        customer_name=update.customer_name,
+        note=update.note,
+    )
+    return response
 
 @router.post("/batch", response_model=List[TrackingResponse])
 async def track_multiple_packages(
