@@ -29,7 +29,7 @@
 
       <!-- Default tracking form (TRACK) -->
       <div *ngIf="selectedHeroFeature === null" class="tracking-form">
-        <form [formGroup]="trackingForm" (ngSubmit)="onSubmit()">
+        <form [formGroup]="trackingForm" (ngSubmit)="trackPackage()">
           <div class="tracking-form__input-group">
             <input type="text" formControlName="trackingNumber" class="tracking-form__input" placeholder="Enter your tracking number">
             <button type="submit" class="tracking-form__btn">
@@ -55,7 +55,7 @@
       <!-- Obtain Your Proof Option -->
       <div *ngIf="selectedHeroFeature === 'obtain_proof'" class="obtain-proof-option">
         <p>Enter tracking ID to download your proof of delivery.</p>
-        <form [formGroup]="trackingForm" (ngSubmit)="onSubmit()">
+        <form [formGroup]="trackingForm" (ngSubmit)="trackPackage()">
           <div class="tracking-form__input-group">
             <input type="text" formControlName="trackingNumber" class="tracking-form__input" placeholder="Enter tracking ID">
             <button type="submit" class="tracking-form__btn">

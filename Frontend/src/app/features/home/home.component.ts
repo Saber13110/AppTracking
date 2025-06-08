@@ -324,15 +324,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
-  onSubmit() {
-    if (this.trackingForm.valid) {
-      const trackingNumber = this.trackingForm.get('trackingNumber')?.value;
-      this.router.navigate(['/tracking', trackingNumber]);
-    }
-  }
-
   // === TRAITEMENT TRACKING
   trackPackage(): void {
+    if (this.trackingForm.invalid) {
+      return;
+    }
     const identifier = this.trackingForm.get('trackingNumber')?.value.trim();
     if (!identifier) return;
 
@@ -345,7 +341,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.trackingService.trackPackage(identifier).subscribe({
       next: (response) => {
         if (response.success && response.data) {
-          this.router.navigate(['/tracking/result', identifier]);
+          this.router.navigate(['/track', identifier]);
         } else {
           this.addNotification('error', 'Erreur', response.error || 'Erreur inconnue');
         }
