@@ -24,6 +24,8 @@ export interface PackageDetails {
   dimensions?: string;
   pieces?: number;
   insurance?: string;
+  service_type?: string;
+  packaging_description?: string;
 }
 
 export interface DeliveryDetails {
@@ -31,6 +33,7 @@ export interface DeliveryDetails {
   actual_delivery_date?: string;
   signed_by?: string;
   options?: string[]; // Example: ['Schedule Delivery', 'Change Address']
+  delivery_location?: Location;
 }
 
 export interface TrackingInfo {
