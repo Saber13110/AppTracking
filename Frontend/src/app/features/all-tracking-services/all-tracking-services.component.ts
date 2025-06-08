@@ -1,70 +1,88 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { RouterModule, Router } from '@angular/router';
 import { TrackingService } from '../tracking/services/tracking.service';
 import { AnalyticsService } from '../../core/services/analytics.service';
-import { BarcodeUploadComponent } from '../barcode-upload/barcode-upload.component';
 import { TrackingFormComponent } from '../../shared/components/tracking-form/tracking-form.component';
+import { TrackingTabsComponent } from '../../shared/components/tracking-tabs/tracking-tabs.component';
 
 @Component({
   selector: 'app-all-tracking-services',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, BarcodeUploadComponent, TrackingFormComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterModule,
+    TrackingFormComponent,
+    TrackingTabsComponent
+  ],
   templateUrl: './all-tracking-services.component.html',
   styleUrls: ['./all-tracking-services.component.scss']
 })
 export class AllTrackingServicesComponent {
-  activeTab: 'single' | 'bulk' | 'barcode' = 'single';
+  activeTab: 'number' | 'reference' | 'tcn' = 'number';
 
-  singleForm: FormGroup;
-  bulkForm: FormGroup;
+  numberForm: FormGroup;
+  referenceForm: FormGroup;
+  tcnForm: FormGroup;
 
   constructor(
     private fb: FormBuilder,
     private trackingService: TrackingService,
-    private analytics: AnalyticsService
+    private analytics: AnalyticsService,
+    private router: Router
   ) {
-    this.singleForm = this.fb.group({
+    this.numberForm = this.fb.group({
       trackingNumber: ['', [Validators.required, Validators.pattern('^[A-Z0-9]{10,}$')]],
       packageName: ['']
     });
-    this.bulkForm = this.fb.group({
-      trackingNumbers: ['', Validators.required]
+    this.referenceForm = this.fb.group({
+      reference: ['', Validators.required]
+    });
+    this.tcnForm = this.fb.group({
+      tcn: ['', Validators.required]
     });
   }
 
-  switchTab(tab: 'single' | 'bulk' | 'barcode'): void {
+  switchTab(tab: 'number' | 'reference' | 'tcn'): void {
     this.activeTab = tab;
     this.analytics.logAction('switch_tab', tab);
   }
 
-  submitSingle(): void {
-    if (this.singleForm.invalid) {
-      this.singleForm.markAllAsTouched();
+  submitNumber(): void {
+    if (this.numberForm.invalid) {
+      this.numberForm.markAllAsTouched();
       return;
     }
-    const { trackingNumber, packageName } = this.singleForm.value;
-    this.analytics.logAction('submit_single', trackingNumber);
-    this.trackingService.trackNumber(trackingNumber, packageName).subscribe();
+    const { trackingNumber, packageName } = this.numberForm.value;
+    this.analytics.logAction('submit_number', trackingNumber);
+    this.trackingService.trackNumber(trackingNumber, packageName).subscribe(() => {
+      this.router.navigate(['/track', trackingNumber]);
+    });
   }
 
-  submitBulk(): void {
-    if (this.bulkForm.invalid) {
-      this.bulkForm.markAllAsTouched();
+  submitReference(): void {
+    if (this.referenceForm.invalid) {
+      this.referenceForm.markAllAsTouched();
       return;
     }
-    const numbers = this.bulkForm.value.trackingNumbers
-      .split(/\r?\n/)
-      .map((n: string) => n.trim())
-      .filter((n: string) => n);
-    console.log('Track bulk', numbers);
-    this.analytics.logAction('submit_bulk', numbers.length);
-    // Placeholder for bulk tracking logic
+    const { reference } = this.referenceForm.value;
+    this.analytics.logAction('submit_reference', reference);
+    this.trackingService.trackReference(reference).subscribe(() => {
+      this.router.navigate(['/track', reference]);
+    });
   }
 
-  startBarcodeScan(): void {
-    // Placeholder for barcode scanning implementation
-    this.analytics.logAction('start_barcode_scan');
-    console.log('Barcode scan feature coming soon');
+  submitTcn(): void {
+    if (this.tcnForm.invalid) {
+      this.tcnForm.markAllAsTouched();
+      return;
+    }
+    const { tcn } = this.tcnForm.value;
+    this.analytics.logAction('submit_tcn', tcn);
+    this.trackingService.trackTcn(tcn).subscribe(() => {
+      this.router.navigate(['/track', tcn]);
+    });
   }
 }
