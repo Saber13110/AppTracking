@@ -104,3 +104,7 @@ curl -X POST http://localhost:8000/api/v1/auth/resend-verification \
 
 L'interface Angular propose un formulaire accessible à l'adresse
 `/auth/resend-verification` pour effectuer cette action.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
