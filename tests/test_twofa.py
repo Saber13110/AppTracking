@@ -15,6 +15,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from backend.app.database import Base, engine, SessionLocal
 from backend.app.models.user import UserCreate
+from backend.app.services import auth  # Ensure RefreshTokenDB is registered
 
 @pytest.fixture
 def db_session():

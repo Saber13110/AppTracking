@@ -1,6 +1,7 @@
 <div class="toggle-buttons">
   <button (click)="setView('list')" [disabled]="viewMode === 'list'">List</button>
   <button (click)="setView('calendar')" [disabled]="viewMode === 'calendar'">Calendar</button>
+  <a routerLink="/shipments/new" class="btn btn--primary">Add</a>
 </div>
 <div class="filter-box">
   <input type="text" [(ngModel)]="filterText" (ngModelChange)="applyFilter()" placeholder="Filter shipments" />
@@ -14,6 +15,7 @@
     <li *ngFor="let s of filtered">
       <strong>{{ s.description || s.id }}</strong>
       <span>- {{ s.status }} - {{ s.estimated_delivery | date:'mediumDate' }}</span>
+      <a [routerLink]="['/shipments', s.id, 'edit']">Edit</a>
     </li>
   </ul>
 </div>

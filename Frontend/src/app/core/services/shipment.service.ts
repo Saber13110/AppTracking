@@ -11,6 +11,17 @@ export interface Shipment {
   created_at: string;
 }
 
+export interface ShipmentCreate {
+  id: string;
+  description?: string;
+}
+
+export interface ShipmentUpdate {
+  description?: string;
+  status?: string;
+  estimated_delivery?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -21,5 +32,21 @@ export class ShipmentService {
 
   getShipments(): Observable<Shipment[]> {
     return this.http.get<Shipment[]>(this.baseUrl);
+  }
+
+  createShipment(data: ShipmentCreate): Observable<Shipment> {
+    return this.http.post<Shipment>(this.baseUrl, data);
+  }
+
+  updateShipment(id: string, data: ShipmentUpdate): Observable<Shipment> {
+    return this.http.put<Shipment>(`${this.baseUrl}/${id}`, data);
+  }
+
+  deleteShipment(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
+
+  getShipment(id: string): Observable<Shipment> {
+    return this.http.get<Shipment>(`${this.baseUrl}/${id}`);
   }
 }
