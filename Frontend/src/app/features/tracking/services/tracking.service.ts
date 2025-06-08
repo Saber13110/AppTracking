@@ -42,6 +42,11 @@ export class TrackingService {
     return this.http.get(`${this.baseUrl}/export`, { responseType: 'blob' });
   }
 
+  exportTracking(identifier: string, format: string): Observable<Blob> {
+    const url = `${this.baseUrl}/${identifier}/export?format=${format}`;
+    return this.http.get(url, { responseType: 'blob' });
+  }
+
   downloadProof(trackingNumber: string): Observable<Blob> {
     const url = `${this.baseUrl}/${trackingNumber}/proof`;
     return this.http.get(url, { responseType: 'blob' });
