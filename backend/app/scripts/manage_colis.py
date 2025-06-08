@@ -237,16 +237,16 @@ def main():
         colis_update = ColisUpdate(status=status, location=location)
         updated_colis = colis_service.update_colis(colis_id, colis_update)
         if updated_colis:
-             print(f"Colis {colis_id} updated successfully.")
+            print(f"Colis {colis_id} updated successfully.")
         else:
-             print(f"Colis {colis_id} not found.")
+            print(f"Colis {colis_id} not found.")
         db.close()
     elif command == "delete":
-         if len(args) < 2:
-             print("Usage: python -m app.scripts.manage_colis delete [id]")
-             return
-         colis_id = args[1]
-         db = get_db_session()
+        if len(args) < 2:
+            print("Usage: python -m app.scripts.manage_colis delete [id]")
+            return
+        colis_id = args[1]
+        db = get_db_session()
         colis_service = ColisService(db)
         deleted = colis_service.delete_colis(colis_id)
         if deleted:
