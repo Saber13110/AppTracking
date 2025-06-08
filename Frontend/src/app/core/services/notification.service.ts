@@ -13,6 +13,9 @@ export interface Notification {
 
 export interface NotificationPreferences {
   email_updates: boolean;
+  addresses: string[];
+  preferred_language: string;
+  event_settings: { [key: string]: string[] };
 }
 
 @Injectable({

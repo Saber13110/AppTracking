@@ -127,4 +127,4 @@ async def update_preferences(
     current_user: UserDB = Depends(get_current_active_user)
 ):
     service = NotificationService(db)
-    return service.update_preferences(current_user.id, prefs.email_updates)
+    return service.update_preferences(current_user.id, prefs)

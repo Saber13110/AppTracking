@@ -9,4 +9,43 @@
     </li>
   </ul>
   <p *ngIf="!loading && notifications.length === 0">No unread notifications.</p>
+
+  <h3>Preferences</h3>
+  <form [formGroup]="prefsForm" (ngSubmit)="savePrefs()" class="prefs-form">
+    <label>
+      <input type="checkbox" formControlName="email_updates"> Email Updates
+    </label>
+
+    <div formArrayName="addresses">
+      <div *ngFor="let ctrl of addresses.controls; let i = index">
+        <input [formControlName]="i" placeholder="Address {{ i + 1 }}" />
+        <button type="button" (click)="removeAddress(i)" *ngIf="addresses.length > 1">Remove</button>
+      </div>
+      <button type="button" (click)="addAddress()" [disabled]="addresses.length >= 5">Add address</button>
+    </div>
+
+    <label>
+      Preferred language
+      <select formControlName="preferred_language">
+        <option value="en">English</option>
+        <option value="fr">Français</option>
+      </select>
+    </label>
+
+    <div formGroupName="event_settings">
+      <h4>Events</h4>
+      <div formGroupName="delivery">
+        <strong>Delivery</strong>
+        <label><input type="checkbox" formControlName="email"> Email</label>
+        <label><input type="checkbox" formControlName="sms"> SMS</label>
+      </div>
+      <div formGroupName="exception">
+        <strong>Exception</strong>
+        <label><input type="checkbox" formControlName="email"> Email</label>
+        <label><input type="checkbox" formControlName="sms"> SMS</label>
+      </div>
+    </div>
+
+    <button type="submit">Save</button>
+  </form>
 </div>

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, Boolean, ForeignKey, String, JSON
 from ..database import Base
 
 class NotificationPreferenceDB(Base):
@@ -6,3 +6,6 @@ class NotificationPreferenceDB(Base):
 
     user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
     email_updates = Column(Boolean, default=True)
+    addresses = Column(JSON, default=list)
+    preferred_language = Column(String, default="en")
+    event_settings = Column(JSON, default=dict)

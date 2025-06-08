@@ -16,7 +16,13 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from backend.app.database import Base, engine, SessionLocal
 from backend.app.models.database import Base as ModelsBase, NotificationDB
 from backend.app.api.v1.endpoints import notifications as notifications_router
-from backend.app.models.notification import NotificationCreate, NotificationUpdate, NotificationType
+from backend.app.models.notification import (
+    NotificationCreate,
+    NotificationUpdate,
+    NotificationType,
+    NotificationPreference,
+)
+from backend.app.services.notification_service import NotificationService
 from backend.app.models.user import UserCreate, UserRole
 from backend.app.services import auth
 
@@ -81,3 +87,18 @@ def test_create_notification_forbidden(db_session):
     with pytest.raises(HTTPException) as exc:
         asyncio.run(check(current_user=user))
     assert exc.value.status_code == 403
+
+
+def test_update_preferences(db_session):
+    user = create_user_with_role(db_session, UserRole.client)
+    prefs = NotificationPreference(
+        email_updates=False,
+        addresses=["a@example.com", "b@example.com"],
+        preferred_language="fr",
+        event_settings={"delivery": ["email"]},
+    )
+    service = NotificationService(db_session)
+    resp = service.update_preferences(user.id, prefs)
+    assert resp.success is True
+    assert resp.data.addresses == ["a@example.com", "b@example.com"]
+    assert resp.data.preferred_language == "fr"

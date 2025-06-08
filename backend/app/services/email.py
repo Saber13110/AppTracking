@@ -111,3 +111,13 @@ def send_tracking_update_email(email: str, tracking_number: str, status: str) ->
     except Exception as e:
         print(f"Erreur lors de l'envoi de l'email: {str(e)}")
         return False
+
+
+def send_sms(phone: str, message: str) -> bool:
+    """Dummy SMS sender for alerts."""
+    try:
+        print(f"Sending SMS to {phone}: {message}")
+        return True
+    except Exception as e:
+        print(f"Erreur lors de l'envoi du SMS: {str(e)}")
+        return False
