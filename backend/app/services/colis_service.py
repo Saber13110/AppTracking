@@ -11,8 +11,6 @@ from ..models.colis import ColisCreate, ColisUpdate, ColisFilter
 from ..models.database import ColisDB
 from sqlalchemy.sql import func
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class ColisService:

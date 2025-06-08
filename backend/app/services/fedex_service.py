@@ -12,8 +12,6 @@ from ..models.tracking import (
     KeyDates, CommercialInfo, ServiceType
 )
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class FedExService:
