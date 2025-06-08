@@ -7,6 +7,9 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { Subject, Observable } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { ZXingScannerModule } from '@zxing/ngx-scanner';
+import { BrowserMultiFormatReader } from '@zxing/browser';
+import { Result } from '@zxing/library';
 
 // Import Google Maps types
 declare global {
@@ -64,7 +67,7 @@ interface ServiceItem {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule, ZXingScannerModule],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
   animations: [
@@ -116,6 +119,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // Form for barcode generation
   barcodeForm: FormGroup;
+
+  showScanner = false;
 
   constructor(
     private fb: FormBuilder,
@@ -428,11 +433,39 @@ export class HomeComponent implements OnInit, OnDestroy {
   // === GESTION DU TÉLÉVERSEMENT DE FICHIER DE CODE-BARRES
   onBarcodeFileSelected(event: any): void {
     const file: File = event.target.files[0];
-    if (file) {
-      console.log('Fichier de code-barres sélectionné :', file.name);
-      // TODO: Implémenter la logique pour lire l'image et extraire le code-barres
-      // Vous aurez besoin d'une bibliothèque de lecture de code-barres (ex: ZXing)
-      // et potentiellement d'envoyer l'image ou le code décodé au backend.
+    if (!file) {
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const img = new Image();
+      img.onload = async () => {
+        try {
+          const codeReader = new BrowserMultiFormatReader();
+          const result: Result = await codeReader.decodeFromImageElement(img);
+          const text = result.getText();
+          if (text) {
+            this.trackingForm.patchValue({ trackingNumber: text });
+            this.trackPackage();
+          } else {
+            this.addNotification('error', 'Scan failed', 'Unable to read barcode');
+          }
+        } catch (err) {
+          console.error('Barcode scan error:', err);
+          this.addNotification('error', 'Scan failed', 'Unable to read barcode');
+        }
+      };
+      img.src = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  onCodeResult(result: string): void {
+    if (result) {
+      this.trackingForm.patchValue({ trackingNumber: result });
+      this.showScanner = false;
+      this.trackPackage();
     }
   }
 
@@ -456,6 +489,10 @@ export class HomeComponent implements OnInit, OnDestroy {
         'Please enter a valid tracking ID (minimum 10 alphanumeric characters).'
       );
     }
+  }
+
+  toggleScanner(): void {
+    this.showScanner = !this.showScanner;
   }
 
   logout(): void {
