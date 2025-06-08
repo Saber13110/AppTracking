@@ -58,3 +58,14 @@ def test_post_history_endpoint(db_session):
     result = asyncio.run(history_router.add_history(payload, user, db_session))
     assert result.tracking_number == "ABC"
     assert result.status == "OK"
+
+
+def test_delete_history_endpoint(db_session):
+    user = create_user(db_session)
+    service = TrackingHistoryService(db_session)
+    service.log_search(user.id, "1")
+    service.log_search(user.id, "2")
+
+    asyncio.run(history_router.delete_history(user, db_session))
+    remaining = service.get_history(user.id)
+    assert remaining == []

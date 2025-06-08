@@ -39,10 +39,16 @@
     </table>
     <button role="button"
             tabindex="0"
-            aria-label="Clear tracking history"
+            aria-label="Delete all tracking history"
             (click)="clear()"
             (keydown.enter)="clear()"
-            (keydown.space)="clear()">Clear History</button>
+            (keydown.space)="clear()">Delete All</button>
+    <button role="button"
+            tabindex="0"
+            aria-label="Export tracking history"
+            (click)="export('csv')"
+            (keydown.enter)="export('csv')"
+            (keydown.space)="export('csv')">Export</button>
   </ng-container>
   <ng-template #none>
     <p>No history yet.</p>

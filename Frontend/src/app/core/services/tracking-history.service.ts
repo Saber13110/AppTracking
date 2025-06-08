@@ -64,6 +64,19 @@ export class TrackingHistoryService {
     localStorage.removeItem(this.storageKey);
   }
 
+  deleteAll(): void {
+    this.clear();
+    this.http.delete(`${environment.apiUrl}/history`).subscribe({
+      next: () => {},
+      error: () => {}
+    });
+  }
+
+  exportHistory(format: 'csv' | 'pdf' = 'csv') {
+    const url = `${environment.apiUrl}/history/export?format=${format}`;
+    return this.http.get(url, { responseType: 'blob' });
+  }
+
   async syncWithServer(): Promise<void> {
     const loggedIn = await firstValueFrom(this.auth.isLoggedIn());
     if (!loggedIn) {
