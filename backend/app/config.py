@@ -52,6 +52,7 @@ class Settings(BaseSettings):
     FEDEX_CLIENT_ID: str
     FEDEX_CLIENT_SECRET: str
     FEDEX_ACCOUNT_NUMBER: str
+    FEDEX_WEBHOOK_SECRET: str | None = os.environ.get("FEDEX_WEBHOOK_SECRET")
     
     class Config:
         case_sensitive = True
