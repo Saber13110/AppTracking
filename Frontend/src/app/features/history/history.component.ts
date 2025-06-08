@@ -17,11 +17,17 @@ export class HistoryComponent implements OnInit {
   filterStatus = '';
   filterDate: string | null = null;
   sortAsc = false;
+  loading = false;
 
   constructor(private historyService: TrackingHistoryService) {}
 
   ngOnInit(): void {
-    this.historyService.syncWithServer().then(() => this.loadHistory());
+    this.loading = true;
+    this.historyService.syncWithServer()
+      .finally(() => {
+        this.loadHistory();
+        this.loading = false;
+      });
   }
 
   private loadHistory(): void {
