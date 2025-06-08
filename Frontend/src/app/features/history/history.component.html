@@ -1,17 +1,26 @@
 <div class="history">
   <h2>Tracking History</h2>
 
-  <div class="filters">
-    <input type="text" placeholder="Search" [(ngModel)]="searchTerm">
-    <input type="text" placeholder="Status" [(ngModel)]="filterStatus">
-    <input type="date" [(ngModel)]="filterDate">
+  <div *ngIf="loading" class="loading-spinner" role="status" aria-live="polite">
+    <svg class="animate-spin" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+    </svg>
+    <span class="sr-only">Loading...</span>
   </div>
 
-  <ng-container *ngIf="sortedHistory.length; else none">
-    <table>
-      <thead>
-        <tr>
-          <th>Tracking #</th>
+  <ng-container *ngIf="!loading">
+    <div class="filters">
+      <input type="text" placeholder="Search" [(ngModel)]="searchTerm">
+      <input type="text" placeholder="Status" [(ngModel)]="filterStatus">
+      <input type="date" [(ngModel)]="filterDate">
+    </div>
+
+    <ng-container *ngIf="sortedHistory.length; else none">
+      <table>
+        <thead>
+          <tr>
+            <th>Tracking #</th>
           <th>Status</th>
           <th>Note</th>
           <th>Pin</th>
@@ -51,14 +60,15 @@
             (click)="clear()"
             (keydown.enter)="clear()"
             (keydown.space)="clear()">Delete All</button>
-    <button role="button"
-            tabindex="0"
-            aria-label="Export tracking history"
-            (click)="export('csv')"
-            (keydown.enter)="export('csv')"
-            (keydown.space)="export('csv')">Export</button>
+      <button role="button"
+              tabindex="0"
+              aria-label="Export tracking history"
+              (click)="export('csv')"
+              (keydown.enter)="export('csv')"
+              (keydown.space)="export('csv')">Export</button>
+    </ng-container>
+    <ng-template #none>
+      <p>No history yet.</p>
+    </ng-template>
   </ng-container>
-  <ng-template #none>
-    <p>No history yet.</p>
-  </ng-template>
 </div>
