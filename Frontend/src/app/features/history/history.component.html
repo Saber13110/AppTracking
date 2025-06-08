@@ -35,7 +35,7 @@
       <tbody>
         <tr *ngFor="let item of sortedHistory">
           <td><a [routerLink]="['/track', item.tracking_number]">{{item.tracking_number}}</a></td>
-          <td>{{item.status || '-'}}</td>
+          <td [ngClass]="getStatusClass(item)">{{item.status || '-'}}</td>
           <td><input [(ngModel)]="item.note" (change)="updateNote(item)"></td>
           <td>
             <button (click)="togglePinned(item)">
