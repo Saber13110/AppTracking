@@ -1,14 +1,17 @@
 <form [formGroup]="form" (ngSubmit)="submit()" class="tbm-form">
-  <label>Tracking Number
-    <input formControlName="trackingNumber" />
-  </label>
-  <label>Package Name
-    <input formControlName="packageName" />
-  </label>
-  <label>Email
-    <input formControlName="email" type="email" />
-  </label>
-  <button type="submit">Send Update</button>
+  <div class="form-group">
+    <label for="tbm-number">Tracking Number</label>
+    <input id="tbm-number" formControlName="trackingNumber" class="form-control" />
+  </div>
+  <div class="form-group">
+    <label for="tbm-package">Package Name</label>
+    <input id="tbm-package" formControlName="packageName" class="form-control" />
+  </div>
+  <div class="form-group">
+    <label for="tbm-email">Email</label>
+    <input id="tbm-email" formControlName="email" type="email" class="form-control" />
+  </div>
+  <button type="submit" class="btn btn-primary">Send Update</button>
 </form>
 
 <div *ngIf="result">

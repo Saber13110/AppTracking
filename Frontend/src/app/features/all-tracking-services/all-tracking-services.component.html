@@ -8,28 +8,31 @@
 
   <div class="tab-content">
     <form *ngIf="activeTab==='single'" [formGroup]="singleForm" (ngSubmit)="submitSingle()" class="single-form">
-      <label>Tracking Number
-        <input formControlName="trackingNumber" />
-      </label>
-      <label>Package Name
-        <input formControlName="packageName" />
-      </label>
+      <div class="form-group">
+        <label for="ats-single-number">Tracking Number</label>
+        <input id="ats-single-number" formControlName="trackingNumber" class="form-control" />
+      </div>
+      <div class="form-group">
+        <label for="ats-single-package">Package Name</label>
+        <input id="ats-single-package" formControlName="packageName" class="form-control" />
+      </div>
       <div class="error" *ngIf="singleForm.get('trackingNumber')?.touched && singleForm.get('trackingNumber')?.invalid">
         Invalid tracking number
       </div>
-      <button type="submit">Track</button>
+      <button type="submit" class="btn btn-primary">Track</button>
     </form>
 
     <form *ngIf="activeTab==='bulk'" [formGroup]="bulkForm" (ngSubmit)="submitBulk()" class="bulk-form">
-      <label>Tracking Numbers
-        <textarea formControlName="trackingNumbers" rows="5" placeholder="One ID per line"></textarea>
-      </label>
-      <button type="submit">Track All</button>
+      <div class="form-group">
+        <label for="ats-bulk-numbers">Tracking Numbers</label>
+        <textarea id="ats-bulk-numbers" formControlName="trackingNumbers" rows="5" placeholder="One ID per line" class="form-control"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Track All</button>
     </form>
 
     <div *ngIf="activeTab==='barcode'" class="barcode-form">
       <p>Scan your barcode using the camera.</p>
-      <button type="button" (click)="startBarcodeScan()">Start Scan</button>
+      <button type="button" (click)="startBarcodeScan()" class="btn btn-secondary">Start Scan</button>
     </div>
   </div>
 </div>
