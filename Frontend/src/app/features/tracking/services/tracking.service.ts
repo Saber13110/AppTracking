@@ -3,14 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { BrowserMultiFormatReader } from '@zxing/browser';
 import { environment } from '../../../../environments/environment';
-import { TrackingInfo } from '../models/tracking';
-
-export interface TrackingResponse {
-  success: boolean;
-  data?: TrackingInfo;
-  error?: string;
-  metadata?: { [key: string]: any };
-}
+import { TrackingInfo, TrackingResponse } from '../models/tracking';
 
 @Injectable({
   providedIn: 'root'
@@ -81,4 +74,4 @@ export class TrackingService {
   }
 }
 
-export type { TrackingInfo } from '../models/tracking';
+export type { TrackingInfo, TrackingResponse } from '../models/tracking';

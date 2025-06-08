@@ -49,6 +49,8 @@ export interface TrackingInfo {
 }
 
 export interface TrackingResponse {
-  tracking_info: TrackingInfo | null;
+  success: boolean;
+  data?: TrackingInfo;
   error?: string;
-} 
+  metadata?: { [key: string]: any };
+}
