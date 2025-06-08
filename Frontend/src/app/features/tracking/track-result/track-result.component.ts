@@ -86,6 +86,7 @@ export class TrackResultComponent implements OnInit, OnDestroy {
           this.waitForGoogleMaps().then(() => this.initializeMap());
         } else {
           this.error = response.error || 'Impossible de récupérer les informations de suivi';
+          showNotification(this.error, 'error');
         }
         this.loading = false;
         this.refreshing = false;
