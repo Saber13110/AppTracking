@@ -10,6 +10,8 @@ export interface Location {
   state?: string;
   postal_code?: string;
   country?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface TrackingEvent {

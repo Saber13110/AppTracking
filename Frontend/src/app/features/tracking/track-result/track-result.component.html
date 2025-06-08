@@ -39,18 +39,24 @@
       </div>
     </div>
 
-    <div *ngIf="trackingInfo.tracking_history?.length">
-      <h3 class="font-bold mb-2">Historique</h3>
-      <ul class="space-y-4">
-        <li *ngFor="let event of trackingInfo.tracking_history" class="border-l-2 pl-4">
-          <div class="font-medium">{{ event.status }}</div>
-          <div class="text-sm text-gray-600">{{ event.timestamp | date:'medium' }}</div>
-          <div class="text-sm" *ngIf="event.description">{{ event.description }}</div>
-          <div class="text-sm text-gray-500" *ngIf="event.location">
-            {{ event.location.city }} {{ event.location.state }} {{ event.location.country }}
-          </div>
-        </li>
-      </ul>
+    <div *ngIf="trackingInfo.tracking_history?.length" class="results-grid">
+      <div>
+        <h3 class="font-bold mb-2">Historique</h3>
+        <ul class="space-y-4">
+          <li *ngFor="let event of trackingInfo.tracking_history" class="border-l-2 pl-4 timeline-item">
+            <i class="fas" [ngClass]="getEventIcon(event.status)"></i>
+            <div>
+              <div class="font-medium">{{ event.status }}</div>
+              <div class="text-sm text-gray-600">{{ event.timestamp | date:'medium' }}</div>
+              <div class="text-sm" *ngIf="event.description">{{ event.description }}</div>
+              <div class="text-sm text-gray-500" *ngIf="event.location">
+                {{ event.location.city }} {{ event.location.state }} {{ event.location.country }}
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div id="map" class="map-container"></div>
     </div>
   </div>
 </div>

@@ -137,4 +137,35 @@
 
 .pl-4 {
   padding-left: 1rem;
-} 
+}
+
+.map-container {
+  width: 100%;
+  height: 400px;
+  background: #e9e9e9;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.timeline-item i {
+  color: #4d148c;
+  margin-top: 0.25rem;
+}
+
+@media (max-width: 768px) {
+  .results-grid {
+    grid-template-columns: 1fr;
+  }
+  .map-container {
+    height: 300px;
+  }
+}
