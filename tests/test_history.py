@@ -1,6 +1,7 @@
 import os
 import sys
 import asyncio
+from datetime import datetime, timedelta
 
 # Set required env vars before importing the app modules
 os.environ.setdefault("DATABASE_URL", "sqlite:///:memory:")
@@ -94,3 +95,25 @@ def test_update_history_endpoint(db_session):
 
     assert updated.note == "new note"
     assert updated.pinned is True
+
+
+def test_delete_older_than(db_session):
+    service = TrackingHistoryService(db_session)
+    now = datetime.utcnow()
+    old = TrackedShipmentDB(
+        user_id=1,
+        tracking_number="old",
+        created_at=now - timedelta(days=40),
+    )
+    new = TrackedShipmentDB(
+        user_id=1,
+        tracking_number="new",
+        created_at=now - timedelta(days=5),
+    )
+    db_session.add_all([old, new])
+    db_session.commit()
+
+    deleted = service.delete_older_than(30)
+    assert deleted == 1
+    remaining = [r.tracking_number for r in db_session.query(TrackedShipmentDB).all()]
+    assert remaining == ["new"]

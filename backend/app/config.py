@@ -53,6 +53,9 @@ class Settings(BaseSettings):
     FEDEX_CLIENT_SECRET: str
     FEDEX_ACCOUNT_NUMBER: str
     FEDEX_WEBHOOK_SECRET: str | None = os.environ.get("FEDEX_WEBHOOK_SECRET")
+
+    # How long to retain tracking history in days
+    HISTORY_RETENTION_DAYS: int = int(os.environ.get("HISTORY_RETENTION_DAYS", 30))
     
     class Config:
         case_sensitive = True
