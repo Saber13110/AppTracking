@@ -59,6 +59,15 @@ npm start
 
 ## Setup
 
+After cloning the repository, copy the example environment files:
+
+```bash
+cp backend/.env.example backend/.env.local
+cp .env.example .env
+```
+
+`backend/.env.local` must define `SECRET_KEY` and include your FedEx credentials before starting the API.
+
 Install the project dependencies, initialize the database and run the tests:
 
 ```bash
