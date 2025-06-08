@@ -14,6 +14,7 @@ import { NotificationOptionsComponent } from './features/notification-options/no
 import { GenerateBarcodeComponent } from './features/generate-barcode/generate-barcode.component';
 import { SetupTwofaComponent } from './features/auth/setup-twofa/setup-twofa.component';
 import { VerifyTwofaComponent } from './features/auth/verify-twofa/verify-twofa.component';
+import { ResendVerificationComponent } from './features/auth/resend-verification/resend-verification.component';
 
 // Assuming you might have other standalone components or lazy-loaded routes
 // import { HomeComponent } from './features/home/home.component';
@@ -42,6 +43,7 @@ export const routes: Routes = [
   { path: 'auth/callback', component: GoogleCallbackComponent },
   { path: 'auth/forgot-password', component: ForgotPasswordComponent },
   { path: 'auth/reset-password', component: ResetPasswordComponent },
+  { path: 'auth/resend-verification', component: ResendVerificationComponent },
   { path: 'auth/setup-2fa', component: SetupTwofaComponent, canActivate: [AuthGuard] },
   { path: 'auth/verify-2fa', component: VerifyTwofaComponent, canActivate: [AuthGuard] },
 ];

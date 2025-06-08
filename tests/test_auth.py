@@ -243,3 +243,33 @@ def test_last_login_timestamp_updated(db_session, patched_router):
 
     assert user.last_login_at is not None
 
+
+def test_resend_verification_generates_new_token(db_session, patched_router):
+    user = asyncio.run(patched_router.register(
+        UserCreate(email="resend@example.com", full_name="Res", password="pw"),
+        db_session
+    ))
+    old_token = user.verification_token
+    resp = asyncio.run(patched_router.resend_verification(
+        patched_router.ResendVerificationRequest(email=user.email), db_session
+    ))
+    assert "verification" in resp["message"].lower()
+    db_session.refresh(user)
+    assert user.verification_token != old_token
+
+
+def test_resend_verification_ignored_for_verified_user(db_session, patched_router):
+    user = asyncio.run(patched_router.register(
+        UserCreate(email="checked@example.com", full_name="Chk", password="pw"),
+        db_session
+    ))
+    asyncio.run(patched_router.verify_email(
+        patched_router.EmailVerification(token=user.verification_token), db_session
+    ))
+    resp = asyncio.run(patched_router.resend_verification(
+        patched_router.ResendVerificationRequest(email=user.email), db_session
+    ))
+    assert "verification" in resp["message"].lower()
+    db_session.refresh(user)
+    assert user.verification_token is None
+

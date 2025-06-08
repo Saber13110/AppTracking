@@ -66,6 +66,10 @@ class PasswordReset(BaseModel):
 class TwoFACode(BaseModel):
     code: str
 
+
+class ResendVerificationRequest(BaseModel):
+    email: EmailStr
+
 @router.post("/register", response_model=User)
 async def register(user: UserCreate, db: Session = Depends(get_db)):
     # Vérifier si l'utilisateur existe déjà
@@ -104,6 +108,18 @@ async def verify_email(verification: EmailVerification, db: Session = Depends(ge
     db.commit()
 
     return {"message": "Email verified successfully"}
+
+
+@router.post("/resend-verification")
+async def resend_verification(payload: ResendVerificationRequest, db: Session = Depends(get_db)):
+    user = db.query(UserDB).filter(UserDB.email == payload.email).first()
+    if not user or user.is_verified:
+        return {"message": "If the account exists and is not verified, a verification email has been sent"}
+    token = secrets.token_urlsafe(32)
+    user.verification_token = token
+    db.commit()
+    send_verification_email(user.email, token)
+    return {"message": "If the account exists and is not verified, a verification email has been sent"}
 
 
 @router.post("/request-reset")

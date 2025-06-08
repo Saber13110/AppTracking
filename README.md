@@ -83,3 +83,18 @@ On the first run Docker Compose builds the backend and frontend images. Once the
 - lors de la connexion, renseignez le champ `totp_code` si l'option est activée.
 
 Le paquet `pyotp` utilisé pour générer les codes TOTP figure déjà dans `backend/requirements.txt`.
+
+## Ré-envoi de l'email de vérification
+
+Si vous n'avez pas reçu l'email de confirmation lors de l'inscription, vous
+pouvez demander un nouvel envoi via l'endpoint `POST /auth/resend-verification`.
+Envoyez simplement l'adresse email utilisée à l'inscription :
+
+```bash
+curl -X POST http://localhost:8000/api/v1/auth/resend-verification \
+     -H 'Content-Type: application/json' \
+     -d '{"email": "user@example.com"}'
+```
+
+L'interface Angular propose un formulaire accessible à l'adresse
+`/auth/resend-verification` pour effectuer cette action.
