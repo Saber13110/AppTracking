@@ -123,9 +123,11 @@ async def export_history(
 
     out = io.StringIO()
     writer = csv.writer(out)
-    writer.writerow(["created_at", "tracking_number", "status", "note", "pinned"])
+    writer.writerow(["created_at", "tracking_number",
+                    "status", "note", "pinned"])
     for rec in records:
-        writer.writerow([rec.created_at, rec.tracking_number, rec.status, rec.note, rec.pinned])
+        writer.writerow([rec.created_at, rec.tracking_number,
+                        rec.status, rec.note, rec.pinned])
     out.seek(0)
     headers = {"Content-Disposition": "attachment; filename=history.csv"}
     return StreamingResponse(io.BytesIO(out.getvalue().encode()), media_type="text/csv", headers=headers)

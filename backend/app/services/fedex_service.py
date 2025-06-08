@@ -18,22 +18,27 @@ logger = logging.getLogger(__name__)
 
 # Global cache for authentication token shared across service instances
 _token_lock = Lock()
-_token_cache: dict[str, datetime | str | None] = {"token": None, "expiry": None}
+_token_cache: dict[str, datetime | str | None] = {
+    "token": None, "expiry": None}
+
 
 class FedExService:
     def __init__(self, account: str | None = None, config_path: str | None = None):
         try:
             if config_path is None:
                 try:
-                    config_path = resources.files('backend.app.config').joinpath('fedex.yaml')
+                    config_path = resources.files(
+                        'backend.app.config').joinpath('fedex.yaml')
                 except Exception:
-                    config_path = Path(__file__).resolve().parents[1] / 'config' / 'fedex.yaml'
+                    config_path = Path(__file__).resolve(
+                    ).parents[1] / 'config' / 'fedex.yaml'
 
             logger.info(f"Loading FedEx configuration from {config_path}")
             with open(config_path, 'r') as file:
                 config = yaml.safe_load(file)['prod']
 
-            self.base_url = os.getenv("FEDEX_BASE_URL", "https://apis-sandbox.fedex.com")
+            self.base_url = os.getenv(
+                "FEDEX_BASE_URL", "https://apis-sandbox.fedex.com")
             self.auth_url = os.path.expandvars(config['api_url'])
             self.cdict = {
                 'client_id': os.path.expandvars(config['client_id']),
@@ -47,7 +52,8 @@ class FedExService:
                 'client_id': self.cdict['client_id'],
                 'client_secret': self.cdict['client_secret']
             }
-            self.headers = {'Content-Type': "application/x-www-form-urlencoded"}
+            self.headers = {
+                'Content-Type': "application/x-www-form-urlencoded"}
             self._token: str | None = None
             self._token_expiry: datetime | None = None
         except Exception as e:
@@ -57,7 +63,8 @@ class FedExService:
     def _authenticate(self) -> None:
         """Fetch a new OAuth token from FedEx"""
         with httpx.Client() as client:
-            response = client.post(self.auth_url, data=self.payload, headers=self.headers)
+            response = client.post(
+                self.auth_url, data=self.payload, headers=self.headers)
             response.raise_for_status()
             data = response.json()
 
@@ -86,7 +93,8 @@ class FedExService:
 
     async def get_proof_of_delivery(self, tracking_number: str) -> bytes:
         """Return the proof of delivery PDF for a tracking number."""
-        file_path = Path(__file__).resolve().parents[1] / "static" / "proofs" / f"{tracking_number}.pdf"
+        file_path = Path(__file__).resolve(
+        ).parents[1] / "static" / "proofs" / f"{tracking_number}.pdf"
         try:
             if file_path.exists():
                 return file_path.read_bytes()
@@ -101,7 +109,8 @@ class FedExService:
             async with httpx.AsyncClient() as client:
                 response = await client.get(url, headers=headers)
                 if response.status_code == 404:
-                    raise FileNotFoundError(f"Proof of delivery for {tracking_number} not found")
+                    raise FileNotFoundError(
+                        f"Proof of delivery for {tracking_number} not found")
                 response.raise_for_status()
                 pdf_bytes = response.content
 
@@ -111,7 +120,8 @@ class FedExService:
 
         except httpx.HTTPStatusError as e:
             if e.response.status_code == 404:
-                raise FileNotFoundError(f"Proof of delivery for {tracking_number} not found") from e
+                raise FileNotFoundError(
+                    f"Proof of delivery for {tracking_number} not found") from e
             logger.error(f"FedEx API returned an error: {str(e)}")
             raise
         except Exception as e:
@@ -142,7 +152,8 @@ class FedExService:
 
     def _create_location(self, location_data: Dict[str, Any]) -> Location:
         """Create Location object from FedEx location data"""
-        address = location_data.get('locationContactAndAddress', {}).get('address', {})
+        address = location_data.get(
+            'locationContactAndAddress', {}).get('address', {})
         return Location(
             city=address.get('city', ''),
             state=address.get('stateOrProvinceCode', ''),
@@ -180,7 +191,7 @@ class FedExService:
                 response = await client.post(url, headers=headers, json=payload)
                 response.raise_for_status()
                 tracking_data = response.json()
-            
+
             if not tracking_data.get('output', {}).get('completeTrackResults', []):
                 error_msg = "No tracking results found"
                 logger.error(error_msg)
@@ -194,7 +205,7 @@ class FedExService:
                         'account_number': self.cdict['account_number']
                     }
                 )
-                
+
             # Get the first tracking result
             track_result = tracking_data['output']['completeTrackResults'][0]['trackResults'][0]
             logger.info("Successfully received tracking data from FedEx")
@@ -256,15 +267,19 @@ class FedExService:
     def _format_tracking_info(self, tracking_details: Dict[str, Any]) -> TrackingInfo:
         try:
             # Extract basic tracking information
-            tracking_number = tracking_details.get('trackingNumberInfo', {}).get('trackingNumber', '')
+            tracking_number = tracking_details.get(
+                'trackingNumberInfo', {}).get('trackingNumber', '')
             latest_status = tracking_details.get('latestStatusDetail', {})
             status = latest_status.get('code', 'UNKNOWN')
             service_detail = tracking_details.get('serviceDetail', {})
-            service_type = self._get_service_type(service_detail.get('type', ''))
+            service_type = self._get_service_type(
+                service_detail.get('type', ''))
 
             # Extract origin and destination
-            origin = self._extract_location(tracking_details.get('shipperInformation', {}).get('address', {}))
-            destination = self._extract_location(tracking_details.get('recipientInformation', {}).get('address', {}))
+            origin = self._extract_location(tracking_details.get(
+                'shipperInformation', {}).get('address', {}))
+            destination = self._extract_location(tracking_details.get(
+                'recipientInformation', {}).get('address', {}))
 
             # Extract package details
             package_details = self._extract_package_details(tracking_details)
@@ -276,7 +291,8 @@ class FedExService:
             events = []
             for event in tracking_details.get('scanEvents', []):
                 try:
-                    event_location = self._extract_location(event.get('scanLocation', {}))
+                    event_location = self._extract_location(
+                        event.get('scanLocation', {}))
                     events.append(TrackingEvent(
                         status=event.get('eventType', ''),
                         description=event.get('eventDescription', ''),
@@ -285,7 +301,8 @@ class FedExService:
                         event_type=event.get('eventType', ''),
                         event_code=event.get('exceptionCode', ''),
                         exception_code=event.get('exceptionCode', ''),
-                        exception_description=event.get('exceptionDescription', '')
+                        exception_description=event.get(
+                            'exceptionDescription', '')
                     ))
                 except Exception as e:
                     logger.error(f"Error formatting tracking event: {str(e)}")
@@ -346,13 +363,14 @@ class FedExService:
     def _extract_package_details(self, tracking_details: Dict[str, Any]) -> PackageDetails:
         try:
             package_details = tracking_details.get('packageDetails', {})
-            weight_and_dimensions = package_details.get('weightAndDimensions', {})
-            
+            weight_and_dimensions = package_details.get(
+                'weightAndDimensions', {})
+
             # Extract weight
             weight = {}
             for w in weight_and_dimensions.get('weight', []):
                 weight[w.get('unit', '')] = w.get('value', '')
-            
+
             # Extract dimensions
             dimensions = {}
             for d in weight_and_dimensions.get('dimensions', []):
@@ -365,13 +383,15 @@ class FedExService:
             return PackageDetails(
                 weight=weight,
                 dimensions=dimensions,
-                service_type=tracking_details.get('serviceDetail', {}).get('type', ''),
+                service_type=tracking_details.get(
+                    'serviceDetail', {}).get('type', ''),
                 signature_required=False,  # Will be updated based on delivery details
                 special_handling=[],
                 declared_value=0.0,
                 customs_value=0.0,
                 package_count=int(package_details.get('count', 1)),
-                packaging_description=package_details.get('packagingDescription', {}).get('description', '')
+                packaging_description=package_details.get(
+                    'packagingDescription', {}).get('description', '')
             )
         except Exception as e:
             logger.error(f"Error extracting package details: {str(e)}")
@@ -381,10 +401,11 @@ class FedExService:
         try:
             delivery_details = tracking_details.get('deliveryDetails', {})
             delivery_option_eligibility = {}
-            
+
             # Extract delivery option eligibility
             for option in delivery_details.get('deliveryOptionEligibilityDetails', []):
-                delivery_option_eligibility[option.get('option', '')] = option.get('eligibility', '') == 'ELIGIBLE'
+                delivery_option_eligibility[option.get('option', '')] = option.get(
+                    'eligibility', '') == 'ELIGIBLE'
 
             # Get actual delivery date from dateAndTimes
             actual_delivery = None
@@ -396,12 +417,15 @@ class FedExService:
             return DeliveryDetails(
                 delivery_date=actual_delivery,
                 delivery_time=actual_delivery,
-                delivery_location=self._extract_location(delivery_details.get('actualDeliveryAddress', {})),
+                delivery_location=self._extract_location(
+                    delivery_details.get('actualDeliveryAddress', {})),
                 delivery_instructions='',
-                delivery_attempts=int(delivery_details.get('deliveryAttempts', 0)),
+                delivery_attempts=int(
+                    delivery_details.get('deliveryAttempts', 0)),
                 delivery_exceptions=[],
                 actual_delivery=actual_delivery,
-                estimated_delivery=tracking_details.get('standardTransitTimeWindow', {}).get('window', {}).get('ends', ''),
+                estimated_delivery=tracking_details.get(
+                    'standardTransitTimeWindow', {}).get('window', {}).get('ends', ''),
                 received_by_name=delivery_details.get('receivedByName', ''),
                 delivery_option_eligibility=delivery_option_eligibility
             )
@@ -416,7 +440,8 @@ class FedExService:
             for date_info in dates:
                 date_type = date_info.get('type', '')
                 if date_type == 'ACTUAL_DELIVERY':
-                    key_dates['actual_delivery'] = date_info.get('dateTime', '')
+                    key_dates['actual_delivery'] = date_info.get(
+                        'dateTime', '')
                 elif date_type == 'ACTUAL_PICKUP':
                     key_dates['actual_pickup'] = date_info.get('dateTime', '')
                 elif date_type == 'SHIP':
@@ -424,7 +449,8 @@ class FedExService:
                 elif date_type == 'ACTUAL_TENDER':
                     key_dates['actual_tender'] = date_info.get('dateTime', '')
                 elif date_type == 'ANTICIPATED_TENDER':
-                    key_dates['anticipated_tender'] = date_info.get('dateTime', '')
+                    key_dates['anticipated_tender'] = date_info.get(
+                        'dateTime', '')
             return KeyDates(**key_dates)
         except Exception as e:
             logger.error(f"Error extracting key dates: {str(e)}")
@@ -433,8 +459,9 @@ class FedExService:
     def _extract_commercial_info(self, tracking_details: Dict[str, Any]) -> CommercialInfo:
         try:
             tracking_info = tracking_details.get('trackingNumberInfo', {})
-            additional_info = tracking_details.get('additionalTrackingInfo', {})
-            
+            additional_info = tracking_details.get(
+                'additionalTrackingInfo', {})
+
             package_identifiers = []
             for identifier in additional_info.get('packageIdentifiers', []):
                 for value in identifier.get('values', []):
@@ -444,10 +471,13 @@ class FedExService:
                     })
 
             return CommercialInfo(
-                tracking_number_unique_id=tracking_info.get('trackingNumberUniqueId', ''),
+                tracking_number_unique_id=tracking_info.get(
+                    'trackingNumberUniqueId', ''),
                 package_identifiers=package_identifiers,
-                service_detail=tracking_details.get('serviceDetail', {}).get('description', ''),
-                available_notifications=tracking_details.get('availableNotifications', [])
+                service_detail=tracking_details.get(
+                    'serviceDetail', {}).get('description', ''),
+                available_notifications=tracking_details.get(
+                    'availableNotifications', [])
             )
         except Exception as e:
             logger.error(f"Error extracting commercial info: {str(e)}")
@@ -467,4 +497,4 @@ class FedExService:
             'FREIGHT': ServiceType.FREIGHT,
             'SMART_POST': ServiceType.SMART_POST
         }
-        return service_mapping.get(service_code, ServiceType.UNKNOWN) 
+        return service_mapping.get(service_code, ServiceType.UNKNOWN)

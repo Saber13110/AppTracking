@@ -9,6 +9,7 @@ import os
 
 router = APIRouter()
 
+
 @router.post("/", response_model=ColisOut)
 async def create_colis(
     colis: ColisCreate,
@@ -23,6 +24,7 @@ async def create_colis(
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+
 @router.get("/", response_model=List[ColisOut])
 async def list_colis(
     db: Session = Depends(get_db)
@@ -32,10 +34,12 @@ async def list_colis(
     """
     colis_service = ColisService(db)
     try:
-        colis, _ = colis_service.search_colis(ColisFilter(page=1, page_size=100))
+        colis, _ = colis_service.search_colis(
+            ColisFilter(page=1, page_size=100))
         return colis
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.get("/{identifier_type}/{value}", response_model=ColisOut)
 async def get_colis(
@@ -58,6 +62,7 @@ async def get_colis(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.put("/{colis_id}", response_model=ColisOut)
 async def update_colis(
     colis_id: str,
@@ -78,6 +83,7 @@ async def update_colis(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.delete("/{colis_id}")
 async def delete_colis(
     colis_id: str,
@@ -94,6 +100,7 @@ async def delete_colis(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.post("/search", response_model=ColisSearchResponse)
 async def search_colis(
@@ -116,6 +123,7 @@ async def search_colis(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.get("/stats", response_model=Dict[str, Any])
 async def get_colis_stats(
     db: Session = Depends(get_db)
@@ -132,6 +140,7 @@ async def get_colis_stats(
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.get("/codebar-image/{value}")
 async def get_codebar_image(
@@ -150,4 +159,4 @@ async def get_codebar_image(
     if not os.path.exists(image_path):
         raise HTTPException(status_code=404, detail="Image not found")
 
-    return FileResponse(image_path, media_type="image/png") 
+    return FileResponse(image_path, media_type="image/png")

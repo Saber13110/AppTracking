@@ -18,6 +18,7 @@ from ..models.notification_preference import NotificationPreferenceDB
 
 logger = logging.getLogger(__name__)
 
+
 class NotificationService:
     def __init__(self, db: Session):
         self.db = db
@@ -32,19 +33,19 @@ class NotificationService:
             # Rename metadata to meta_data
             if 'metadata' in data:
                 data['meta_data'] = data.pop('metadata')
-            
+
             db_notification = NotificationDB(
                 id=notification_id,
                 **data
             )
-            
+
             self.db.add(db_notification)
             self.db.commit()
             self.db.refresh(db_notification)
 
             # Send alerts based on user preferences
             self._send_alerts(db_notification)
-            
+
             # Convert meta_data back to metadata for the response
             notification_dict = {
                 **db_notification.__dict__,
@@ -52,9 +53,9 @@ class NotificationService:
             }
             notification_dict.pop('meta_data', None)
             notification = Notification(**notification_dict)
-            
+
             logger.info(f"Created notification: {notification_id}")
-            
+
             return NotificationResponse(
                 success=True,
                 data=notification,
@@ -78,14 +79,15 @@ class NotificationService:
         Get a notification by ID
         """
         try:
-            db_notification = self.db.query(NotificationDB).filter(NotificationDB.id == notification_id).first()
+            db_notification = self.db.query(NotificationDB).filter(
+                NotificationDB.id == notification_id).first()
             if not db_notification:
                 return NotificationResponse(
                     success=False,
                     error=f"Notification not found: {notification_id}",
                     metadata={'timestamp': datetime.now().isoformat()}
                 )
-            
+
             # Convert meta_data back to metadata for the response
             notification_dict = {
                 **db_notification.__dict__,
@@ -93,7 +95,7 @@ class NotificationService:
             }
             notification_dict.pop('meta_data', None)
             notification = Notification(**notification_dict)
-            
+
             return NotificationResponse(
                 success=True,
                 data=notification,
@@ -120,14 +122,15 @@ class NotificationService:
         """
         try:
             query = self.db.query(NotificationDB)
-            
+
             if unread_only:
                 query = query.filter(NotificationDB.is_read.is_(False))
             if notification_type:
                 query = query.filter(NotificationDB.type == notification_type)
-            
-            db_notifications = query.order_by(NotificationDB.created_at.desc()).offset(skip).limit(limit).all()
-            
+
+            db_notifications = query.order_by(
+                NotificationDB.created_at.desc()).offset(skip).limit(limit).all()
+
             # Convert meta_data back to metadata for each notification
             notifications = []
             for db_notification in db_notifications:
@@ -137,7 +140,7 @@ class NotificationService:
                 }
                 notification_dict.pop('meta_data', None)
                 notifications.append(Notification(**notification_dict))
-            
+
             return notifications
         except Exception as e:
             logger.error(f"Failed to get notifications: {str(e)}")
@@ -152,29 +155,30 @@ class NotificationService:
         Update a notification
         """
         try:
-            db_notification = self.db.query(NotificationDB).filter(NotificationDB.id == notification_id).first()
+            db_notification = self.db.query(NotificationDB).filter(
+                NotificationDB.id == notification_id).first()
             if not db_notification:
                 return NotificationResponse(
                     success=False,
                     error=f"Notification not found: {notification_id}",
                     metadata={'timestamp': datetime.now().isoformat()}
                 )
-            
+
             # Update notification fields
             update_dict = update_data.dict(exclude_unset=True)
             if 'metadata' in update_dict:
                 update_dict['meta_data'] = update_dict.pop('metadata')
-            
+
             for key, value in update_dict.items():
                 setattr(db_notification, key, value)
-            
+
             # Update read_at timestamp if marking as read
             if update_data.is_read and not db_notification.read_at:
                 db_notification.read_at = datetime.now()
-            
+
             self.db.commit()
             self.db.refresh(db_notification)
-            
+
             # Convert meta_data back to metadata for the response
             notification_dict = {
                 **db_notification.__dict__,
@@ -182,9 +186,9 @@ class NotificationService:
             }
             notification_dict.pop('meta_data', None)
             notification = Notification(**notification_dict)
-            
+
             logger.info(f"Updated notification: {notification_id}")
-            
+
             return NotificationResponse(
                 success=True,
                 data=notification,
@@ -205,17 +209,18 @@ class NotificationService:
         Delete a notification
         """
         try:
-            db_notification = self.db.query(NotificationDB).filter(NotificationDB.id == notification_id).first()
+            db_notification = self.db.query(NotificationDB).filter(
+                NotificationDB.id == notification_id).first()
             if not db_notification:
                 return NotificationResponse(
                     success=False,
                     error=f"Notification not found: {notification_id}",
                     metadata={'timestamp': datetime.now().isoformat()}
                 )
-            
+
             self.db.delete(db_notification)
             self.db.commit()
-            
+
             logger.info(f"Deleted notification: {notification_id}")
             return NotificationResponse(
                 success=True,
@@ -244,7 +249,7 @@ class NotificationService:
                 "read_at": now
             })
             self.db.commit()
-            
+
             logger.info("Marked all notifications as read")
             return NotificationResponse(
                 success=True,
@@ -272,7 +277,8 @@ class NotificationService:
                 .first()
             )
             if not pref:
-                pref = NotificationPreferenceDB(user_id=user_id, email_updates=True)
+                pref = NotificationPreferenceDB(
+                    user_id=user_id, email_updates=True)
                 self.db.add(pref)
                 self.db.commit()
                 self.db.refresh(pref)
@@ -295,7 +301,8 @@ class NotificationService:
         try:
             prefs = self.db.query(NotificationPreferenceDB).all()
             for pref in prefs:
-                channels = (pref.event_settings or {}).get(notification.type.value, [])
+                channels = (pref.event_settings or {}).get(
+                    notification.type.value, [])
                 if not channels:
                     continue
                 addresses = pref.addresses or []
@@ -309,7 +316,8 @@ class NotificationService:
                     if 'sms' in channels and '@' not in addr:
                         send_sms(addr, notification.message)
         except Exception:
-            logger.error("Failed sending alert for notification %s", notification.id)
+            logger.error(
+                "Failed sending alert for notification %s", notification.id)
 
     def update_preferences(
         self,

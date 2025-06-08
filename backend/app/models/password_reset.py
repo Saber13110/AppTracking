@@ -4,6 +4,7 @@ from sqlalchemy.sql import func
 
 from ..database import Base
 
+
 class PasswordResetTokenDB(Base):
     __tablename__ = "password_reset_tokens"
 

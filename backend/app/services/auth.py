@@ -22,11 +22,14 @@ oauth2_scheme = OAuth2PasswordBearer(
     auto_error=False,
 )
 
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
+
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
+
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
@@ -35,8 +38,10 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    encoded_jwt = jwt.encode(
+        to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
+
 
 async def get_current_user(
     request: Request,
@@ -70,6 +75,7 @@ async def get_current_user(
         raise credentials_exception
     return user
 
+
 async def get_current_active_user(current_user: User = Depends(get_current_user)) -> User:
     if not current_user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
@@ -86,8 +92,10 @@ def require_role(*roles: UserRole):
 
     return dependency
 
+
 def get_user_by_email(db: Session, email: str) -> Optional[UserDB]:
     return db.query(UserDB).filter(UserDB.email == email).first()
+
 
 def create_user(db: Session, user: UserCreate) -> UserDB:
     hashed_password = get_password_hash(user.password)
@@ -102,6 +110,7 @@ def create_user(db: Session, user: UserCreate) -> UserDB:
     db.refresh(db_user)
     return db_user
 
+
 def authenticate_user(db: Session, email: str, password: str) -> Optional[UserDB]:
     user = get_user_by_email(db, email)
     if not user:
@@ -112,6 +121,8 @@ def authenticate_user(db: Session, email: str, password: str) -> Optional[UserDB
     db.commit()
     db.refresh(user)
     return user
+
+
 def create_refresh_token(db: Session, user: UserDB) -> str:
     token = token_urlsafe(32)
     expires = datetime.utcnow() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
@@ -135,16 +146,19 @@ def verify_refresh_token(db: Session, token: str) -> Optional[UserDB]:
 
 
 def revoke_refresh_token(db: Session, token: str) -> None:
-    db_token = db.query(RefreshTokenDB).filter(RefreshTokenDB.token == token).first()
+    db_token = db.query(RefreshTokenDB).filter(
+        RefreshTokenDB.token == token).first()
     if db_token:
         db_token.revoked = True
         db.commit()
+
 
 def create_password_reset_token(db: Session, user: UserDB) -> str:
     """Create and store a password reset token for the given user."""
     token = token_urlsafe(32)
     expires = datetime.utcnow() + timedelta(hours=1)
-    db_token = PasswordResetTokenDB(token=token, user_id=user.id, expires_at=expires)
+    db_token = PasswordResetTokenDB(
+        token=token, user_id=user.id, expires_at=expires)
     db.add(db_token)
     db.commit()
     return token

@@ -17,6 +17,7 @@ from ....models.user import UserDB, UserRole
 
 router = APIRouter()
 
+
 @router.post("/", response_model=NotificationResponse)
 async def create_notification(
     notification: NotificationCreate,
@@ -32,6 +33,7 @@ async def create_notification(
         raise HTTPException(status_code=400, detail=response.error)
     return response
 
+
 @router.get("/{notification_id}", response_model=NotificationResponse)
 async def get_notification(
     notification_id: str,
@@ -45,6 +47,7 @@ async def get_notification(
     if not response.success:
         raise HTTPException(status_code=404, detail=response.error)
     return response
+
 
 @router.get("/", response_model=List[Notification])
 async def get_notifications(
@@ -65,6 +68,7 @@ async def get_notifications(
         notification_type=notification_type
     )
 
+
 @router.patch("/{notification_id}", response_model=NotificationResponse)
 async def update_notification(
     notification_id: str,
@@ -84,6 +88,7 @@ async def update_notification(
         raise HTTPException(status_code=404, detail=response.error)
     return response
 
+
 @router.delete("/{notification_id}", response_model=NotificationResponse)
 async def delete_notification(
     notification_id: str,
@@ -98,6 +103,7 @@ async def delete_notification(
     if not response.success:
         raise HTTPException(status_code=404, detail=response.error)
     return response
+
 
 @router.post("/mark-all-read", response_model=NotificationResponse)
 async def mark_all_as_read(

@@ -4,6 +4,7 @@ from sqlalchemy.sql import func
 
 from ..database import Base
 
+
 class RefreshTokenDB(Base):
     __tablename__ = "refresh_tokens"
 

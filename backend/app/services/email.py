@@ -3,6 +3,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from ..config import settings
 
+
 def send_verification_email(email: str, token: str):
     # Configuration de l'email
     sender_email = settings.SMTP_USERNAME
@@ -60,18 +61,17 @@ def send_password_reset_email(email: str, token: str) -> bool:
     message["Subject"] = "Réinitialisation de votre mot de passe"
 
     reset_link = f"{settings.FRONTEND_URL}/reset-password?token={token}"
-    body = f"""
-    Bonjour,
-
-    Vous avez demandé la réinitialisation de votre mot de passe. Pour définir un nouveau mot de passe, veuillez cliquer sur le lien suivant :
-
-    {reset_link}
-
-    Si vous n'avez pas demandé cette réinitialisation, vous pouvez ignorer cet email.
-
-    Cordialement,
-    L'équipe de Tracking App
-    """
+    body = (
+        "Bonjour,\n\n"
+        "Vous avez demandé la réinitialisation de votre mot de passe. "
+        "Pour définir un nouveau mot de passe, veuillez cliquer sur le "
+        "lien suivant :\n\n"
+        f"{reset_link}\n\n"
+        "Si vous n'avez pas demandé cette réinitialisation, vous pouvez "
+        "ignorer cet email.\n\n"
+        "Cordialement,\n"
+        "L'équipe de Tracking App"
+    )
     message.attach(MIMEText(body, "plain"))
 
     try:

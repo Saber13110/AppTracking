@@ -25,20 +25,24 @@ oauth.register(
     }
 )
 
+
 @router.get("/login")
 async def google_login(request: Request):
-    redirect_uri = settings.GOOGLE_REDIRECT_URI or request.url_for('google_auth_callback')
+    redirect_uri = settings.GOOGLE_REDIRECT_URI or request.url_for(
+        'google_auth_callback')
     return await oauth.google.authorize_redirect(request, redirect_uri)
+
 
 @router.get("/callback")
 async def google_auth_callback(request: Request, db: Session = Depends(get_db)):
     try:
         token = await oauth.google.authorize_access_token(request)
         userinfo = await oauth.google.parse_id_token(request, token)
-        
+
         # Vérifier si l'utilisateur existe déjà
-        user = db.query(UserDB).filter(UserDB.email == userinfo['email']).first()
-        
+        user = db.query(UserDB).filter(
+            UserDB.email == userinfo['email']).first()
+
         if not user:
             # Créer un nouvel utilisateur
             user = UserDB(
@@ -61,9 +65,10 @@ async def google_auth_callback(request: Request, db: Session = Depends(get_db)):
             user.is_verified = True
             user.last_login_at = datetime.utcnow()
             db.commit()
-        
+
         # Créer un token JWT et un refresh token
-        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token_expires = timedelta(
+            minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
             data={"sub": user.email},
             expires_delta=access_token_expires,
@@ -89,9 +94,9 @@ async def google_auth_callback(request: Request, db: Session = Depends(get_db)):
             secure=not settings.DEBUG,
         )
         return response
-        
+
     except OAuthError as e:
         raise HTTPException(
             status_code=400,
             detail=str(e)
-        ) 
+        )

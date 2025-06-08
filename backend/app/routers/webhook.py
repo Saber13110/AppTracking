@@ -11,6 +11,7 @@ from ..services.tracking_service import TrackingService
 
 router = APIRouter(prefix="/webhook", tags=["webhook"])
 
+
 @router.post("/fedex")
 async def fedex_webhook(request: Request, db: Session = Depends(get_db)):
     """Handle FedEx webhook notifications."""
@@ -18,7 +19,8 @@ async def fedex_webhook(request: Request, db: Session = Depends(get_db)):
     signature = request.headers.get("X-Fedex-Signature")
     secret = settings.FEDEX_WEBHOOK_SECRET
     if signature and secret:
-        digest = hmac.new(secret.encode(), body_bytes, hashlib.sha256).hexdigest()
+        digest = hmac.new(secret.encode(), body_bytes,
+                          hashlib.sha256).hexdigest()
         if not secrets.compare_digest(digest, signature):
             raise HTTPException(status_code=400, detail="Invalid signature")
 

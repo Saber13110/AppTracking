@@ -32,6 +32,7 @@ def purge_old_history() -> None:
     finally:
         db.close()
 
+
 async def lifespan(app: FastAPI):
     redis_client = redis.from_url(
         settings.REDIS_URL, encoding="utf8", decode_responses=True
@@ -65,12 +66,12 @@ app.add_middleware(
 )
 
 
-
 # Inclusion des routeurs
 app.include_router(auth.router, prefix=settings.API_V1_STR)
 app.include_router(google_auth.router, prefix=settings.API_V1_STR)
 app.include_router(api_router)
 app.include_router(webhook.router)
+
 
 @app.get("/")
 async def root():
@@ -78,4 +79,4 @@ async def root():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000) 
+    uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -13,6 +13,7 @@ from sqlalchemy.sql import func
 
 logger = logging.getLogger(__name__)
 
+
 class ColisService:
     def __init__(self, db: Session):
         self.db = db
@@ -75,7 +76,8 @@ class ColisService:
             return db_colis
         except Exception as e:
             self.db.rollback()
-            logger.error(f"Erreur lors de la création du colis avec ID {colis_data.id}: {str(e)}")
+            logger.error(
+                f"Erreur lors de la création du colis avec ID {colis_data.id}: {str(e)}")
             raise
 
     def get_colis_by_id(self, colis_id: str) -> Optional[ColisDB]:
@@ -138,7 +140,6 @@ class ColisService:
             logger.error(f"Erreur lors de la mise à jour du colis: {str(e)}")
             raise
 
-
     def search_colis(self, filters: ColisFilter) -> Tuple[List[ColisDB], int]:
         """Recherche des colis avec filtres"""
         query = self.db.query(ColisDB)
@@ -148,14 +149,17 @@ class ColisService:
         if filters.location:
             query = query.filter(ColisDB.location == filters.location)
         if filters.reference:
-            query = query.filter(ColisDB.reference.ilike(f"%{filters.reference}%"))
+            query = query.filter(
+                ColisDB.reference.ilike(f"%{filters.reference}%"))
         if filters.tcn:
             query = query.filter(ColisDB.tcn.ilike(f"%{filters.tcn}%"))
         if filters.code_barre:
-            query = query.filter(ColisDB.code_barre.ilike(f"%{filters.code_barre}%"))
+            query = query.filter(
+                ColisDB.code_barre.ilike(f"%{filters.code_barre}%"))
 
         total = query.count()
-        colis = query.offset((filters.page - 1) * filters.page_size).limit(filters.page_size).all()
+        colis = query.offset((filters.page - 1) *
+                             filters.page_size).limit(filters.page_size).all()
         return colis, total
 
     def get_colis_stats(self) -> Dict[str, Any]:
@@ -185,17 +189,20 @@ class ColisService:
             if not db_colis:
                 return False
 
-            image_path = os.path.join(self.barcode_folder, f"{db_colis.code_barre}.png")
+            image_path = os.path.join(
+                self.barcode_folder, f"{db_colis.code_barre}.png")
             if os.path.exists(image_path):
                 try:
                     os.remove(image_path)
                 except Exception:
-                    logger.warning(f"Unable to remove barcode image {image_path}")
+                    logger.warning(
+                        f"Unable to remove barcode image {image_path}")
 
             self.db.delete(db_colis)
             self.db.commit()
             return True
         except Exception as e:
             self.db.rollback()
-            logger.error(f"Erreur lors de la suppression du colis {colis_id}: {str(e)}")
+            logger.error(
+                f"Erreur lors de la suppression du colis {colis_id}: {str(e)}")
             raise

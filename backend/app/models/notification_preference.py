@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, Boolean, ForeignKey, String, JSON
 from ..database import Base
 
+
 class NotificationPreferenceDB(Base):
     __tablename__ = "notification_preferences"
 
