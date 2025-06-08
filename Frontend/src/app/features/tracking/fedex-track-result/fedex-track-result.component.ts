@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { TrackingService, TrackingInfo } from '../services/tracking.service';
+import { AnalyticsService } from '../../../core/services/analytics.service';
 
 interface FedexTrackingInfo extends TrackingInfo {
   currentLocation?: {
@@ -27,7 +28,11 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
   private marker: google.maps.Marker | null = null;
   private identifier = '';
 
-  constructor(private route: ActivatedRoute, private trackingService: TrackingService) {}
+  constructor(
+    private route: ActivatedRoute,
+    private trackingService: TrackingService,
+    private analytics: AnalyticsService
+  ) {}
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -105,5 +110,41 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
       currentLocation: { latitude: 33.5731, longitude: -7.5898 }
     } as FedexTrackingInfo;
     this.initializeMap();
+  }
+
+  shareTracking(): void {
+    if (this.trackingData?.tracking_number) {
+      this.analytics.logAction('share_tracking', this.trackingData.tracking_number);
+      console.log('Sharing tracking number', this.trackingData.tracking_number);
+    }
+  }
+
+  printTracking(): void {
+    window.print();
+    this.analytics.logAction('print_tracking');
+    console.log('Printing tracking information');
+  }
+
+  saveTracking(): void {
+    if (this.trackingData?.tracking_number) {
+      const key = 'savedTrackingNumbers';
+      const saved = JSON.parse(localStorage.getItem(key) || '[]');
+      if (!saved.includes(this.trackingData.tracking_number)) {
+        saved.push(this.trackingData.tracking_number);
+        localStorage.setItem(key, JSON.stringify(saved));
+      }
+      this.analytics.logAction('save_tracking', this.trackingData.tracking_number);
+      console.log('Saving tracking number', this.trackingData.tracking_number);
+    }
+  }
+
+  openDialog(name: string): void {
+    this.analytics.logAction('open_dialog', name);
+    console.log('Opening dialog', name);
+  }
+
+  exportData(): void {
+    this.analytics.logAction('export_data');
+    console.log('Exporting tracking data');
   }
 }
