@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NotificationService } from '../../../core/services/notification.service';
+import { LanguageService } from '../../../core/services/language.service';
 
 @Component({
   selector: 'app-navbar',
@@ -16,12 +17,17 @@ export class NavbarComponent implements OnInit {
   showSearch = false;
   notificationCount = 0;
 
+  currentLang = 'en';
+
   constructor(
     private notificationService: NotificationService,
-    private router: Router
+    private router: Router,
+    private languageService: LanguageService
   ) {}
 
   ngOnInit(): void {
+    this.languageService.detectBrowserLang();
+    this.currentLang = this.languageService.currentLang;
     this.notificationService.getUnreadCount().subscribe((count) => {
       this.notificationCount = count;
     });
@@ -36,5 +42,10 @@ export class NavbarComponent implements OnInit {
     if (id) {
       this.router.navigate(['/track', id]);
     }
+  }
+
+  changeLang(lang: string): void {
+    this.languageService.setLang(lang);
+    this.currentLang = lang;
   }
 }

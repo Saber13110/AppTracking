@@ -6,6 +6,8 @@ import { TrackingService, TrackingInfo } from '../services/tracking.service';
 import { TrackingHistoryService } from '../../../core/services/tracking-history.service';
 import { AnalyticsService } from '../../../core/services/analytics.service';
 import { showNotification } from '../../../shared/services/notification.util';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { LanguageService } from '../../../core/services/language.service';
 import { environment } from '../../../../environments/environment';
 
 declare global {
@@ -17,7 +19,7 @@ declare global {
 @Component({
   selector: 'app-track-result',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe],
   templateUrl: './track-result.component.html',
   styleUrls: ['./track-result.component.scss'],
   animations: [
@@ -45,10 +47,12 @@ export class TrackResultComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private trackingService: TrackingService,
     private analytics: AnalyticsService,
-    private history: TrackingHistoryService
+    private history: TrackingHistoryService,
+    private languageService: LanguageService
   ) {}
 
   ngOnInit() {
+    this.languageService.detectBrowserLang();
     this.route.params.subscribe(params => {
       const identifier = params['identifier'];
       if (identifier) {

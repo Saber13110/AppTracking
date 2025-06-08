@@ -16,6 +16,8 @@ import { BarcodeUploadComponent } from '../barcode-upload/barcode-upload.compone
 import { TrackingOptionsComponent } from '../../shared/components/tracking-options/tracking-options.component';
 import { TrackingMobileComponent } from '../../shared/components/tracking-mobile/tracking-mobile.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+import { LanguageService } from '../../core/services/language.service';
 
 // Import Google Maps types
 declare global {
@@ -81,7 +83,8 @@ interface ServiceItem {
     BarcodeUploadComponent,
     TrackingOptionsComponent,
     TrackingMobileComponent,
-    FooterComponent
+    FooterComponent,
+    TranslatePipe
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
@@ -146,7 +149,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     private trackingService: TrackingService,
     private notificationService: NotificationService,
     private analytics: AnalyticsService,
-    private history: TrackingHistoryService
+    private history: TrackingHistoryService,
+    private languageService: LanguageService
   ) {
     this.trackingForm = this.fb.group({
       trackingNumber: ['', [Validators.required, Validators.pattern('^[A-Z0-9]{10,}$')]],
@@ -159,6 +163,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.languageService.detectBrowserLang();
     this.isLoggedIn$ = this.authService.isLoggedIn();
     this.fetchUnreadNotifications();
     this.refreshIntervalId = setInterval(() => this.fetchUnreadNotifications(), 60000);

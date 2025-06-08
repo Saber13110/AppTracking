@@ -60,6 +60,10 @@
         <i class="fas fa-search"></i>
       </button>
       <input *ngIf="showSearch" type="text" class="search-input" placeholder="Rechercher..." />
+      <select (change)="changeLang($event.target.value)" [value]="currentLang" class="lang-select">
+        <option value="en">EN</option>
+        <option value="fr">FR</option>
+      </select>
     </div>
   </nav>
 </header>

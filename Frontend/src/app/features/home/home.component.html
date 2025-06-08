@@ -3,10 +3,10 @@
 ======================= -->
 <section class="hero">
   <div class="hero__content">
-    <h1 class="hero__title">Track your packages in real-time</h1>
-    <p class="hero__subtitle">Enter your tracking number to know the status of your delivery</p>
+    <h1 class="hero__title">{{ 'HERO_TITLE' | translate }}</h1>
+    <p class="hero__subtitle">{{ 'HERO_SUBTITLE' | translate }}</p>
     <button *ngIf="isLoggedIn$ | async" class="btn btn--secondary logout-btn" (click)="logout()">
-      Logout
+      {{ 'LOGOUT' | translate }}
     </button>
 
     <div class="hero__features">
@@ -19,7 +19,7 @@
            (keydown.enter)="selectHeroFeature('barcode_scan')"
            (keydown.space)="selectHeroFeature('barcode_scan')">
         <i class="fas fa-barcode hero__feature-icon"></i>
-        <p class="hero__feature-text">Scan<br>Barcode</p>
+        <p class="hero__feature-text">{{ 'SCAN_BARCODE' | translate }}</p>
       </div>
       <div class="hero__feature-card"
            role="button"
@@ -30,7 +30,7 @@
            (keydown.enter)="selectHeroFeature(null)"
            (keydown.space)="selectHeroFeature(null)">
         <i class="fas fa-search hero__feature-icon"></i>
-        <p class="hero__feature-text">TRACK</p>
+        <p class="hero__feature-text">{{ 'TRACK' | translate }}</p>
       </div>
       <div class="hero__feature-card"
            role="button"
@@ -41,7 +41,7 @@
            (keydown.enter)="selectHeroFeature('obtain_proof')"
            (keydown.space)="selectHeroFeature('obtain_proof')">
         <i class="fas fa-file-alt hero__feature-icon"></i>
-        <p class="hero__feature-text">Obtain your<br>proof</p>
+        <p class="hero__feature-text">{{ 'OBTAIN_PROOF' | translate }}</p>
       </div>
     </div>
 
@@ -52,18 +52,18 @@
       <div *ngIf="selectedHeroFeature === null" class="tracking-form">
         <form [formGroup]="trackingForm" (ngSubmit)="onSubmit()">
           <div class="tracking-form__input-group">
-            <input type="text" formControlName="trackingNumber" class="tracking-form__input" placeholder="Enter your tracking number">
-            <input type="text" formControlName="packageName" class="tracking-form__input" placeholder="Package name (optional)">
+            <input type="text" formControlName="trackingNumber" class="tracking-form__input" [placeholder]="'TRACK_PLACEHOLDER' | translate">
+            <input type="text" formControlName="packageName" class="tracking-form__input" [placeholder]="'PACKAGE_NAME_PLACEHOLDER' | translate">
             <button type="submit" class="tracking-form__btn">
               <i class="fas fa-search"></i>
-              Track
+              {{ 'TRACK_BUTTON' | translate }}
             </button>
           </div>
           <div class="error-message" *ngIf="trackingForm.get('trackingNumber')?.errors?.required && trackingForm.get('trackingNumber')?.touched">
-            Tracking number is required.
+            {{ 'REQUIRED_ERROR' | translate }}
           </div>
           <div class="error-message" *ngIf="trackingForm.get('trackingNumber')?.errors?.pattern && trackingForm.get('trackingNumber')?.touched">
-            Tracking number must be alphanumeric.
+            {{ 'PATTERN_ERROR' | translate }}
           </div>
           <!-- Barcode scan option removed from default form -->
         </form>
@@ -71,7 +71,7 @@
 
       <!-- Barcode Scan Option -->
       <div *ngIf="selectedHeroFeature === 'barcode_scan'" class="barcode-scan-option">
-        <p>Upload a barcode image or use Pro Scan to track your package.</p>
+        <p>{{ 'UPLOAD_TEXT' | translate }}</p>
         <div class="upload-box"
              role="button"
              aria-label="Upload barcode image"
@@ -80,11 +80,11 @@
              (keydown.enter)="fileInput.click()"
              (keydown.space)="fileInput.click()">
           <i class="fas fa-cloud-upload-alt upload-icon"></i>
-          <p>Drag and drop or click to upload</p>
+          <p>{{ 'DRAG_TEXT' | translate }}</p>
           <input type="file" accept="image/*" (change)="onBarcodeFileSelected($event)" #fileInput hidden>
         </div>
         <button class="btn btn--primary mt-3" (click)="startWebcamScan()">
-          {{ isScanning ? 'Stop Scan' : 'Pro Scan (Webcam)' }}
+          {{ isScanning ? ('STOP_SCAN' | translate) : ('PRO_SCAN' | translate) }}
         </button>
         <video #videoPreview *ngIf="isScanning" class="webcam-preview" autoplay></video>
         <app-barcode-upload [control]="trackingForm.get('trackingNumber')"></app-barcode-upload>
@@ -92,20 +92,20 @@
 
       <!-- Obtain Your Proof Option -->
       <div *ngIf="selectedHeroFeature === 'obtain_proof'" class="obtain-proof-option">
-        <p>Enter tracking ID to download your proof of delivery.</p>
+        <p>{{ 'ENTER_ID' | translate }}</p>
         <form [formGroup]="trackingForm" (ngSubmit)="downloadProof()">
           <div class="tracking-form__input-group">
-            <input type="text" formControlName="trackingNumber" class="tracking-form__input" placeholder="Enter tracking ID">
+            <input type="text" formControlName="trackingNumber" class="tracking-form__input" [placeholder]="'ENTER_ID_PLACEHOLDER' | translate">
             <button type="submit" class="tracking-form__btn">
               <i class="fas fa-download"></i>
-              Download Proof
+              {{ 'DOWNLOAD_PROOF' | translate }}
             </button>
           </div>
           <div class="error-message" *ngIf="trackingForm.get('trackingNumber')?.errors?.required && trackingForm.get('trackingNumber')?.touched">
-            Tracking number is required.
+            Le numéro de suivi est obligatoire.
           </div>
           <div class="error-message" *ngIf="trackingForm.get('trackingNumber')?.errors?.pattern && trackingForm.get('trackingNumber')?.touched">
-            Tracking number must be alphanumeric.
+            Le numéro de suivi doit être alphanumérique.
           </div>
         </form>
       </div>
@@ -118,10 +118,10 @@
 🆕 GENERATE BARCODE SECTION
 ======================= -->
 <div class="generate-barcode-option">
-  <p>Enter a tracking ID to generate its barcode.</p>
+  <p>{{ 'GENERATE_TITLE' | translate }}</p>
   <form [formGroup]="barcodeForm" (ngSubmit)="generateBarcode()" class="input-group">
-    <input type="text" formControlName="trackingId" placeholder="Enter tracking ID">
-    <button type="submit" class="btn btn--primary">Generate</button>
+    <input type="text" formControlName="trackingId" [placeholder]="'GENERATE_PLACEHOLDER' | translate">
+    <button type="submit" class="btn btn--primary">{{ 'GENERATE_BUTTON' | translate }}</button>
   </form>
   <div class="barcode-display" *ngIf="barcodeImageUrl">
     <img [src]="barcodeImageUrl" alt="Generated Barcode">
