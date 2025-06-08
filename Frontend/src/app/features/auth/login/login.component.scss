@@ -16,6 +16,11 @@
 button {
   padding: 10px;
   margin-top: 10px;
+
+  &:focus {
+    outline: 2px solid #4d148c;
+    outline-offset: 2px;
+  }
 }
 
 .google-button {

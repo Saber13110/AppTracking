@@ -275,9 +275,12 @@
     <div class="notification__header">
       <span class="notification__title">{{notification.title}}</span>
       <button class="notification__close"
-              aria-label="Close notification"
+              role="button"
               tabindex="0"
-              (click)="removeNotification(notification)">
+              aria-label="Close notification"
+              (click)="removeNotification(notification)"
+              (keydown.enter)="removeNotification(notification)"
+              (keydown.space)="removeNotification(notification)">
         <i class="fas fa-times"></i>
       </button>
     </div>
