@@ -26,6 +26,17 @@ Both `backend/.env` and `backend/.env.local` are ignored by Git. Store your secr
 
 The frontend needs a Google Maps API key. Set `GOOGLE_MAPS_API_KEY` in a `.env` file at the project root or export it in your shell before running the Angular app.
 
+## Required variables
+
+Set the following variables in `backend/.env.local` or export them in your shell for development and tests:
+
+- `FEDEX_CLIENT_ID`
+- `FEDEX_CLIENT_SECRET`
+- `FEDEX_ACCOUNT_NUMBER`
+- `SECRET_KEY`
+
+If any of these values are missing, the backend will fail to start.
+
 ## Running the Backend
 
 Install the Python dependencies and start the API server:
