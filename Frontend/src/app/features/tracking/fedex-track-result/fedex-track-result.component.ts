@@ -112,33 +112,6 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
     this.waitForGoogleMaps().then(() => this.initializeMap());
   }
 
-  shareTracking(): void {
-    if (navigator.share && this.trackingData) {
-      navigator.share({
-        title: 'Tracking',
-        text: `Tracking ${this.trackingData.tracking_number}`,
-        url: window.location.href
-      });
-    } else if (this.trackingData?.tracking_number) {
-      navigator.clipboard.writeText(this.trackingData.tracking_number);
-    }
-  }
-
-  printTracking(): void {
-    window.print();
-  }
-
-  saveTracking(): void {
-    if (!this.trackingData?.tracking_number) {
-      return;
-    }
-    const key = 'savedTrackingNumbers';
-    const saved: string[] = JSON.parse(localStorage.getItem(key) || '[]');
-    if (!saved.includes(this.trackingData.tracking_number)) {
-      saved.push(this.trackingData.tracking_number);
-      localStorage.setItem(key, JSON.stringify(saved));
-    }
-  }
 
   getItemClasses(event: any, index: number): string {
     const classes = ['timeline-item'];
@@ -176,10 +149,25 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
   }
 
   shareTracking(): void {
-    if (this.trackingData?.tracking_number) {
-      this.analytics.logAction('share_tracking', this.trackingData.tracking_number);
-      console.log('Sharing tracking number', this.trackingData.tracking_number);
+    const number = this.trackingData?.tracking_number;
+    if (!number) {
+      return;
     }
+
+    if (navigator.share) {
+      navigator
+        .share({
+          title: 'Tracking',
+          text: `Tracking ${number}`,
+          url: window.location.href,
+        })
+        .catch(() => navigator.clipboard.writeText(number));
+    } else {
+      navigator.clipboard.writeText(number);
+    }
+
+    this.analytics.logAction('share_tracking', number);
+    console.log('Sharing tracking number', number);
   }
 
   printTracking(): void {

@@ -89,17 +89,24 @@ export class TrackResultComponent implements OnInit, OnDestroy {
   }
 
   shareTracking() {
-    if (navigator.share && this.trackingInfo) {
-      navigator.share({
-        title: 'Suivi de colis',
-        text: `Suivi ${this.trackingInfo.tracking_number}`,
-        url: window.location.href,
-      });
-      showNotification('Share dialog opened', 'info');
+    const number = this.trackingInfo?.tracking_number;
+    if (!number) {
+      return;
+    }
+
+    if (navigator.share) {
+      navigator
+        .share({
+          title: 'Suivi de colis',
+          text: `Suivi ${number}`,
+          url: window.location.href,
+        })
+        .catch(() => this.copyTracking());
     } else {
       this.copyTracking();
     }
-    this.analytics.logAction('share_tracking', this.trackingInfo?.tracking_number);
+
+    this.analytics.logAction('share_tracking', number);
   }
 
   downloadProof() {

@@ -39,9 +39,9 @@
         </p>
       </div>
       <div class="summary-actions">
-        <button type="button" (click)="shareTracking()" (keydown.enter)="shareTracking()" (keydown.space)="shareTracking()">Share</button>
-        <button type="button" (click)="printTracking()" (keydown.enter)="printTracking()" (keydown.space)="printTracking()">Print</button>
-        <button type="button" (click)="saveTracking()" (keydown.enter)="saveTracking()" (keydown.space)="saveTracking()">Save</button>
+        <button type="button" aria-label="Share tracking" (click)="shareTracking()" (keydown.enter)="shareTracking()" (keydown.space)="shareTracking()">Share</button>
+        <button type="button" aria-label="Print tracking" (click)="printTracking()" (keydown.enter)="printTracking()" (keydown.space)="printTracking()">Print</button>
+        <button type="button" aria-label="Save tracking" (click)="saveTracking()" (keydown.enter)="saveTracking()" (keydown.space)="saveTracking()">Save</button>
         <button type="button" (click)="copyTracking()">Copier</button>
         <button type="button" (click)="downloadProof()">Télécharger la preuve</button>
         <button type="button" (click)="contactSupport()">Contacter le support</button>
