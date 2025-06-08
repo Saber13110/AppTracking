@@ -2,26 +2,18 @@
   padding: 1rem;
 }
 
-.history ul {
-  list-style: none;
-  padding: 0;
-}
-
-.history li {
+.controls {
   display: flex;
   align-items: center;
-  margin-bottom: 0.5rem;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
 }
 
-.history li a {
-  flex: 1;
+.controls div[cdkDropList] {
+  display: flex;
+  gap: 0.5rem;
 }
 
-.history button {
-  margin-left: 0.5rem;
-
-  &:focus {
-    outline: 2px solid #4d148c;
-    outline-offset: 2px;
-  }
+.mat-column-actions {
+  width: 80px;
 }
