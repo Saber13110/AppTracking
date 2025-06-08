@@ -22,6 +22,11 @@ export class TrackingService {
   trackPackage(identifier: string): Observable<TrackingResponse> {
     return this.http.get<TrackingResponse>(`${this.baseUrl}/${identifier}`);
   }
+
+  downloadProof(trackingNumber: string): Observable<Blob> {
+    const url = `${this.baseUrl}/${trackingNumber}/proof`;
+    return this.http.get(url, { responseType: 'blob' });
+  }
 }
 
 export type { TrackingInfo } from '../models/tracking';
