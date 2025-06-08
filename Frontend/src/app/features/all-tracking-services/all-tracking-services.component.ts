@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TrackingService } from '../tracking/services/tracking.service';
 import { AnalyticsService } from '../../core/services/analytics.service';
+import { BarcodeUploadComponent } from '../barcode-upload/barcode-upload.component';
 
 @Component({
   selector: 'app-all-tracking-services',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, BarcodeUploadComponent],
   templateUrl: './all-tracking-services.component.html',
   styleUrls: ['./all-tracking-services.component.scss']
 })

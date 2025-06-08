@@ -39,6 +39,8 @@ export class BarcodeUploadComponent {
       .then(code => {
         if (this.control) {
           this.control.setValue(code);
+          this.control.markAsTouched();
+          this.control.updateValueAndValidity();
         }
       })
       .catch(err => console.error('Barcode decode failed', err));

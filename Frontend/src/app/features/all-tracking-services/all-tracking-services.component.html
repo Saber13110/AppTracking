@@ -30,6 +30,7 @@
     <div *ngIf="activeTab==='barcode'" class="barcode-form">
       <p>Scan your barcode using the camera.</p>
       <button type="button" (click)="startBarcodeScan()">Start Scan</button>
+      <app-barcode-upload [control]="singleForm.get('trackingNumber')"></app-barcode-upload>
     </div>
   </div>
 </div>
