@@ -7,6 +7,7 @@ from typing import Dict, Any
 from datetime import datetime, timedelta
 from importlib import resources
 from pathlib import Path
+from threading import Lock
 from ..models.tracking import (
     TrackingInfo, TrackingEvent, TrackingResponse, Location,
     PackageDetails, DeliveryDetails, PackageStatus, PackageType,
@@ -14,6 +15,10 @@ from ..models.tracking import (
 )
 
 logger = logging.getLogger(__name__)
+
+# Global cache for authentication token shared across service instances
+_token_lock = Lock()
+_token_cache: dict[str, datetime | str | None] = {"token": None, "expiry": None}
 
 class FedExService:
     def __init__(self, account: str | None = None, config_path: str | None = None):
@@ -55,14 +60,29 @@ class FedExService:
             response = client.post(self.auth_url, data=self.payload, headers=self.headers)
             response.raise_for_status()
             data = response.json()
-            self._token = data.get('access_token')
-            expires_in = int(data.get('expires_in', 3600))
-            self._token_expiry = datetime.utcnow() + timedelta(seconds=expires_in)
+
+        token = data.get('access_token')
+        expires_in = int(data.get('expires_in', 3600))
+        expiry = datetime.utcnow() + timedelta(seconds=expires_in)
+
+        # Update both instance and global cache inside the lock for thread safety
+        with _token_lock:
+            _token_cache["token"] = token
+            _token_cache["expiry"] = expiry
+            self._token = token
+            self._token_expiry = expiry
 
     def _get_auth_token(self) -> str:
-        if not self._token or not self._token_expiry or datetime.utcnow() >= self._token_expiry:
+        with _token_lock:
+            token = _token_cache.get("token")
+            expiry = _token_cache.get("expiry")
+
+        if not token or not expiry or datetime.utcnow() >= expiry:
             self._authenticate()
-        return self._token
+            with _token_lock:
+                token = _token_cache.get("token")
+
+        return token  # type: ignore[return-value]
 
     async def get_proof_of_delivery(self, tracking_number: str) -> bytes:
         """Return the proof of delivery PDF for a tracking number."""
