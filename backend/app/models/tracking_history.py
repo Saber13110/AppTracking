@@ -1,9 +1,21 @@
 from datetime import datetime
-from pydantic import BaseModel
+from typing import Optional, Dict, Any
+from pydantic import BaseModel, Field
+
+
+class TrackedShipmentCreate(BaseModel):
+    tracking_number: str
+    status: Optional[str] = None
+    meta_data: Optional[Dict[str, Any]] = None
+    note: Optional[str] = None
+
 
 class TrackedShipment(BaseModel):
     id: str
     tracking_number: str
+    status: Optional[str] = None
+    meta_data: Dict[str, Any] = Field(default_factory=dict)
+    note: Optional[str] = None
     created_at: datetime
 
     class Config:

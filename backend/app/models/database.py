@@ -1,4 +1,14 @@
-from sqlalchemy import Column, String, Boolean, DateTime, JSON, Enum as SQLEnum, ForeignKey, Float, Integer
+from sqlalchemy import (
+    Column,
+    String,
+    Boolean,
+    DateTime,
+    JSON,
+    Enum as SQLEnum,
+    ForeignKey,
+    Float,
+    Integer,
+)
 from sqlalchemy.orm import relationship, declarative_base
 from datetime import datetime
 from .notification import NotificationType, NotificationPriority
@@ -7,6 +17,7 @@ from sqlalchemy.sql import func
 import uuid
 
 Base = declarative_base()
+
 
 class NotificationDB(Base):
     __tablename__ = "notifications"
@@ -21,7 +32,6 @@ class NotificationDB(Base):
     created_at = Column(DateTime, default=datetime.now)
     read_at = Column(DateTime, nullable=True)
     meta_data = Column(JSON, default=dict)
-
 
 
 class ColisDB(Base):
@@ -41,8 +51,13 @@ class ColisDB(Base):
 
     # Relations
     tracking_events = relationship("TrackingEventDB", back_populates="colis")
-    package_details = relationship("PackageDetailsDB", back_populates="colis", uselist=False)
-    delivery_details = relationship("DeliveryDetailsDB", back_populates="colis", uselist=False)
+    package_details = relationship(
+        "PackageDetailsDB", back_populates="colis", uselist=False
+    )
+    delivery_details = relationship(
+        "DeliveryDetailsDB", back_populates="colis", uselist=False
+    )
+
 
 class LocationDB(Base):
     __tablename__ = "locations"
@@ -55,6 +70,7 @@ class LocationDB(Base):
     latitude = Column(Float)
     longitude = Column(Float)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
 
 class TrackingEventDB(Base):
     __tablename__ = "tracking_events"
@@ -73,6 +89,7 @@ class TrackingEventDB(Base):
     tracking = relationship("TrackingDB", back_populates="events")
     location = relationship("LocationDB")
 
+
 class PackageDetailsDB(Base):
     __tablename__ = "package_details"
 
@@ -87,6 +104,7 @@ class PackageDetailsDB(Base):
     # Relations
     colis = relationship("ColisDB", back_populates="package_details")
     tracking = relationship("TrackingDB", back_populates="package_details")
+
 
 class DeliveryDetailsDB(Base):
     __tablename__ = "delivery_details"
@@ -111,16 +129,24 @@ class TrackingDB(Base):
     id = Column(String, primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
     tracking_number = Column(String, unique=True, index=True, nullable=False)
     carrier = Column(String, nullable=False)
-    status = Column(SQLEnum(PackageStatus), nullable=False, default=PackageStatus.PENDING)
+    status = Column(
+        SQLEnum(PackageStatus), nullable=False, default=PackageStatus.PENDING
+    )
     package_type = Column(SQLEnum(PackageType), default=PackageType.UNKNOWN)
     meta_data = Column(JSON, default=dict)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    updated_at = Column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
 
     # Relations
     events = relationship("TrackingEventDB", back_populates="tracking")
-    package_details = relationship("PackageDetailsDB", back_populates="tracking", uselist=False)
-    delivery_details = relationship("DeliveryDetailsDB", back_populates="tracking", uselist=False)
+    package_details = relationship(
+        "PackageDetailsDB", back_populates="tracking", uselist=False
+    )
+    delivery_details = relationship(
+        "DeliveryDetailsDB", back_populates="tracking", uselist=False
+    )
 
 
 class TrackedShipmentDB(Base):
@@ -129,5 +155,7 @@ class TrackedShipmentDB(Base):
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(Integer, nullable=False)
     tracking_number = Column(String, nullable=False)
+    status = Column(String, nullable=True)
+    meta_data = Column(JSON, default=dict)
+    note = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-

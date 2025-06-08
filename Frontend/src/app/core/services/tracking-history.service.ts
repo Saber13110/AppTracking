@@ -18,13 +18,23 @@ export class TrackingHistoryService {
     return raw ? JSON.parse(raw) as string[] : [];
   }
 
-  addIdentifier(id: string): void {
+  addIdentifier(id: string, status?: string, note?: string, metaData?: any): void {
     const history = this.getHistory().filter(item => item !== id);
     history.unshift(id);
     if (history.length > this.maxItems) {
       history.pop();
     }
     localStorage.setItem(this.storageKey, JSON.stringify(history));
+
+    const payload: any = { tracking_number: id };
+    if (status !== undefined) payload.status = status;
+    if (note !== undefined) payload.note = note;
+    if (metaData !== undefined) payload.meta_data = metaData;
+
+    this.http.post(`${environment.apiUrl}/history`, payload).subscribe({
+      next: () => {},
+      error: () => {}
+    });
   }
 
   removeIdentifier(id: string): void {
