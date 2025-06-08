@@ -39,6 +39,29 @@
       </div>
     </div>
 
+    <div class="grid md:grid-cols-2 gap-4 mb-4">
+      <div id="map" class="h-64 w-full bg-gray-200 rounded" *ngIf="false">
+        <!-- Map placeholder -->
+      </div>
+      <div>
+        <h3 class="font-bold mb-2">Détails du colis</h3>
+        <p *ngIf="trackingInfo.package_details?.weight">Poids: {{ trackingInfo.package_details.weight }}</p>
+        <p *ngIf="trackingInfo.package_details?.dimensions">Dimensions: {{ trackingInfo.package_details.dimensions }}</p>
+        <p *ngIf="trackingInfo.package_details?.service_type || trackingInfo.package_details?.packaging_description">
+          Type: {{ trackingInfo.package_details?.service_type || trackingInfo.package_details?.packaging_description }}
+        </p>
+        <p *ngIf="trackingInfo.metadata?.reference">Référence client: {{ trackingInfo.metadata.reference }}</p>
+        <div *ngIf="trackingInfo.delivery_details?.delivery_location" class="mt-2 text-sm text-gray-500">
+          <p class="font-bold mb-1 text-black">Adresse complète</p>
+          <p>
+            {{ trackingInfo.delivery_details.delivery_location.address }}<br>
+            {{ trackingInfo.delivery_details.delivery_location.city }} {{ trackingInfo.delivery_details.delivery_location.state }} {{ trackingInfo.delivery_details.delivery_location.postal_code }}<br>
+            {{ trackingInfo.delivery_details.delivery_location.country }}
+          </p>
+        </div>
+      </div>
+    </div>
+
     <div *ngIf="trackingInfo.tracking_history?.length">
       <h3 class="font-bold mb-2">Historique</h3>
       <ul class="space-y-4">
