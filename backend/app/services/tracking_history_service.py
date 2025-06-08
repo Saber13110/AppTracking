@@ -86,3 +86,21 @@ class TrackingHistoryService:
             self.db.rollback()
             logger.error(f"Failed to update history item: {e}")
             return None
+
+    def delete_history_item(self, user_id: int, record_id: str) -> bool:
+        """Delete a single history item for the given user."""
+        try:
+            count = (
+                self.db.query(TrackedShipmentDB)
+                .filter(
+                    TrackedShipmentDB.user_id == user_id,
+                    TrackedShipmentDB.id == record_id,
+                )
+                .delete()
+            )
+            self.db.commit()
+            return count > 0
+        except Exception as e:
+            self.db.rollback()
+            logger.error(f"Failed to delete history item: {e}")
+            return False
