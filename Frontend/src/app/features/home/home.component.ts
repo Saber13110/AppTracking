@@ -8,7 +8,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { TrackingService } from '../tracking/services/tracking.service';
 import { Subject, Observable } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { BrowserMultiFormatReader } from '@zxing/browser';
+import { BrowserMultiFormatContinuousReader, BrowserCodeReader, IScannerControls } from '@zxing/browser';
 
 // Import Google Maps types
 declare global {
@@ -83,6 +83,11 @@ interface ServiceItem {
 })
 export class HomeComponent implements OnInit, OnDestroy {
   @ViewChild('mapContainer') mapContainer!: ElementRef;
+  @ViewChild('videoPreview') videoPreview!: ElementRef<HTMLVideoElement>;
+
+  private webcamReader: BrowserMultiFormatContinuousReader | null = null;
+  private scannerControls?: IScannerControls;
+  isScanning = false;
   
   // === Champs du formulaire de tracking
   trackingForm: FormGroup;
@@ -476,6 +481,38 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
     };
     reader.readAsDataURL(file);
+  }
+
+  // === WEBCAM BARCODE SCAN
+  async startWebcamScan(): Promise<void> {
+    if (this.isScanning) {
+      this.scannerControls?.stop();
+      this.webcamReader?.reset();
+      this.isScanning = false;
+      return;
+    }
+
+    this.webcamReader = new BrowserMultiFormatContinuousReader();
+    try {
+      const devices = await BrowserCodeReader.listVideoInputDevices();
+      const deviceId = devices[0]?.deviceId;
+      this.isScanning = true;
+
+      this.scannerControls = await this.webcamReader.decodeFromVideoDevice(
+        deviceId,
+        this.videoPreview.nativeElement,
+        (result, error, controls) => {
+          if (result) {
+            this.trackingForm.get('trackingNumber')?.setValue(result.getText());
+            controls.stop();
+            this.isScanning = false;
+          }
+        }
+      );
+    } catch (err) {
+      console.error('Webcam scan error:', err);
+      this.isScanning = false;
+    }
   }
   
   // Method to generate barcode
