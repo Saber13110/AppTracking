@@ -22,10 +22,22 @@
       <input id="totp_code" type="text" formControlName="totp_code" />
     </div>
 
-    <button type="submit">Connexion</button>
+    <button type="submit"
+            role="button"
+            tabindex="0"
+            aria-label="Log in">
+      Connexion
+    </button>
   </form>
 
-  <button type="button" class="google-button" (click)="loginWithGoogle()">
+  <button type="button"
+          class="google-button"
+          role="button"
+          tabindex="0"
+          aria-label="Log in with Google"
+          (click)="loginWithGoogle()"
+          (keydown.enter)="loginWithGoogle()"
+          (keydown.space)="loginWithGoogle()">
     Connexion avec Google
   </button>
 

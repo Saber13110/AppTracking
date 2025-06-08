@@ -175,6 +175,11 @@
   padding: 0.5rem 0.75rem;
   border-radius: 4px;
   cursor: pointer;
+
+  &:focus {
+    outline: 2px solid #4d148c;
+    outline-offset: 2px;
+  }
 }
 
 /* Timeline styling */

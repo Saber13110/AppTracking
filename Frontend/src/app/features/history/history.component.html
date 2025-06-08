@@ -4,10 +4,20 @@
     <ul>
       <li *ngFor="let id of history">
         <a [routerLink]="['/track', id]">{{ id }}</a>
-        <button (click)="delete(id)">Delete</button>
+        <button role="button"
+                tabindex="0"
+                aria-label="Delete {{id}} from history"
+                (click)="delete(id)"
+                (keydown.enter)="delete(id)"
+                (keydown.space)="delete(id)">Delete</button>
       </li>
     </ul>
-    <button (click)="clear()">Clear History</button>
+    <button role="button"
+            tabindex="0"
+            aria-label="Clear tracking history"
+            (click)="clear()"
+            (keydown.enter)="clear()"
+            (keydown.space)="clear()">Clear History</button>
   </ng-container>
   <ng-template #none>
     <p>No history yet.</p>

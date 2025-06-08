@@ -1,9 +1,30 @@
 <div class="ats">
   <h1>All Tracking Services</h1>
   <div class="tabs">
-    <button class="tab" [class.active]="activeTab==='single'" (click)="switchTab('single')">Single</button>
-    <button class="tab" [class.active]="activeTab==='bulk'" (click)="switchTab('bulk')">Bulk</button>
-    <button class="tab" [class.active]="activeTab==='barcode'" (click)="switchTab('barcode')">Barcode</button>
+    <button class="tab"
+            role="button"
+            tabindex="0"
+            aria-label="Switch to single tracking"
+            [class.active]="activeTab==='single'"
+            (click)="switchTab('single')"
+            (keydown.enter)="switchTab('single')"
+            (keydown.space)="switchTab('single')">Single</button>
+    <button class="tab"
+            role="button"
+            tabindex="0"
+            aria-label="Switch to bulk tracking"
+            [class.active]="activeTab==='bulk'"
+            (click)="switchTab('bulk')"
+            (keydown.enter)="switchTab('bulk')"
+            (keydown.space)="switchTab('bulk')">Bulk</button>
+    <button class="tab"
+            role="button"
+            tabindex="0"
+            aria-label="Switch to barcode tracking"
+            [class.active]="activeTab==='barcode'"
+            (click)="switchTab('barcode')"
+            (keydown.enter)="switchTab('barcode')"
+            (keydown.space)="switchTab('barcode')">Barcode</button>
   </div>
 
   <div class="tab-content">
@@ -17,19 +38,31 @@
       <div class="error" *ngIf="singleForm.get('trackingNumber')?.touched && singleForm.get('trackingNumber')?.invalid">
         Invalid tracking number
       </div>
-      <button type="submit">Track</button>
+      <button type="submit"
+              role="button"
+              tabindex="0"
+              aria-label="Track single package">Track</button>
     </form>
 
     <form *ngIf="activeTab==='bulk'" [formGroup]="bulkForm" (ngSubmit)="submitBulk()" class="bulk-form">
       <label>Tracking Numbers
         <textarea formControlName="trackingNumbers" rows="5" placeholder="One ID per line"></textarea>
       </label>
-      <button type="submit">Track All</button>
+      <button type="submit"
+              role="button"
+              tabindex="0"
+              aria-label="Track all packages">Track All</button>
     </form>
 
     <div *ngIf="activeTab==='barcode'" class="barcode-form">
       <p>Scan your barcode using the camera.</p>
-      <button type="button" (click)="startBarcodeScan()">Start Scan</button>
+      <button type="button"
+              role="button"
+              tabindex="0"
+              aria-label="Start barcode scan"
+              (click)="startBarcodeScan()"
+              (keydown.enter)="startBarcodeScan()"
+              (keydown.space)="startBarcodeScan()">Start Scan</button>
       <app-barcode-upload [control]="singleForm.get('trackingNumber')"></app-barcode-upload>
     </div>
   </div>

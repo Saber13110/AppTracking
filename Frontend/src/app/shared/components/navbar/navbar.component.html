@@ -10,7 +10,13 @@
         <div class="dropdown__menu">
           <h4>Tracking ID</h4>
           <input type="text" placeholder="Insert Tracking ID Number" [(ngModel)]="trackingId" />
-          <button class="btn-track" (click)="trackFromNavbar()">TRACK <i class="fas fa-arrow-right"></i></button>
+          <button class="btn-track"
+                  role="button"
+                  tabindex="0"
+                  aria-label="Track package"
+                  (click)="trackFromNavbar()"
+                  (keydown.enter)="trackFromNavbar()"
+                  (keydown.space)="trackFromNavbar()">TRACK <i class="fas fa-arrow-right"></i></button>
           <hr />
           <a routerLink="/advanced-shipment-tracking">Advanced Shipment Tracking</a>
           <a routerLink="/mobile-tracking">Track by Mobile</a>
@@ -44,7 +50,13 @@
     </ul>
 
     <div class="navbar__search">
-      <button class="search-btn" (click)="toggleSearch()">
+      <button class="search-btn"
+              role="button"
+              tabindex="0"
+              aria-label="Toggle search"
+              (click)="toggleSearch()"
+              (keydown.enter)="toggleSearch()"
+              (keydown.space)="toggleSearch()">
         <i class="fas fa-search"></i>
       </button>
       <input *ngIf="showSearch" type="text" class="search-input" placeholder="Rechercher..." />
