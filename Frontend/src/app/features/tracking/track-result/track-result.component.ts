@@ -95,6 +95,7 @@ export class TrackResultComponent implements OnInit, OnDestroy {
         this.loading = false;
         this.refreshing = false;
         console.error('Erreur de suivi:', err);
+        showNotification(this.error, 'error');
       }
     });
   }
@@ -141,6 +142,7 @@ export class TrackResultComponent implements OnInit, OnDestroy {
       error: (err) => {
         this.error = err.error?.error || 'Aucune preuve de livraison disponible';
         console.error('Erreur de preuve:', err);
+        showNotification(this.error, 'error');
       }
     });
   }
