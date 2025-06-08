@@ -6,6 +6,7 @@ import { TrackingService } from '../tracking/services/tracking.service';
 import { AnalyticsService } from '../../core/services/analytics.service';
 import { TrackingFormComponent } from '../../shared/components/tracking-form/tracking-form.component';
 import { TrackingTabsComponent } from '../../shared/components/tracking-tabs/tracking-tabs.component';
+import { BarcodeUploadComponent } from '../barcode-upload/barcode-upload.component';
 
 @Component({
   selector: 'app-all-tracking-services',
@@ -15,7 +16,8 @@ import { TrackingTabsComponent } from '../../shared/components/tracking-tabs/tra
     ReactiveFormsModule,
     RouterModule,
     TrackingFormComponent,
-    TrackingTabsComponent
+    TrackingTabsComponent,
+    BarcodeUploadComponent
   ],
   templateUrl: './all-tracking-services.component.html',
   styleUrls: ['./all-tracking-services.component.scss']
