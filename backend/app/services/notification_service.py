@@ -15,8 +15,6 @@ from ..models.notification import (
 from ..models.database import NotificationDB
 from ..models.notification_preference import NotificationPreferenceDB
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class NotificationService:

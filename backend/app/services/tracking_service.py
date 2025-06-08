@@ -9,8 +9,6 @@ from sqlalchemy.orm import Session
 from sqlalchemy import asc, desc, and_
 from ..models.database import TrackingDB, TrackingEventDB
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class TrackingService:
