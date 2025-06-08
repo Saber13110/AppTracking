@@ -7,6 +7,7 @@ import { TrackingHistoryService } from '../../../core/services/tracking-history.
 import { AnalyticsService } from '../../../core/services/analytics.service';
 import { showNotification } from '../../../shared/services/notification.util';
 import { environment } from '../../../../environments/environment';
+import { Subscription } from 'rxjs';
 
 declare global {
   interface Window {
@@ -43,6 +44,7 @@ export class TrackResultComponent implements OnInit, OnDestroy {
   polyline: google.maps.Polyline | null = null;
   private refreshIntervalId: any;
   private identifier: string | null = null;
+  private paramsSub: Subscription | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -52,7 +54,7 @@ export class TrackResultComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.route.params.subscribe(params => {
+    this.paramsSub = this.route.params.subscribe(params => {
       const identifier = params['identifier'];
       if (identifier) {
         this.identifier = identifier;
@@ -166,6 +168,9 @@ export class TrackResultComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    if (this.paramsSub) {
+      this.paramsSub.unsubscribe();
+    }
     if (this.refreshIntervalId) {
       clearInterval(this.refreshIntervalId);
     }

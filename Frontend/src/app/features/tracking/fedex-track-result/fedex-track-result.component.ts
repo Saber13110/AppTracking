@@ -7,7 +7,7 @@ import { TrackingService, TrackingInfo } from '../services/tracking.service';
 import { AnalyticsService } from '../../../core/services/analytics.service';
 import { showNotification } from '../../../shared/services/notification.util';
 import { catchError } from 'rxjs/operators';
-import { throwError } from 'rxjs';
+import { throwError, Subscription } from 'rxjs';
 import { ScheduleDialogComponent } from './schedule-dialog.component';
 import { ChangeAddressDialogComponent } from './change-address-dialog.component';
 
@@ -40,6 +40,7 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
   private map: google.maps.Map | null = null;
   private marker: google.maps.Marker | null = null;
   private identifier = '';
+  private paramsSub: Subscription | null = null;
 
   // Progress bar related
   progressSteps = ['Order Processed', 'Picked Up', 'In Transit', 'Out for Delivery', 'Delivered'];
@@ -56,7 +57,7 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.route.params.subscribe(params => {
+    this.paramsSub = this.route.params.subscribe(params => {
       this.identifier = params['identifier'];
       if (this.identifier) {
         this.loadData();
@@ -66,6 +67,9 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.paramsSub) {
+      this.paramsSub.unsubscribe();
+    }
     if (this.refreshInterval) {
       clearInterval(this.refreshInterval);
     }
