@@ -8,6 +8,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { TrackingService } from '../tracking/services/tracking.service';
 import { Subject, Observable } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { BrowserMultiFormatReader } from '@zxing/browser';
 
 // Import Google Maps types
 declare global {
@@ -431,12 +432,24 @@ export class HomeComponent implements OnInit, OnDestroy {
   // === GESTION DU TÉLÉVERSEMENT DE FICHIER DE CODE-BARRES
   onBarcodeFileSelected(event: any): void {
     const file: File = event.target.files[0];
-    if (file) {
-      console.log('Fichier de code-barres sélectionné :', file.name);
-      // TODO: Implémenter la logique pour lire l'image et extraire le code-barres
-      // Vous aurez besoin d'une bibliothèque de lecture de code-barres (ex: ZXing)
-      // et potentiellement d'envoyer l'image ou le code décodé au backend.
+    if (!file) {
+      return;
     }
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        const codeReader = new BrowserMultiFormatReader();
+        const result = await codeReader.decodeFromImageUrl(reader.result as string);
+        const decoded = result.getText();
+        this.trackingForm.get('trackingNumber')?.setValue(decoded);
+        console.log('Barcode decoded:', decoded);
+      } catch (err) {
+        console.error('Erreur de décodage du code-barres:', err);
+        this.addNotification('error', 'Scan failed', 'Impossible de lire le code-barres.');
+      }
+    };
+    reader.readAsDataURL(file);
   }
 
   // TODO: Ajouter la logique pour 'Obtain your proof' (saisie ID et bouton télécharger)
