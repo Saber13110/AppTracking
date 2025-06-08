@@ -32,4 +32,17 @@ export class HistoryComponent implements OnInit {
     this.historyService.clear();
     this.loadHistory();
   }
+
+  export(format: 'csv' | 'excel' | 'xml', all: boolean) {
+    const ids = all ? undefined : this.history;
+    this.historyService.exportHistory(format, ids).subscribe(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const ext = format === 'excel' ? 'xlsx' : format;
+      a.href = url;
+      a.download = `history.${ext}`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
+  }
 }

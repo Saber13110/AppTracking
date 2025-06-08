@@ -18,6 +18,12 @@
             (click)="clear()"
             (keydown.enter)="clear()"
             (keydown.space)="clear()">Clear History</button>
+    <div class="export-buttons">
+      <button (click)="export('csv', false)">Export View (CSV)</button>
+      <button (click)="export('csv', true)">Export All (CSV)</button>
+      <button (click)="export('excel', true)">Export All (Excel)</button>
+      <button (click)="export('xml', true)">Export All (XML)</button>
+    </div>
   </ng-container>
   <ng-template #none>
     <p>No history yet.</p>

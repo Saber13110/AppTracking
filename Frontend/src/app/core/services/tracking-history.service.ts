@@ -62,4 +62,13 @@ export class TrackingHistoryService {
       // ignore errors
     }
   }
+
+  exportHistory(format: string, ids?: string[]) {
+    let url = `${environment.apiUrl}/history/export?format=${format}`;
+    if (ids && ids.length) {
+      const params = ids.map(id => `ids=${encodeURIComponent(id)}`).join('&');
+      url += `&${params}`;
+    }
+    return this.http.get(url, { responseType: 'blob' });
+  }
 }

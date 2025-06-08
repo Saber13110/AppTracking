@@ -58,3 +58,26 @@ def test_post_history_endpoint(db_session):
     result = asyncio.run(history_router.add_history(payload, user, db_session))
     assert result.tracking_number == "ABC"
     assert result.status == "OK"
+
+
+def test_export_history_csv(db_session):
+    user = create_user(db_session)
+    service = TrackingHistoryService(db_session)
+    service.log_search(user.id, "999", status="DELIVERED", meta_data={
+        "weight": "1kg",
+        "dimensions": "10x10x10",
+        "service_type": "GROUND",
+        "sender": "A",
+        "recipient": "B",
+    })
+
+    resp = asyncio.run(history_router.export_history("csv", None, None, user, db_session))
+
+    async def consume(sr):
+        data = b""
+        async for chunk in sr.body_iterator:
+            data += chunk
+        return data
+
+    body = asyncio.run(consume(resp))
+    assert b"tracking_number" in body
