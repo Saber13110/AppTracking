@@ -51,6 +51,24 @@
       <p class="text-sm text-gray-600">{{ trackingData.status.description }}</p>
     </div>
 
+    <div class="progress-container mb-6">
+      <div class="progress-line">
+        <div class="progress-line-fill" [style.width]="progressWidth"></div>
+      </div>
+      <div class="progress-steps">
+        <div
+          *ngFor="let step of progressSteps; let i = index"
+          class="progress-step"
+          [ngClass]="getProgressClasses(i)"
+        >
+          <div class="step-icon">
+            <span class="material-icons">{{ progressIcons[i] }}</span>
+          </div>
+          <div class="step-label">{{ step }}</div>
+        </div>
+      </div>
+    </div>
+
     <div class="grid grid-cols-2 gap-4 mb-4" *ngIf="trackingData.origin || trackingData.destination">
       <div *ngIf="trackingData.origin">
         <h3 class="font-bold mb-2">Origine</h3>

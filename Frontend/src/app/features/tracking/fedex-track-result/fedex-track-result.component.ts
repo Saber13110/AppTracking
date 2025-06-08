@@ -40,9 +40,11 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
   private identifier = '';
 
   // Progress bar related
-  progressSteps = ['Pending', 'In Transit', 'Delivered'];
+  progressSteps = ['Order Processed', 'Picked Up', 'In Transit', 'Out for Delivery', 'Delivered'];
+  progressIcons = ['receipt_long', 'inventory_2', 'local_shipping', 'home', 'check_circle'];
   currentStepIndex = 0;
   hasException = false;
+  progressWidth = '0%';
 
   constructor(
     private route: ActivatedRoute,
@@ -178,6 +180,7 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
     if (!this.trackingData) {
       this.currentStepIndex = 0;
       this.hasException = false;
+      this.progressWidth = '0%';
       return;
     }
 
@@ -185,12 +188,19 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
     this.hasException = status.includes('exception');
 
     if (status.includes('delivered')) {
-      this.currentStepIndex = 2;
+      this.currentStepIndex = 4;
+    } else if (status.includes('out for delivery')) {
+      this.currentStepIndex = 3;
     } else if (status.includes('in transit')) {
+      this.currentStepIndex = 2;
+    } else if (status.includes('picked up')) {
       this.currentStepIndex = 1;
     } else {
       this.currentStepIndex = 0;
     }
+
+    const progress = (this.currentStepIndex / (this.progressSteps.length - 1)) * 100;
+    this.progressWidth = `${progress}%`;
   }
 
   private waitForGoogleMaps(): Promise<void> {
