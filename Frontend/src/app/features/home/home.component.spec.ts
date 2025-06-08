@@ -19,7 +19,13 @@ describe('HomeComponent', () => {
       imports: [HomeComponent, RouterTestingModule],
       providers: [
         { provide: AuthService, useValue: { isLoggedIn: () => of(true) } },
-        { provide: TrackingService, useValue: { trackPackage: () => of({ success: true, data: {} }) } },
+        {
+          provide: TrackingService,
+          useValue: jasmine.createSpyObj('TrackingService', {
+            trackNumber: of({ success: true, data: {} }),
+            downloadProof: of(new Blob())
+          })
+        },
         { provide: NotificationService, useValue: { getUnreadNotifications: () => of([]) } }
       ]
     })
@@ -37,14 +43,14 @@ describe('HomeComponent', () => {
 
   it('should navigate to /track/:id on form submit', () => {
     const spy = spyOn(router, 'navigate');
-    component.trackingForm.setValue({ trackingNumber: 'ABC123' });
+    component.trackingForm.patchValue({ trackingNumber: 'ABC123' });
     component.onSubmit();
     expect(spy).toHaveBeenCalledWith(['/track', 'ABC123']);
   });
 
   it('should navigate to /track/:id after tracking', () => {
     const spy = spyOn(router, 'navigate');
-    component.trackingForm.setValue({ trackingNumber: 'XYZ789' });
+    component.trackingForm.patchValue({ trackingNumber: 'XYZ789' });
     component.trackPackage();
     expect(spy).toHaveBeenCalledWith(['/track', 'XYZ789']);
   });
@@ -77,7 +83,7 @@ describe('HomeComponent', () => {
   it('should call TrackingService.downloadProof when downloading', () => {
     const trackingService = TestBed.inject(TrackingService);
     const spy = spyOn(trackingService, 'downloadProof').and.returnValue(of(new Blob()));
-    component.trackingForm.setValue({ trackingNumber: 'ABC999' });
+    component.trackingForm.patchValue({ trackingNumber: 'ABC999' });
     component.downloadProof();
     expect(spy).toHaveBeenCalledWith('ABC999');
   });
