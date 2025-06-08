@@ -12,6 +12,7 @@ import { NotificationsComponent } from './features/notifications/notifications.c
 import { TrackByMailComponent } from './features/track-by-mail/track-by-mail.component';
 import { NotificationOptionsComponent } from './features/notification-options/notification-options.component';
 import { GenerateBarcodeComponent } from './features/generate-barcode/generate-barcode.component';
+import { AllTrackingServicesComponent } from './features/all-tracking-services/all-tracking-services.component';
 import { SetupTwofaComponent } from './features/auth/setup-twofa/setup-twofa.component';
 import { VerifyTwofaComponent } from './features/auth/verify-twofa/verify-twofa.component';
 import { ResendVerificationComponent } from './features/auth/resend-verification/resend-verification.component';
@@ -40,6 +41,7 @@ export const routes: Routes = [
   { path: 'services/track-by-mail', component: TrackByMailComponent, canActivate: [AuthGuard] },
   { path: 'services/notifications', component: NotificationOptionsComponent, canActivate: [AuthGuard] },
   { path: 'services/generate-barcode', component: GenerateBarcodeComponent, canActivate: [AuthGuard] },
+  { path: 'services/all-tracking', component: AllTrackingServicesComponent, canActivate: [AuthGuard] },
   { path: 'auth/login', component: LoginComponent },
   { path: 'verify-email', component: VerifyEmailComponent },
   { path: 'auth/callback', component: GoogleCallbackComponent },
