@@ -30,7 +30,7 @@ from ..services.email import send_verification_email, send_password_reset_email
 class OAuth2PasswordRequestForm(BaseOAuth2PasswordRequestForm):
     def __init__(
         self,
-        grant_type: str | None = Form(None, regex="password"),
+        grant_type: str | None = Form(None, pattern="password"),
         username: str = Form(...),
         password: str = Form(...),
         scope: str = Form(""),
