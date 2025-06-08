@@ -97,11 +97,26 @@ export class TrackResultComponent implements OnInit, OnDestroy {
   }
 
   downloadProof() {
-    if (this.trackingInfo) {
-      const url = `${environment.apiUrl}/tracking/${this.trackingInfo.tracking_number}/proof`;
-      window.open(url, '_blank');
-      this.analytics.logAction('download_proof', this.trackingInfo.tracking_number);
+    if (!this.trackingInfo) {
+      return;
     }
+
+    this.analytics.logAction('download_proof', this.trackingInfo.tracking_number);
+
+    this.trackingService.downloadProof(this.trackingInfo.tracking_number).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `proof_${this.trackingInfo!.tracking_number}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        this.error = err.error?.error || 'Aucune preuve de livraison disponible';
+        console.error('Erreur de preuve:', err);
+      }
+    });
   }
 
   printTracking() {

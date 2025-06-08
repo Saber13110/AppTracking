@@ -61,6 +61,17 @@ class FedExService:
             await self._authenticate()
         return self._token
 
+    async def get_proof_of_delivery(self, tracking_number: str) -> bytes:
+        """Return the proof of delivery PDF for a tracking number."""
+        try:
+            file_path = Path(__file__).resolve().parents[1] / "static" / "proofs" / f"{tracking_number}.pdf"
+            if file_path.exists():
+                return file_path.read_bytes()
+            raise FileNotFoundError(f"Proof of delivery for {tracking_number} not found")
+        except Exception as e:
+            logger.error(f"Error fetching proof of delivery: {str(e)}")
+            raise
+
     def _map_fedex_status(self, fedex_status: str) -> PackageStatus:
         """Map FedEx status to our PackageStatus enum"""
         status_map = {
