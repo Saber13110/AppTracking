@@ -37,6 +37,46 @@ Set the following variables in `backend/.env.local` or export them in your shell
 
 If any of these values are missing, the backend will fail to start.
 
+## Quickstart
+
+Follow these steps to run the project locally:
+
+1. **Clone the repository** and move into the project root.
+2. **Create the environment files** from the examples and add your secrets:
+
+   ```bash
+   cp backend/.env.example backend/.env.local
+   cp .env.example .env
+   ```
+
+   Update `backend/.env.local` with your FedEx credentials and a `SECRET_KEY`.
+   Set `GOOGLE_MAPS_API_KEY` in `.env` for the frontend.
+3. **Install backend dependencies and start the API**:
+
+   ```bash
+   cd backend
+   pip install -r requirements.txt
+   uvicorn app.main:app --reload
+   ```
+4. **Install frontend dependencies and start Angular** in another terminal:
+
+   ```bash
+   cd Frontend
+   npm install
+   npm start
+   ```
+5. *(Optional)* **Initialize the database and run the tests**:
+
+   ```bash
+   python backend/app/init_db.py
+   pytest
+   ```
+6. *(Optional)* **Run everything with Docker Compose**:
+
+   ```bash
+   docker-compose up
+   ```
+
 ## Running the Backend
 
 Install the Python dependencies and start the API server:
