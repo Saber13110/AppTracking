@@ -1,3 +1,3 @@
-from . import notifications, tracking, colis, history
+from . import notifications, tracking, colis, history, news
 
-__all__ = ["notifications", "tracking", "colis", "history"]
+__all__ = ["notifications", "tracking", "colis", "history", "news"]
