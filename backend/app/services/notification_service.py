@@ -21,7 +21,7 @@ class NotificationService:
     def __init__(self, db: Session):
         self.db = db
 
-    async def create_notification(self, notification_data: NotificationCreate) -> NotificationResponse:
+    def create_notification(self, notification_data: NotificationCreate) -> NotificationResponse:
         """
         Create a new notification
         """
@@ -69,7 +69,7 @@ class NotificationService:
                 metadata={'timestamp': datetime.now().isoformat()}
             )
 
-    async def get_notification(self, notification_id: str) -> NotificationResponse:
+    def get_notification(self, notification_id: str) -> NotificationResponse:
         """
         Get a notification by ID
         """
@@ -104,7 +104,7 @@ class NotificationService:
                 metadata={'timestamp': datetime.now().isoformat()}
             )
 
-    async def get_all_notifications(
+    def get_all_notifications(
         self,
         skip: int = 0,
         limit: int = 100,
@@ -139,7 +139,7 @@ class NotificationService:
             logger.error(f"Failed to get notifications: {str(e)}")
             return []
 
-    async def update_notification(
+    def update_notification(
         self,
         notification_id: str,
         update_data: NotificationUpdate
@@ -196,7 +196,7 @@ class NotificationService:
                 metadata={'timestamp': datetime.now().isoformat()}
             )
 
-    async def delete_notification(self, notification_id: str) -> NotificationResponse:
+    def delete_notification(self, notification_id: str) -> NotificationResponse:
         """
         Delete a notification
         """
@@ -227,7 +227,7 @@ class NotificationService:
                 metadata={'timestamp': datetime.now().isoformat()}
             )
 
-    async def mark_all_as_read(self) -> NotificationResponse:
+    def mark_all_as_read(self) -> NotificationResponse:
         """
         Mark all notifications as read
         """
@@ -259,7 +259,7 @@ class NotificationService:
                 metadata={'timestamp': datetime.now().isoformat()}
             )
 
-    async def get_preferences(self, user_id: int) -> NotificationPreferenceResponse:
+    def get_preferences(self, user_id: int) -> NotificationPreferenceResponse:
         """Return notification preferences for a user, creating defaults if needed."""
         try:
             pref = (
@@ -280,7 +280,7 @@ class NotificationService:
             self.db.rollback()
             return NotificationPreferenceResponse(success=False, error=str(e))
 
-    async def update_preferences(
+    def update_preferences(
         self, user_id: int, email_updates: bool
     ) -> NotificationPreferenceResponse:
         """Update notification preferences for a user."""

@@ -39,20 +39,20 @@ def setup_colis(db, monkeypatch, colis_id="TESTDEL"):
         return path
     monkeypatch.setattr(ColisService, "generate_codebar_image", dummy_image)
     service = ColisService(db)
-    asyncio.run(service.create_colis(ColisCreate(id=colis_id, description="d")))
+    service.create_colis(ColisCreate(id=colis_id, description="d"))
     return service.get_colis_by_id, colis_id
 
 
 def test_delete_colis_success(db_session, monkeypatch):
     get_colis, colis_id = setup_colis(db_session, monkeypatch)
     service = ColisService(db_session)
-    colis = asyncio.run(get_colis(colis_id))
+    colis = get_colis(colis_id)
     image_path = os.path.join(service.barcode_folder, f"{colis.code_barre}.png")
     assert os.path.exists(image_path)
 
     resp = asyncio.run(colis_router.delete_colis(colis_id, db_session))
     assert resp["success"] is True
-    assert asyncio.run(service.get_colis_by_id(colis_id)) is None
+    assert service.get_colis_by_id(colis_id) is None
     assert not os.path.exists(image_path)
 
 

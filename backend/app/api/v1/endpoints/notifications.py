@@ -27,7 +27,7 @@ async def create_notification(
     Create a new notification
     """
     notification_service = NotificationService(db)
-    response = await notification_service.create_notification(notification)
+    response = notification_service.create_notification(notification)
     if not response.success:
         raise HTTPException(status_code=400, detail=response.error)
     return response
@@ -41,7 +41,7 @@ async def get_notification(
     Get a notification by ID
     """
     notification_service = NotificationService(db)
-    response = await notification_service.get_notification(notification_id)
+    response = notification_service.get_notification(notification_id)
     if not response.success:
         raise HTTPException(status_code=404, detail=response.error)
     return response
@@ -58,7 +58,7 @@ async def get_notifications(
     Get all notifications with optional filtering
     """
     notification_service = NotificationService(db)
-    return await notification_service.get_all_notifications(
+    return notification_service.get_all_notifications(
         skip=skip,
         limit=limit,
         unread_only=unread_only,
@@ -76,7 +76,7 @@ async def update_notification(
     Update a notification
     """
     notification_service = NotificationService(db)
-    response = await notification_service.update_notification(
+    response = notification_service.update_notification(
         notification_id,
         update_data
     )
@@ -94,7 +94,7 @@ async def delete_notification(
     Delete a notification
     """
     notification_service = NotificationService(db)
-    response = await notification_service.delete_notification(notification_id)
+    response = notification_service.delete_notification(notification_id)
     if not response.success:
         raise HTTPException(status_code=404, detail=response.error)
     return response
@@ -108,7 +108,7 @@ async def mark_all_as_read(
     Mark all notifications as read
     """
     notification_service = NotificationService(db)
-    return await notification_service.mark_all_as_read()
+    return notification_service.mark_all_as_read()
 
 
 @router.get("/preferences", response_model=NotificationPreferenceResponse)
@@ -117,7 +117,7 @@ async def get_preferences(
     current_user: UserDB = Depends(get_current_active_user)
 ):
     service = NotificationService(db)
-    return await service.get_preferences(current_user.id)
+    return service.get_preferences(current_user.id)
 
 
 @router.post("/preferences", response_model=NotificationPreferenceResponse)
@@ -127,4 +127,4 @@ async def update_preferences(
     current_user: UserDB = Depends(get_current_active_user)
 ):
     service = NotificationService(db)
-    return await service.update_preferences(current_user.id, prefs.email_updates)
+    return service.update_preferences(current_user.id, prefs.email_updates)

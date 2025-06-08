@@ -25,7 +25,7 @@ class TrackingService:
             return False
         return True
 
-    async def track_single_package(
+    def track_single_package(
         self,
         tracking_number: str
     ) -> TrackingResponse:
@@ -48,7 +48,7 @@ class TrackingService:
                 )
 
             # Track package with FedEx
-            result = await self.fedex_service.track_package(tracking_number)
+            result = self.fedex_service.track_package(tracking_number)
             
             if not result.success:
                 logger.error(f"Failed to track package {tracking_number}: {result.error}")
@@ -72,19 +72,19 @@ class TrackingService:
                 }
             )
 
-    async def track_multiple_packages(self, tracking_numbers: List[str]) -> List[TrackingResponse]:
+    def track_multiple_packages(self, tracking_numbers: List[str]) -> List[TrackingResponse]:
         """
         Track multiple packages using FedEx API (simplified)
         """
         responses = []
         for tracking_number in tracking_numbers:
-            response = await self.track_single_package(tracking_number)
+            response = self.track_single_package(tracking_number)
             responses.append(response)
         return responses
 
-    async def update_tracking(self, tracking_id: str, 
-                            customer_name: Optional[str] = None,
-                            note: Optional[str] = None) -> TrackingResponse:
+    def update_tracking(self, tracking_id: str,
+                        customer_name: Optional[str] = None,
+                        note: Optional[str] = None) -> TrackingResponse:
         """
         Update tracking information
         """
@@ -128,7 +128,7 @@ class TrackingService:
                 }
             )
 
-    async def search_trackings(self, filters: TrackingFilter) -> Tuple[List[TrackingInfo], int]:
+    def search_trackings(self, filters: TrackingFilter) -> Tuple[List[TrackingInfo], int]:
         """
         Search and filter tracking records
         """
@@ -203,7 +203,7 @@ class TrackingService:
             logger.error(f"Error searching trackings: {str(e)}")
             raise
 
-    async def get_tracking_stats(self) -> Dict[str, Any]:
+    def get_tracking_stats(self) -> Dict[str, Any]:
         """
         Get tracking statistics
         """
