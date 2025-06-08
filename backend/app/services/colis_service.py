@@ -177,4 +177,26 @@ class ColisService:
             "total": total,
             "status_distribution": dict(status_counts),
             "location_distribution": dict(location_counts)
-        } 
+        }
+
+    async def delete_colis(self, colis_id: str) -> bool:
+        """Delete a colis record and its barcode image"""
+        try:
+            db_colis = await self.get_colis_by_id(colis_id)
+            if not db_colis:
+                return False
+
+            image_path = os.path.join(self.barcode_folder, f"{db_colis.code_barre}.png")
+            if os.path.exists(image_path):
+                try:
+                    os.remove(image_path)
+                except Exception:
+                    logger.warning(f"Unable to remove barcode image {image_path}")
+
+            self.db.delete(db_colis)
+            self.db.commit()
+            return True
+        except Exception as e:
+            self.db.rollback()
+            logger.error(f"Erreur lors de la suppression du colis {colis_id}: {str(e)}")
+            raise

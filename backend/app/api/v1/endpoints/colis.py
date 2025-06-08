@@ -77,6 +77,23 @@ async def update_colis(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.delete("/{colis_id}")
+async def delete_colis(
+    colis_id: str,
+    db: Session = Depends(get_db)
+):
+    """Delete a colis"""
+    colis_service = ColisService(db)
+    try:
+        deleted = await colis_service.delete_colis(colis_id)
+        if not deleted:
+            raise HTTPException(status_code=404, detail="Colis not found")
+        return {"success": True}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.post("/search", response_model=ColisSearchResponse)
 async def search_colis(
     filters: ColisFilter,
