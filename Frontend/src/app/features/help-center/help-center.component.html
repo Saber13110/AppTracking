@@ -1,0 +1,30 @@
+<section class="help-center">
+  <app-breadcrumb [items]="[{label: 'Home', url: '/home'}, {label: 'Help Center'}]"></app-breadcrumb>
+  <h1>Help Center</h1>
+  <app-simple-tabs [tabs]="tabs" [active]="activeTab" (select)="selectTab($event)"></app-simple-tabs>
+
+  <div [ngSwitch]="activeTab">
+    <div *ngSwitchCase="'advice'" id="advice">
+      <h2>Advice</h2>
+      <p>Find tips on how to get the most from our tracking services.</p>
+    </div>
+
+    <div *ngSwitchCase="'tools'" id="tools">
+      <h2>Tracking Tools</h2>
+      <p>Explore our suite of tracking tools for every need.</p>
+    </div>
+
+    <div *ngSwitchCase="'faq'" id="faq">
+      <h2>Frequently Asked Questions</h2>
+      <div class="faq-item" *ngFor="let f of faqs">
+        <h3 (click)="toggleFaq(f)">{{ f.question }}</h3>
+        <p *ngIf="f.open">{{ f.answer }}</p>
+      </div>
+    </div>
+
+    <div *ngSwitchCase="'contact'" id="contact">
+      <h2>Contact Us</h2>
+      <p>For further assistance email <a href="mailto:support@globex.ma">support@globex.ma</a> or call +212 522-123456.</p>
+    </div>
+  </div>
+</section>

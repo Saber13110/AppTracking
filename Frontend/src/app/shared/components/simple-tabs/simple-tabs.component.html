@@ -1,0 +1,8 @@
+<div class="simple-tabs" *ngIf="tabs.length">
+  <button *ngFor="let tab of tabs"
+          class="tab"
+          [class.active]="tab.id === active"
+          (click)="setActive(tab.id)">
+    {{ tab.label }}
+  </button>
+</div>
