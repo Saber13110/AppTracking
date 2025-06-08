@@ -17,6 +17,7 @@ class TrackingHistoryService:
         status: str | None = None,
         meta_data: dict | None = None,
         note: str | None = None,
+        pinned: bool = False,
     ) -> TrackedShipmentDB | None:
         """Persist a search in the user's tracking history."""
         try:
@@ -26,6 +27,7 @@ class TrackingHistoryService:
                 status=status,
                 meta_data=meta_data or {},
                 note=note,
+                pinned=pinned,
             )
             self.db.add(record)
             self.db.commit()

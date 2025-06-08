@@ -1,8 +1,10 @@
 <div class="history">
   <h2>Tracking History</h2>
   <ng-container *ngIf="history.length; else none">
+    <input type="text" [(ngModel)]="filter" placeholder="Filter" />
+    <button (click)="toggleSort()">Toggle Sort</button>
     <ul>
-      <li *ngFor="let id of history">
+      <li *ngFor="let id of filteredHistory">
         <a [routerLink]="['/track', id]">{{ id }}</a>
         <button role="button"
                 tabindex="0"

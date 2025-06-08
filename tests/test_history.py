@@ -43,18 +43,51 @@ def create_user(db, email="user@example.com"):
 
 def test_log_search_stores_fields(db_session):
     service = TrackingHistoryService(db_session)
-    service.log_search(1, "123", status="IN_TRANSIT", meta_data={"a": 1}, note="n")
+    service.log_search(
+        1,
+        "123",
+        status="IN_TRANSIT",
+        meta_data={"a": 1},
+        note="n",
+        pinned=True,
+    )
 
     record = db_session.query(TrackedShipmentDB).first()
     assert record.tracking_number == "123"
     assert record.status == "IN_TRANSIT"
     assert record.meta_data["a"] == 1
     assert record.note == "n"
+    assert record.pinned is True
 
 
 def test_post_history_endpoint(db_session):
     user = create_user(db_session)
-    payload = TrackedShipmentCreate(tracking_number="ABC", status="OK")
+    payload = TrackedShipmentCreate(
+        tracking_number="ABC", status="OK", note="hi", pinned=True
+    )
     result = asyncio.run(history_router.add_history(payload, user, db_session))
     assert result.tracking_number == "ABC"
     assert result.status == "OK"
+    assert result.note == "hi"
+    assert result.pinned is True
+
+
+def test_get_history_endpoint(db_session):
+    user = create_user(db_session)
+    service = TrackingHistoryService(db_session)
+    service.log_search(user.id, "XYZ", status="S", note="n", pinned=True)
+    records = asyncio.run(history_router.get_history(user, db_session))
+    assert len(records) == 1
+    rec = records[0]
+    assert rec.tracking_number == "XYZ"
+    assert rec.status == "S"
+    assert rec.note == "n"
+    assert rec.pinned is True
+
+
+def test_get_history_inactive_user(db_session):
+    user = create_user(db_session)
+    user.is_active = False
+    db_session.commit()
+    with pytest.raises(Exception):
+        asyncio.run(auth.get_current_active_user(user))

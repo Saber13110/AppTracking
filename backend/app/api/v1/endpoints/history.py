@@ -32,5 +32,6 @@ async def add_history(
         status=shipment.status,
         meta_data=shipment.meta_data,
         note=shipment.note,
+        pinned=shipment.pinned,
     )
     return record

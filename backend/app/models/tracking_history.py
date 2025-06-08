@@ -8,6 +8,7 @@ class TrackedShipmentCreate(BaseModel):
     status: Optional[str] = None
     meta_data: Optional[Dict[str, Any]] = None
     note: Optional[str] = None
+    pinned: bool = False
 
 
 class TrackedShipment(BaseModel):
@@ -16,6 +17,7 @@ class TrackedShipment(BaseModel):
     status: Optional[str] = None
     meta_data: Dict[str, Any] = Field(default_factory=dict)
     note: Optional[str] = None
+    pinned: bool = False
     created_at: datetime
 
     class Config:
