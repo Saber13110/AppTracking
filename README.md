@@ -24,6 +24,8 @@ Both `backend/.env` and `backend/.env.local` are ignored by Git. Store your secr
 
 `REDIS_URL` controls the Redis connection used for rate limiting. If omitted, the API defaults to `redis://localhost:6379/0`.
 
+`TRACKING_HISTORY_RETENTION_DAYS` defines how many days tracked shipments are kept in the database. Old records are purged daily and the default is `30` days.
+
 The frontend needs a Google Maps API key. Set `GOOGLE_MAPS_API_KEY` in a `.env` file at the project root or export it in your shell before running the Angular app.
 
 ## Required variables
@@ -75,6 +77,12 @@ Follow these steps to run the project locally:
 
    ```bash
    docker-compose up
+   ```
+
+7. *(Optional)* **Purge old tracking history**. Run the cleanup script manually or schedule it with cron:
+
+   ```bash
+   python backend/app/scripts/cleanup_history.py
    ```
 
 ## Running the Backend

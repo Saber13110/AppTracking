@@ -23,6 +23,10 @@ class Settings(BaseSettings):
     # Configuration de la base de données
     DATABASE_URL: str = os.environ.get("DATABASE_URL", "postgresql://postgres:postgres@localhost/tracking_app")
     REDIS_URL: str = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
+    # Retention period for tracking history in days
+    TRACKING_HISTORY_RETENTION_DAYS: int = int(
+        os.environ.get("TRACKING_HISTORY_RETENTION_DAYS", "30")
+    )
     
     # Security
     SECRET_KEY: Optional[str] = os.environ.get("SECRET_KEY")

@@ -5,16 +5,37 @@ from starlette.middleware.sessions import SessionMiddleware
 from dotenv import load_dotenv
 from fastapi_limiter import FastAPILimiter
 import redis.asyncio as redis
+import asyncio
 
 from .config import settings
 from .routers import auth, google_auth
 from .api.v1.api import api_router
+from .database import SessionLocal
+from .services.tracking_history_service import TrackingHistoryService
 
 # Chargement des variables d'environnement
 load_dotenv()
 
 # Configure global logging
 logging.basicConfig(level=logging.INFO)
+
+
+async def schedule_history_cleanup() -> None:
+    """Periodically purge old tracking history records."""
+    while True:
+        try:
+            with SessionLocal() as db:
+                service = TrackingHistoryService(db)
+                deleted = service.purge_older_than(
+                    settings.TRACKING_HISTORY_RETENTION_DAYS
+                )
+                if deleted:
+                    logging.info(
+                        "Deleted %s expired tracking history records", deleted
+                    )
+        except Exception as exc:
+            logging.error("History cleanup failed: %s", exc)
+        await asyncio.sleep(24 * 60 * 60)
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -41,6 +62,7 @@ async def startup() -> None:
         settings.REDIS_URL, encoding="utf8", decode_responses=True
     )
     await FastAPILimiter.init(redis_client)
+    asyncio.create_task(schedule_history_cleanup())
 
 
 @app.on_event("shutdown")
