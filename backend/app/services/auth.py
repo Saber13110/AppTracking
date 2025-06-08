@@ -75,6 +75,17 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
+
+def require_role(*roles: UserRole):
+    """FastAPI dependency factory to ensure the current user has one of the given roles."""
+
+    async def dependency(current_user: UserDB = Depends(get_current_active_user)) -> UserDB:
+        if current_user.role not in roles:
+            raise HTTPException(status_code=403, detail="Forbidden")
+        return current_user
+
+    return dependency
+
 def get_user_by_email(db: Session, email: str) -> Optional[UserDB]:
     return db.query(UserDB).filter(UserDB.email == email).first()
 
