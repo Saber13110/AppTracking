@@ -46,3 +46,14 @@ npm install
 npm start
 ```
 
+## Setup
+
+Install the project dependencies, initialize the database and run the tests:
+
+```bash
+pip install -r backend/requirements.txt
+npm install
+python backend/app/init_db.py
+pytest
+```
+
