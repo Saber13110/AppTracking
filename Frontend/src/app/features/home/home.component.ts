@@ -132,7 +132,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     private notificationService: NotificationService
   ) {
     this.trackingForm = this.fb.group({
-      trackingNumber: ['', [Validators.required, Validators.pattern('^[A-Z0-9]{10,}$')]]
+      trackingNumber: ['', [Validators.required, Validators.pattern('^[A-Z0-9]{10,}$')]],
+      packageName: ['']
     });
     
     this.barcodeForm = this.fb.group({
@@ -347,6 +348,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
 
     const identifier = this.trackingForm.get('trackingNumber')?.value.trim();
+    const name = this.trackingForm.get('packageName')?.value;
     if (!identifier) {
       return;
     }
@@ -357,7 +359,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       `Recherche du colis #${identifier}...`
     );
 
-    this.trackingService.trackPackage(identifier).subscribe({
+    this.trackingService.trackNumber(identifier, name).subscribe({
       next: (response) => {
         if (response.success && response.data) {
           this.router.navigate(['/track', identifier]);

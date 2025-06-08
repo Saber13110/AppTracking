@@ -17,7 +17,8 @@ export class TrackByMailComponent {
   constructor(private fb: FormBuilder, private trackingService: TrackingService) {
     this.form = this.fb.group({
       trackingNumber: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]]
+      email: ['', [Validators.required, Validators.email]],
+      packageName: ['']
     });
   }
 
@@ -25,9 +26,11 @@ export class TrackByMailComponent {
     if (this.form.invalid) {
       return;
     }
-    const { trackingNumber, email } = this.form.value;
-    this.trackingService.trackByEmail(trackingNumber, email).subscribe(res => {
-      this.result = res;
+    const { trackingNumber, email, packageName } = this.form.value;
+    this.trackingService.trackNumber(trackingNumber, packageName).subscribe(() => {
+      this.trackingService.trackByEmail(trackingNumber, email).subscribe(res => {
+        this.result = res;
+      });
     });
   }
 }

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { TrackingService } from '../tracking/services/tracking.service';
 
 @Component({
   selector: 'app-all-tracking-services',
@@ -15,9 +16,10 @@ export class AllTrackingServicesComponent {
   singleForm: FormGroup;
   bulkForm: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private trackingService: TrackingService) {
     this.singleForm = this.fb.group({
-      trackingNumber: ['', [Validators.required, Validators.pattern('^[A-Z0-9]{10,}$')]]
+      trackingNumber: ['', [Validators.required, Validators.pattern('^[A-Z0-9]{10,}$')]],
+      packageName: ['']
     });
     this.bulkForm = this.fb.group({
       trackingNumbers: ['', Validators.required]
@@ -33,8 +35,8 @@ export class AllTrackingServicesComponent {
       this.singleForm.markAllAsTouched();
       return;
     }
-    // Placeholder for single tracking logic
-    console.log('Track single', this.singleForm.value.trackingNumber);
+    const { trackingNumber, packageName } = this.singleForm.value;
+    this.trackingService.trackNumber(trackingNumber, packageName).subscribe();
   }
 
   submitBulk(): void {

@@ -32,6 +32,7 @@
         <form [formGroup]="trackingForm" (ngSubmit)="onSubmit()">
           <div class="tracking-form__input-group">
             <input type="text" formControlName="trackingNumber" class="tracking-form__input" placeholder="Enter your tracking number">
+            <input type="text" formControlName="packageName" class="tracking-form__input" placeholder="Package name (optional)">
             <button type="submit" class="tracking-form__btn">
               <i class="fas fa-search"></i>
               Track
