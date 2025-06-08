@@ -1,63 +1,28 @@
 <div class="ats">
   <h1>All Tracking Services</h1>
-  <div class="tabs">
-    <button class="tab"
-            role="button"
-            tabindex="0"
-            aria-label="Switch to single tracking"
-            [class.active]="activeTab==='single'"
-            (click)="switchTab('single')"
-            (keydown.enter)="switchTab('single')"
-            (keydown.space)="switchTab('single')">Single</button>
-    <button class="tab"
-            role="button"
-            tabindex="0"
-            aria-label="Switch to bulk tracking"
-            [class.active]="activeTab==='bulk'"
-            (click)="switchTab('bulk')"
-            (keydown.enter)="switchTab('bulk')"
-            (keydown.space)="switchTab('bulk')">Bulk</button>
-    <button class="tab"
-            role="button"
-            tabindex="0"
-            aria-label="Switch to barcode tracking"
-            [class.active]="activeTab==='barcode'"
-            (click)="switchTab('barcode')"
-            (keydown.enter)="switchTab('barcode')"
-            (keydown.space)="switchTab('barcode')">Barcode</button>
-  </div>
+  <app-tracking-tabs (tabChange)="switchTab($event)"></app-tracking-tabs>
 
   <div class="tab-content">
-    <app-tracking-form *ngIf="activeTab==='single'"
+    <app-tracking-form *ngIf="activeTab==='number'"
                        class="single-form"
                        [form]="singleForm"
                        (formSubmit)="submitSingle()">
       Track
     </app-tracking-form>
 
-    <form *ngIf="activeTab==='bulk'" [formGroup]="bulkForm" (ngSubmit)="submitBulk()" class="bulk-form">
-      <div class="form-group">
-        <label>Tracking Numbers</label>
-        <textarea formControlName="trackingNumbers" rows="5" placeholder="One ID per line"></textarea>
-      </div>
-      <button type="submit"
-              class="btn btn--primary"
-              role="button"
-              tabindex="0"
-              aria-label="Track all packages">Track All</button>
+    <form *ngIf="activeTab==='reference'" [formGroup]="referenceForm" (ngSubmit)="submitReference()" class="reference-form">
+      <input type="text" formControlName="reference" placeholder="Reference" />
+      <button type="submit" class="btn btn--primary">Track</button>
     </form>
 
-    <div *ngIf="activeTab==='barcode'" class="barcode-form">
-      <p>Scan your barcode using the camera.</p>
-      <button type="button"
-              class="btn btn--primary"
-              role="button"
-              tabindex="0"
-              aria-label="Start barcode scan"
-              (click)="startBarcodeScan()"
-              (keydown.enter)="startBarcodeScan()"
-              (keydown.space)="startBarcodeScan()">Start Scan</button>
-      <app-barcode-upload [control]="singleForm.get('trackingNumber')"></app-barcode-upload>
-    </div>
+    <form *ngIf="activeTab==='tcn'" [formGroup]="tcnForm" (ngSubmit)="submitTcn()" class="tcn-form">
+      <input type="text" formControlName="tcn" placeholder="TCN" />
+      <button type="submit" class="btn btn--primary">Track</button>
+    </form>
+
+    <form *ngIf="activeTab==='proof'" [formGroup]="proofForm" (ngSubmit)="downloadProof()" class="proof-form">
+      <input type="text" formControlName="trackingNumber" placeholder="Tracking number" />
+      <button type="submit" class="btn btn--primary">Download Proof</button>
+    </form>
   </div>
 </div>

@@ -3,21 +3,26 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TrackingService } from '../tracking/services/tracking.service';
 import { AnalyticsService } from '../../core/services/analytics.service';
-import { BarcodeUploadComponent } from '../barcode-upload/barcode-upload.component';
 import { TrackingFormComponent } from '../../shared/components/tracking-form/tracking-form.component';
+import { TrackingTabsComponent } from '../../shared/components/tracking-tabs/tracking-tabs.component';
 
 @Component({
   selector: 'app-all-tracking-services',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, BarcodeUploadComponent, TrackingFormComponent],
+  imports: [CommonModule,
+    ReactiveFormsModule,
+    TrackingFormComponent,
+    TrackingTabsComponent],
   templateUrl: './all-tracking-services.component.html',
   styleUrls: ['./all-tracking-services.component.scss']
 })
 export class AllTrackingServicesComponent {
-  activeTab: 'single' | 'bulk' | 'barcode' = 'single';
+  activeTab: 'number' | 'reference' | 'tcn' | 'proof' = 'number';
 
   singleForm: FormGroup;
-  bulkForm: FormGroup;
+  referenceForm: FormGroup;
+  tcnForm: FormGroup;
+  proofForm: FormGroup;
 
   constructor(
     private fb: FormBuilder,
@@ -28,12 +33,18 @@ export class AllTrackingServicesComponent {
       trackingNumber: ['', [Validators.required, Validators.pattern('^[A-Z0-9]{10,}$')]],
       packageName: ['']
     });
-    this.bulkForm = this.fb.group({
-      trackingNumbers: ['', Validators.required]
+    this.referenceForm = this.fb.group({
+      reference: ['', Validators.required]
+    });
+    this.tcnForm = this.fb.group({
+      tcn: ['', Validators.required]
+    });
+    this.proofForm = this.fb.group({
+      trackingNumber: ['', Validators.required]
     });
   }
 
-  switchTab(tab: 'single' | 'bulk' | 'barcode'): void {
+  switchTab(tab: 'number' | 'reference' | 'tcn' | 'proof'): void {
     this.activeTab = tab;
     this.analytics.logAction('switch_tab', tab);
   }
@@ -48,23 +59,33 @@ export class AllTrackingServicesComponent {
     this.trackingService.trackNumber(trackingNumber, packageName).subscribe();
   }
 
-  submitBulk(): void {
-    if (this.bulkForm.invalid) {
-      this.bulkForm.markAllAsTouched();
+  submitReference(): void {
+    if (this.referenceForm.invalid) {
+      this.referenceForm.markAllAsTouched();
       return;
     }
-    const numbers = this.bulkForm.value.trackingNumbers
-      .split(/\r?\n/)
-      .map((n: string) => n.trim())
-      .filter((n: string) => n);
-    console.log('Track bulk', numbers);
-    this.analytics.logAction('submit_bulk', numbers.length);
-    // Placeholder for bulk tracking logic
+    const ref = this.referenceForm.value.reference;
+    this.analytics.logAction('submit_reference', ref);
+    this.trackingService.trackReference(ref).subscribe();
   }
 
-  startBarcodeScan(): void {
-    // Placeholder for barcode scanning implementation
-    this.analytics.logAction('start_barcode_scan');
-    console.log('Barcode scan feature coming soon');
+  submitTcn(): void {
+    if (this.tcnForm.invalid) {
+      this.tcnForm.markAllAsTouched();
+      return;
+    }
+    const tcn = this.tcnForm.value.tcn;
+    this.analytics.logAction('submit_tcn', tcn);
+    this.trackingService.trackTcn(tcn).subscribe();
+  }
+
+  downloadProof(): void {
+    if (this.proofForm.invalid) {
+      this.proofForm.markAllAsTouched();
+      return;
+    }
+    const tn = this.proofForm.value.trackingNumber;
+    this.analytics.logAction('download_proof', tn);
+    this.trackingService.downloadProof(tn).subscribe();
   }
 }
