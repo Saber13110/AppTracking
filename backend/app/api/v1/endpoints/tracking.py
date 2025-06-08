@@ -67,7 +67,7 @@ async def create_package(
 
         # Track the newly created package
         fedex_service = FedExService()
-        response = fedex_service.track_package(colis.id)
+        response = await fedex_service.track_package(colis.id)
 
         # Add metadata about the identifier used
         if response.metadata:
@@ -158,7 +158,7 @@ async def track_package(
         fedex_id = colis.id
 
         # Track via FedEx
-        response = fedex_service.track_package(fedex_id)
+        response = await fedex_service.track_package(fedex_id)
 
         # Add metadata about the identifier used
         if response.metadata:
@@ -220,7 +220,7 @@ async def track_by_email(
 ):
     """Track a package and send the result via email."""
     fedex_service = FedExService()
-    response = fedex_service.track_package(request.tracking_number)
+    response = await fedex_service.track_package(request.tracking_number)
     if response.success:
         status = response.data.status if response.data else ""
         try:
