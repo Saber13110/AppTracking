@@ -161,6 +161,11 @@ pip install -r requirements-test.txt
 pytest
 ```
 
+Angular unit tests are executed with Karma via `npm test` in the `Frontend`
+directory. Karma requires a local Chrome (or Chromium) installation. On headless
+systems you can set the `CHROME_BIN` environment variable to the path of a
+Chrome executable.
+
 ## Password requirements
 
 User registration requires a strong password. The password must be at least 8
