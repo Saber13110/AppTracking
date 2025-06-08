@@ -35,7 +35,7 @@ def db_session():
 
 
 def create_user_with_role(db, role: UserRole):
-    user = auth.create_user(db, UserCreate(email=f"{role}@example.com", full_name="U", password="pw"))
+    user = auth.create_user(db, UserCreate(email=f"{role}@example.com", full_name="U", password="Password1"))
     user.role = role
     db.commit()
     db.refresh(user)
