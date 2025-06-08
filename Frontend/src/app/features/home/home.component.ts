@@ -5,6 +5,7 @@ import { RouterModule, Router } from '@angular/router';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
+import { TrackingService } from '../tracking/services/tracking.service';
 import { Subject, Observable } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -120,7 +121,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private trackingService: TrackingService
   ) {
     this.trackingForm = this.fb.group({
       trackingNumber: ['', [Validators.required, Validators.pattern('^[A-Z0-9]{10,}$')]]
@@ -334,25 +336,29 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // === TRAITEMENT TRACKING
   trackPackage(): void {
-    if (!this.trackingForm.get('trackingNumber')?.value.trim()) return;
+    const identifier = this.trackingForm.get('trackingNumber')?.value.trim();
+    if (!identifier) return;
 
     this.addNotification(
       'success',
       'Recherche en cours',
-      `Recherche du colis #${this.trackingForm.get('trackingNumber')?.value}...`
+      `Recherche du colis #${identifier}...`
     );
 
-    setTimeout(() => {
-      // TODO: remplacer par appel vers FastAPI → GET /api/tracking/:id
-      this.addNotification(
-        'success',
-        'Colis trouvé',
-        `Colis #${this.trackingForm.get('trackingNumber')?.value} en transit.`
-      );
-
-      // Rediriger vers la page résultat
-      this.router.navigate(['/tracking/result', this.trackingForm.get('trackingNumber')?.value]);
-    }, 2000);
+    this.trackingService.trackPackage(identifier).subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.router.navigate(['/tracking/result', identifier]);
+        } else {
+          this.addNotification('error', 'Erreur', response.error || 'Erreur inconnue');
+        }
+      },
+      error: (err) => {
+        const msg = err.error?.error || 'Erreur lors de la recherche du colis';
+        this.addNotification('error', 'Erreur', msg);
+        console.error('Erreur de suivi:', err);
+      }
+    });
   }
 
   // === AJOUTER NOTIFICATION FLOTTANTE
