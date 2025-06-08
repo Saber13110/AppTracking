@@ -48,6 +48,7 @@ class OAuth2PasswordRequestForm(BaseOAuth2PasswordRequestForm):
         )
         self.totp_code = totp_code
 
+
 router = APIRouter(
     prefix="/auth",
     tags=["authentication"]
@@ -70,6 +71,7 @@ class TwoFACode(BaseModel):
 class ResendVerificationRequest(BaseModel):
     email: EmailStr
 
+
 @router.post("/register", response_model=User)
 async def register(user: UserCreate, db: Session = Depends(get_db)):
     # Vérifier si l'utilisateur existe déjà
@@ -79,10 +81,10 @@ async def register(user: UserCreate, db: Session = Depends(get_db)):
             status_code=400,
             detail="Email already registered"
         )
-    
+
     # Créer un token de vérification
     verification_token = secrets.token_urlsafe(32)
-    
+
     # Créer l'utilisateur
     db_user = create_user(db, user)
     db_user.verification_token = verification_token
@@ -95,9 +97,11 @@ async def register(user: UserCreate, db: Session = Depends(get_db)):
     # Retourner l'utilisateur nouvellement créé
     return db_user
 
+
 @router.post("/verify-email")
 async def verify_email(verification: EmailVerification, db: Session = Depends(get_db)):
-    user = db.query(UserDB).filter(UserDB.verification_token == verification.token).first()
+    user = db.query(UserDB).filter(
+        UserDB.verification_token == verification.token).first()
     if not user or (
         user.verification_token_expires_at is not None and
         user.verification_token_expires_at < datetime.utcnow()
@@ -106,7 +110,7 @@ async def verify_email(verification: EmailVerification, db: Session = Depends(ge
             status_code=400,
             detail="Invalid or expired verification token"
         )
-    
+
     user.is_verified = True
     user.verification_token = None
     db.commit()
@@ -145,7 +149,8 @@ async def reset_password(payload: PasswordReset, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Invalid or expired token")
 
     from ..models.password_reset import PasswordResetTokenDB
-    db_token = db.query(PasswordResetTokenDB).filter(PasswordResetTokenDB.token == payload.token).first()
+    db_token = db.query(PasswordResetTokenDB).filter(
+        PasswordResetTokenDB.token == payload.token).first()
     if db_token:
         db_token.revoked = True
 
@@ -162,7 +167,8 @@ async def setup_2fa(
     secret = setup_twofa(db, current_user)
     import pyotp
 
-    uri = pyotp.totp.TOTP(secret).provisioning_uri(name=current_user.email, issuer_name="AppTracking")
+    uri = pyotp.totp.TOTP(secret).provisioning_uri(
+        name=current_user.email, issuer_name="AppTracking")
     return {"otpauth_url": uri, "secret": secret}
 
 
@@ -175,6 +181,7 @@ async def verify_2fa(
     if not verify_twofa(db, current_user, payload.code, activate=True):
         raise HTTPException(status_code=400, detail="Invalid TOTP code")
     return {"message": "2FA enabled"}
+
 
 @router.post(
     "/token",
@@ -208,8 +215,9 @@ async def login(
                 detail="Invalid or missing TOTP code",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-    
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+
+    access_token_expires = timedelta(
+        minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.email},
         expires_delta=access_token_expires
@@ -273,6 +281,7 @@ async def logout(request: Request, response: Response, db: Session = Depends(get
     response.delete_cookie("access_token")
     return {"message": "Logged out"}
 
+
 @router.get("/me", response_model=User)
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
-    return current_user 
+    return current_user

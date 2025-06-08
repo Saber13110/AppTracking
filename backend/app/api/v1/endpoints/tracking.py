@@ -25,10 +25,12 @@ from reportlab.pdfgen import canvas
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
+
 class TrackingRequest(BaseModel):
     tracking_number: str
     customer_name: Optional[str] = None
     note: Optional[str] = None
+
 
 class BatchTrackingRequest(BaseModel):
     tracking_numbers: List[str]
@@ -43,6 +45,7 @@ class UpdateTrackingRequest(BaseModel):
     customer_name: Optional[str] = None
     note: Optional[str] = None
 
+
 @router.post("/create", response_model=TrackingResponse)
 async def create_package(
     colis_data: ColisCreate,
@@ -56,10 +59,10 @@ async def create_package(
     """
     try:
         colis_service = ColisService(db)
-        
+
         # Create the colis
         colis = colis_service.create_colis(colis_data)
-        
+
         if not colis:
             return TrackingResponse(
                 success=False,
@@ -118,6 +121,7 @@ async def create_package(
                 "identifier": colis_data.id
             }
         )
+
 
 @router.get("/{identifier}", response_model=TrackingResponse)
 async def track_package(
@@ -234,6 +238,7 @@ async def update_tracking(
     )
     return response
 
+
 @router.post("/batch", response_model=List[TrackingResponse])
 async def track_multiple_packages(
     tracking_numbers: List[str],
@@ -263,10 +268,12 @@ async def track_by_email(
         status = response.data.status if response.data else ""
         try:
             from ....services.email import send_tracking_update_email
-            send_tracking_update_email(request.email, request.tracking_number, status)
+            send_tracking_update_email(
+                request.email, request.tracking_number, status)
         except Exception as e:
             logger.error(f"Failed to send tracking email: {str(e)}")
     return response
+
 
 @router.post("/search", response_model=Dict[str, Any])
 async def search_trackings(
@@ -290,6 +297,7 @@ async def search_trackings(
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.get("/stats", response_model=Dict[str, Any])
 async def get_tracking_stats(
@@ -360,19 +368,22 @@ async def export_tracking_events(
             loc_str = ""
             if loc:
                 loc_str = f"{loc.city or ''} {loc.state or ''} {loc.country or ''}"
-            pdf.drawString(50, y, f"{evt.timestamp} - {evt.status} - {loc_str}")
+            pdf.drawString(
+                50, y, f"{evt.timestamp} - {evt.status} - {loc_str}")
             y -= 15
             if y < 50:
                 pdf.showPage()
                 y = 750
         pdf.save()
         buffer.seek(0)
-        headers = {"Content-Disposition": f"attachment; filename={identifier}.pdf"}
+        headers = {
+            "Content-Disposition": f"attachment; filename={identifier}.pdf"}
         return StreamingResponse(buffer, media_type="application/pdf", headers=headers)
 
     out = io.StringIO()
     writer = csv.writer(out)
-    writer.writerow(["timestamp", "status", "description", "city", "state", "country", "postal_code"])
+    writer.writerow(["timestamp", "status", "description",
+                    "city", "state", "country", "postal_code"])
     for evt in events:
         loc = evt.location
         writer.writerow([
@@ -397,7 +408,8 @@ async def decode_barcode(file: UploadFile = File(...)):
     try:
         from pyzbar.pyzbar import decode as decode_bar
     except Exception as exc:
-        raise HTTPException(status_code=500, detail="pyzbar not available") from exc
+        raise HTTPException(
+            status_code=500, detail="pyzbar not available") from exc
 
     decoded = decode_bar(img)
     if not decoded:
@@ -417,13 +429,17 @@ async def get_proof_of_delivery(identifier: str, db: Session = Depends(get_db)):
     try:
         pdf_bytes = await fedex_service.get_proof_of_delivery(tracking_number)
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="Proof of delivery not found")
+        raise HTTPException(
+            status_code=404, detail="Proof of delivery not found")
     except httpx.HTTPStatusError as e:
         logger.error(f"FedEx error for {identifier}: {e}")
-        raise HTTPException(status_code=e.response.status_code, detail="FedEx service error")
+        raise HTTPException(status_code=e.response.status_code,
+                            detail="FedEx service error")
     except Exception as e:
         logger.error(f"Error fetching proof of delivery for {identifier}: {e}")
-        raise HTTPException(status_code=500, detail="Failed to fetch proof of delivery")
+        raise HTTPException(
+            status_code=500, detail="Failed to fetch proof of delivery")
 
-    headers = {"Content-Disposition": f"attachment; filename=proof_{tracking_number}.pdf"}
+    headers = {
+        "Content-Disposition": f"attachment; filename=proof_{tracking_number}.pdf"}
     return StreamingResponse(io.BytesIO(pdf_bytes), media_type="application/pdf", headers=headers)

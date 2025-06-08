@@ -27,7 +27,8 @@ class NewsArticleService:
         )
 
     def update_article(self, article_id: int, updates: NewsArticleUpdate) -> Optional[NewsArticleDB]:
-        article = self.db.query(NewsArticleDB).filter(NewsArticleDB.id == article_id).first()
+        article = self.db.query(NewsArticleDB).filter(
+            NewsArticleDB.id == article_id).first()
         if not article:
             return None
         for key, value in updates.dict(exclude_unset=True).items():
@@ -37,7 +38,8 @@ class NewsArticleService:
         return article
 
     def delete_article(self, article_id: int) -> bool:
-        article = self.db.query(NewsArticleDB).filter(NewsArticleDB.id == article_id).first()
+        article = self.db.query(NewsArticleDB).filter(
+            NewsArticleDB.id == article_id).first()
         if not article:
             return False
         self.db.delete(article)
