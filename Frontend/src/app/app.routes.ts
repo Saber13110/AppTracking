@@ -19,6 +19,7 @@ import { VerifyTwofaComponent } from './features/auth/verify-twofa/verify-twofa.
 import { ResendVerificationComponent } from './features/auth/resend-verification/resend-verification.component';
 import { NewsDetailComponent } from './features/news/news-detail.component';
 import { HistoryComponent } from './features/history/history.component';
+import { AdvancedShipmentTrackingComponent } from './features/advanced-shipment-tracking/advanced-shipment-tracking.component';
 import { NotFoundComponent } from './shared/not-found.component';
 
 // Assuming you might have other standalone components or lazy-loaded routes
@@ -46,6 +47,7 @@ export const routes: Routes = [
   { path: 'services/notifications', component: NotificationOptionsComponent, canActivate: [AuthGuard] },
   { path: 'services/generate-barcode', component: GenerateBarcodeComponent, canActivate: [AuthGuard] },
   { path: 'services/all-tracking', component: AllTrackingServicesComponent, canActivate: [AuthGuard] },
+  { path: 'advanced-shipment-tracking', component: AdvancedShipmentTrackingComponent, canActivate: [AuthGuard] },
   { path: 'auth/login', component: LoginComponent },
   { path: 'verify-email', component: VerifyEmailComponent },
   { path: 'auth/callback', component: GoogleCallbackComponent },

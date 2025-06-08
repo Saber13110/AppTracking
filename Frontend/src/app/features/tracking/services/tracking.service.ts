@@ -58,6 +58,10 @@ export class TrackingService {
     return this.http.post<TrackingResponse>(`${this.baseUrl}/email`, { tracking_number, email });
   }
 
+  trackBatch(trackingNumbers: string[]): Observable<TrackingResponse[]> {
+    return this.http.post<TrackingResponse[]>(`${this.baseUrl}/batch`, trackingNumbers);
+  }
+
   decodeBarcodeClient(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();

@@ -1,0 +1,19 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="ast-form">
+  <div class="form-group">
+    <label for="numbers">Tracking Numbers or References</label>
+    <textarea id="numbers" formControlName="numbers" rows="5" placeholder="Enter numbers separated by commas or new lines"></textarea>
+  </div>
+  <div class="error" *ngIf="error">{{ error }}</div>
+  <button type="submit" class="btn btn--primary">Track</button>
+</form>
+
+<div class="results" *ngIf="results">
+  <div *ngFor="let r of results" class="result">
+    <div *ngIf="r.success">
+      <strong>{{ r.data?.tracking_number }}</strong> - {{ r.data?.status.status }}
+    </div>
+    <div *ngIf="!r.success">
+      <strong>{{ r.metadata?.tracking_number || r.metadata?.identifier }}</strong> - {{ r.error }}
+    </div>
+  </div>
+</div>
