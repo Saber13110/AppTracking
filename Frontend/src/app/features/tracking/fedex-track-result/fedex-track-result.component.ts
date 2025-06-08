@@ -1,7 +1,14 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TrackingService, TrackingInfo } from '../services/tracking.service';
+import { ScheduleDeliveryDialogComponent } from '../schedule-delivery-dialog/schedule-delivery-dialog.component';
+import { ChangeAddressDialogComponent } from '../change-address-dialog/change-address-dialog.component';
+import { HoldLocationDialogComponent } from '../hold-location-dialog/hold-location-dialog.component';
+import { DeliveryInstructionsDialogComponent } from '../delivery-instructions-dialog/delivery-instructions-dialog.component';
 
 interface FedexTrackingInfo extends TrackingInfo {
   currentLocation?: {
@@ -13,7 +20,12 @@ interface FedexTrackingInfo extends TrackingInfo {
 @Component({
   selector: 'app-fedex-track-result',
   standalone: true,
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatSnackBarModule
+  ],
   templateUrl: './fedex-track-result.component.html',
   styleUrls: ['./fedex-track-result.component.scss']
 })
@@ -27,7 +39,12 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
   private marker: google.maps.Marker | null = null;
   private identifier = '';
 
-  constructor(private route: ActivatedRoute, private trackingService: TrackingService) {}
+  constructor(
+    private route: ActivatedRoute,
+    private trackingService: TrackingService,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
+  ) {}
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -80,6 +97,50 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
       },
       error: () => {}
     });
+  }
+
+  openScheduleDelivery(): void {
+    this.dialog
+      .open(ScheduleDeliveryDialogComponent)
+      .afterClosed()
+      .subscribe(result => {
+        if (result) {
+          this.snackBar.open('Delivery scheduled', 'Close', { duration: 3000 });
+        }
+      });
+  }
+
+  openChangeAddress(): void {
+    this.dialog
+      .open(ChangeAddressDialogComponent)
+      .afterClosed()
+      .subscribe(result => {
+        if (result) {
+          this.snackBar.open('Address change requested', 'Close', { duration: 3000 });
+        }
+      });
+  }
+
+  openHoldLocation(): void {
+    this.dialog
+      .open(HoldLocationDialogComponent)
+      .afterClosed()
+      .subscribe(result => {
+        if (result) {
+          this.snackBar.open('Hold request sent', 'Close', { duration: 3000 });
+        }
+      });
+  }
+
+  openDeliveryInstructions(): void {
+    this.dialog
+      .open(DeliveryInstructionsDialogComponent)
+      .afterClosed()
+      .subscribe(result => {
+        if (result) {
+          this.snackBar.open('Instructions added', 'Close', { duration: 3000 });
+        }
+      });
   }
 
   private initializeMap(): void {
