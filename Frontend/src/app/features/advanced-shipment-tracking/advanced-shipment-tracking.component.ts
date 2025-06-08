@@ -15,6 +15,7 @@ import { NotificationService } from '../../core/services/notification.service';
 export class AdvancedShipmentTrackingComponent {
   form: FormGroup;
   result: TrackingInfo | null = null;
+  batchResults: TrackingInfo[] | null = null;
   error: string | null = null;
   loading = false;
   accounts: string[] = ['A001', 'A002'];
@@ -28,7 +29,8 @@ export class AdvancedShipmentTrackingComponent {
   ) {
     this.form = this.fb.group({
       trackingNumber: ['', Validators.required],
-      packageName: ['']
+      packageName: [''],
+      batchNumbers: ['']
     });
     this.notif.getPreferences().subscribe(p => {
       this.selectedAccount = p.default_account || this.accounts[0];
@@ -57,6 +59,37 @@ export class AdvancedShipmentTrackingComponent {
         this.error = err.error?.error || 'Tracking failed';
         this.loading = false;
         this.result = null;
+      }
+    });
+  }
+
+  submitBatch() {
+    const raw = this.form.value.batchNumbers as string;
+    if (!raw) {
+      return;
+    }
+    const numbers = raw
+      .split(/[,\n]+/)
+      .map((n: string) => n.trim())
+      .filter((n: string) => n);
+    if (numbers.length === 0) {
+      return;
+    }
+    if (numbers.length > 30) {
+      this.error = 'Maximum 30 tracking numbers allowed';
+      return;
+    }
+    this.loading = true;
+    this.error = null;
+    this.trackingService.trackMultiple(numbers, this.selectedAccount).subscribe({
+      next: res => {
+        this.batchResults = res.filter(r => r.success && r.data).map(r => r.data!) as TrackingInfo[];
+        this.loading = false;
+      },
+      error: err => {
+        this.error = err.error?.error || 'Batch tracking failed';
+        this.loading = false;
+        this.batchResults = null;
       }
     });
   }

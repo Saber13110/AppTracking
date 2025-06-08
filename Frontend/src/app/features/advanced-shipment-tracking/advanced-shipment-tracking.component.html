@@ -17,6 +17,14 @@
   <button type="submit" class="btn btn--primary" [disabled]="loading">Track</button>
 </form>
 
+<form [formGroup]="form" (ngSubmit)="submitBatch()" class="ast-form mt-3">
+  <div class="form-group">
+    <label>Batch Tracking Numbers (comma or newline separated, max 30)</label>
+    <textarea formControlName="batchNumbers" rows="4"></textarea>
+  </div>
+  <button type="submit" class="btn btn--primary" [disabled]="loading">Track Multiple</button>
+</form>
+
 <div *ngIf="loading">Loading...</div>
 <div *ngIf="error" class="error">{{ error }}</div>
 
@@ -26,4 +34,13 @@
   <p *ngIf="result.delivery_details?.estimated_delivery_date">
     Estimated Delivery: {{ result.delivery_details.estimated_delivery_date }}
   </p>
+</div>
+
+<div *ngIf="batchResults && batchResults.length" class="result">
+  <h3>Batch Results</h3>
+  <ul>
+    <li *ngFor="let r of batchResults">
+      {{ r.tracking_number }} - {{ r.status.status }}
+    </li>
+  </ul>
 </div>
