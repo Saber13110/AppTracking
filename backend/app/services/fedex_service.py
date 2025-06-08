@@ -2,6 +2,7 @@ import os
 import httpx
 import yaml
 import logging
+import asyncio
 from typing import Dict, Any
 from datetime import datetime, timedelta
 from importlib import resources
@@ -108,13 +109,15 @@ class FedExService:
             } if location_data.get('coordinates') else None
         )
 
-    def track_package(self, tracking_number: str) -> TrackingResponse:
+    async def track_package(self, tracking_number: str) -> TrackingResponse:
         """
         Track a package using FedEx API
         """
         try:
             logger.info(f"Tracking package: {tracking_number}")
             access_token = self._get_auth_token()
+            if asyncio.iscoroutine(access_token):
+                access_token = await access_token
             url = f"{self.base_url}/track/v1/trackingnumbers"
             headers = {
                 'Authorization': f'Bearer {access_token}',
@@ -128,8 +131,8 @@ class FedExService:
                 }],
                 'includeDetailedScans': True
             }
-            with httpx.Client() as client:
-                response = client.post(url, headers=headers, json=payload)
+            async with httpx.AsyncClient() as client:
+                response = await client.post(url, headers=headers, json=payload)
                 response.raise_for_status()
                 tracking_data = response.json()
             

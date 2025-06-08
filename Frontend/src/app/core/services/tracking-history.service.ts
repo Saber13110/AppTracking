@@ -1,4 +1,8 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -6,6 +10,8 @@ import { Injectable } from '@angular/core';
 export class TrackingHistoryService {
   private storageKey = 'trackingHistory';
   private maxItems = 10;
+
+  constructor(private http: HttpClient, private auth: AuthService) {}
 
   getHistory(): string[] {
     const raw = localStorage.getItem(this.storageKey);
@@ -28,5 +34,22 @@ export class TrackingHistoryService {
 
   clear(): void {
     localStorage.removeItem(this.storageKey);
+  }
+
+  async syncWithServer(): Promise<void> {
+    const loggedIn = await firstValueFrom(this.auth.isLoggedIn());
+    if (!loggedIn) {
+      return;
+    }
+    try {
+      const records = await firstValueFrom(
+        this.http.get<{ tracking_number: string }[]>(`${environment.apiUrl}/history`)
+      );
+      const serverNumbers = records.map(r => r.tracking_number);
+      const merged = Array.from(new Set([...serverNumbers, ...this.getHistory()]));
+      localStorage.setItem(this.storageKey, JSON.stringify(merged.slice(0, this.maxItems)));
+    } catch {
+      // ignore errors
+    }
   }
 }

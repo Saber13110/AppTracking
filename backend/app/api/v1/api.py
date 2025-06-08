@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from .endpoints import tracking, notifications, colis
+from .endpoints import tracking, notifications, colis, history
 
 api_router = APIRouter(prefix="/api/v1")
 
@@ -19,4 +19,10 @@ api_router.include_router(
     colis.router,
     prefix="/colis",
     tags=["colis"]
-) 
+)
+
+api_router.include_router(
+    history.router,
+    prefix="/history",
+    tags=["history"]
+)

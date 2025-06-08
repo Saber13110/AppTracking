@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, Request
 from fastapi.responses import StreamingResponse
 from typing import List, Dict, Any, Optional
 from sqlalchemy.orm import Session
@@ -10,6 +10,8 @@ from ....services.tracking_service import TrackingService
 from ....database import get_db
 from ....services.colis_service import ColisService
 from ....services.fedex_service import FedExService
+from ....services.tracking_history_service import TrackingHistoryService
+from ....services.auth import oauth2_scheme, get_current_user
 from datetime import datetime
 import logging
 import io
@@ -38,7 +40,9 @@ class TrackByEmailRequest(BaseModel):
 @router.post("/create", response_model=TrackingResponse)
 async def create_package(
     colis_data: ColisCreate,
-    db: Session = Depends(get_db)
+    request: Request,
+    db: Session = Depends(get_db),
+    token: str | None = Depends(oauth2_scheme)
 ):
     """
     Create a new package with the given FedEx ID
@@ -81,6 +85,13 @@ async def create_package(
                 "code_barre": colis.code_barre
             }
 
+        if request:
+            try:
+                user = await get_current_user(request, db, token)
+                TrackingHistoryService(db).log_search(user.id, colis_data.id)
+            except Exception:
+                pass
+
         return response
 
     except Exception as e:
@@ -98,7 +109,9 @@ async def create_package(
 @router.get("/{identifier}", response_model=TrackingResponse)
 async def track_package(
     identifier: str,
-    db: Session = Depends(get_db)
+    request: Request,
+    db: Session = Depends(get_db),
+    token: str | None = Depends(oauth2_scheme)
 ):
     """
     Track a single package by any identifier (FedEx ID, reference, TCN, or barcode)
@@ -162,6 +175,13 @@ async def track_package(
                 "tcn": colis.tcn,
                 "code_barre": colis.code_barre
             }
+
+        if request:
+            try:
+                user = await get_current_user(request, db, token)
+                TrackingHistoryService(db).log_search(user.id, identifier)
+            except Exception:
+                pass
 
         return response
 
