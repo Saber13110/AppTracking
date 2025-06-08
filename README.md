@@ -69,6 +69,7 @@ Follow these steps to run the project locally:
 
    ```bash
    python backend/app/init_db.py
+   pip install -r requirements-test.txt
    pytest
    ```
 6. *(Optional)* **Run everything with Docker Compose**:
@@ -113,6 +114,7 @@ Install the project dependencies, initialize the database and run the tests:
 ```bash
 pip install -r backend/requirements.txt
 npm install
+pip install -r requirements-test.txt
 python backend/app/init_db.py
 pytest
 ```

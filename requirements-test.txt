@@ -1,0 +1,2 @@
+# Packages required only for running the test suite
+pytest==8.3.5
