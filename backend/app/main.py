@@ -51,7 +51,7 @@ async def shutdown() -> None:
 # Inclusion des routeurs
 app.include_router(auth.router, prefix=settings.API_V1_STR)
 app.include_router(google_auth.router, prefix=settings.API_V1_STR)
-app.include_router(api_router, prefix=settings.API_V1_STR)
+app.include_router(api_router)
 
 @app.get("/")
 async def root():

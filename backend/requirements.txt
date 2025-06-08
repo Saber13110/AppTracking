@@ -20,3 +20,5 @@ itsdangerous==2.2.0
 fastapi-limiter==0.1.6
 redis>=4.2.0
 pyotp==2.9.0
+pyzbar==0.1.9
+reportlab==4.0.6
