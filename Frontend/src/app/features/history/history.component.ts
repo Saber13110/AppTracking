@@ -16,7 +16,7 @@ export class HistoryComponent implements OnInit {
   constructor(private historyService: TrackingHistoryService) {}
 
   ngOnInit(): void {
-    this.loadHistory();
+    this.historyService.syncWithServer().then(() => this.loadHistory());
   }
 
   private loadHistory(): void {

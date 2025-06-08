@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, DateTime, JSON, Enum as SQLEnum, ForeignKey, Float
+from sqlalchemy import Column, String, Boolean, DateTime, JSON, Enum as SQLEnum, ForeignKey, Float, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -122,3 +122,13 @@ class TrackingDB(Base):
     events = relationship("TrackingEventDB", back_populates="tracking")
     package_details = relationship("PackageDetailsDB", back_populates="tracking", uselist=False)
     delivery_details = relationship("DeliveryDetailsDB", back_populates="tracking", uselist=False)
+
+
+class TrackedShipmentDB(Base):
+    __tablename__ = "tracked_shipments"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(Integer, nullable=False)
+    tracking_number = Column(String, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+

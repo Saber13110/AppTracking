@@ -2,6 +2,7 @@ import os
 import sys
 import asyncio
 import pytest
+from starlette.requests import Request
 
 # Set required env vars before importing the app modules
 os.environ.setdefault('DATABASE_URL', 'sqlite:///:memory:')
@@ -52,6 +53,15 @@ def test_track_package_by_id(db_session, monkeypatch):
     colis_id = setup_colis(db_session, monkeypatch)
     monkeypatch.setattr(tracking_router, "FedExService", DummyFedExService)
 
-    resp = asyncio.run(tracking_router.track_package(colis_id, db_session))
+    scope = {
+        "type": "http",
+        "headers": [],
+        "query_string": b"",
+        "path": "/",
+        "scheme": "http",
+        "server": ("testserver", 80),
+    }
+    req = Request(scope)
+    resp = asyncio.run(tracking_router.track_package(colis_id, req, db_session))
     assert resp.success is True
     assert resp.metadata["identifier"] == colis_id
