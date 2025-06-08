@@ -6,6 +6,7 @@ from fastapi_limiter.depends import RateLimiter
 from sqlalchemy.orm import Session
 
 from ..models.user import User, UserCreate, Token, EmailVerification, UserDB
+from pydantic import BaseModel, EmailStr
 from ..services.auth import (
     create_access_token,
     get_current_active_user,
@@ -14,15 +15,27 @@ from ..services.auth import (
     create_refresh_token,
     verify_refresh_token,
     revoke_refresh_token,
+    create_password_reset_token,
+    verify_password_reset_token,
+    get_password_hash,
 )
 from ..config import settings
 from ..database import get_db
-from ..services.email import send_verification_email
+from ..services.email import send_verification_email, send_password_reset_email
 
 router = APIRouter(
     prefix="/auth",
     tags=["authentication"]
 )
+
+
+class PasswordResetRequest(BaseModel):
+    email: EmailStr
+
+
+class PasswordReset(BaseModel):
+    token: str
+    new_password: str
 
 @router.post("/register", response_model=User)
 async def register(user: UserCreate, db: Session = Depends(get_db)):
@@ -60,8 +73,36 @@ async def verify_email(verification: EmailVerification, db: Session = Depends(ge
     user.is_verified = True
     user.verification_token = None
     db.commit()
-    
+
     return {"message": "Email verified successfully"}
+
+
+@router.post("/request-reset")
+async def request_password_reset(data: PasswordResetRequest, db: Session = Depends(get_db)):
+    user = db.query(UserDB).filter(UserDB.email == data.email).first()
+    if not user:
+        # Return success even if user not found to avoid user enumeration
+        return {"message": "If the email exists, a reset link has been sent"}
+
+    token = create_password_reset_token(db, user)
+    send_password_reset_email(user.email, token)
+    return {"message": "If the email exists, a reset link has been sent"}
+
+
+@router.post("/reset-password")
+async def reset_password(payload: PasswordReset, db: Session = Depends(get_db)):
+    user = verify_password_reset_token(payload.token, db)
+    if not user:
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+
+    from ..models.password_reset import PasswordResetTokenDB
+    db_token = db.query(PasswordResetTokenDB).filter(PasswordResetTokenDB.token == payload.token).first()
+    if db_token:
+        db_token.revoked = True
+
+    user.hashed_password = get_password_hash(payload.new_password)
+    db.commit()
+    return {"message": "Password updated"}
 
 @router.post(
     "/token",

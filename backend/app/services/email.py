@@ -44,4 +44,43 @@ def send_verification_email(email: str, token: str):
         return True
     except Exception as e:
         print(f"Erreur lors de l'envoi de l'email: {str(e)}")
-        return False 
+        return False
+
+
+def send_password_reset_email(email: str, token: str) -> bool:
+    """Send a password reset email with the given token."""
+    sender_email = settings.SMTP_USERNAME
+    sender_password = settings.SMTP_PASSWORD
+    smtp_server = settings.SMTP_SERVER
+    smtp_port = settings.SMTP_PORT
+
+    message = MIMEMultipart()
+    message["From"] = sender_email
+    message["To"] = email
+    message["Subject"] = "Réinitialisation de votre mot de passe"
+
+    reset_link = f"{settings.FRONTEND_URL}/reset-password?token={token}"
+    body = f"""
+    Bonjour,
+
+    Vous avez demandé la réinitialisation de votre mot de passe. Pour définir un nouveau mot de passe, veuillez cliquer sur le lien suivant :
+
+    {reset_link}
+
+    Si vous n'avez pas demandé cette réinitialisation, vous pouvez ignorer cet email.
+
+    Cordialement,
+    L'équipe de Tracking App
+    """
+    message.attach(MIMEText(body, "plain"))
+
+    try:
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()
+        server.login(sender_email, sender_password)
+        server.send_message(message)
+        server.quit()
+        return True
+    except Exception as e:
+        print(f"Erreur lors de l'envoi de l'email: {str(e)}")
+        return False
