@@ -118,6 +118,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // Form for barcode generation
   barcodeForm: FormGroup;
+  barcodeImageUrl: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -479,13 +480,28 @@ export class HomeComponent implements OnInit, OnDestroy {
   generateBarcode(): void {
     if (this.barcodeForm.valid) {
       const trackingId = this.barcodeForm.get('trackingId')?.value;
-      // TODO: Implement actual barcode generation logic
-      // For now, just show a notification
-      this.addNotification(
-        'success',
-        'Barcode Generated',
-        `Barcode for tracking ID ${trackingId} has been generated.`
-      );
+      this.trackingService.getBarcodeImage(trackingId).subscribe({
+        next: (blob) => {
+          const url = window.URL.createObjectURL(blob);
+          this.barcodeImageUrl = url;
+
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `${trackingId}.png`;
+          link.click();
+          window.URL.revokeObjectURL(url);
+
+          this.addNotification(
+            'success',
+            'Barcode Generated',
+            `Barcode for tracking ID ${trackingId} has been generated.`
+          );
+        },
+        error: (err) => {
+          const msg = err.error?.detail || 'Failed to generate barcode';
+          this.addNotification('error', 'Error', msg);
+        }
+      });
     } else {
       this.addNotification(
         'error',
