@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { TrackingService, TrackingInfo } from '../services/tracking.service';
 import { AnalyticsService } from '../../../core/services/analytics.service';
+import { jsPDF } from 'jspdf';
 
 interface FedexTrackingInfo extends TrackingInfo {
   currentLocation?: {
@@ -206,8 +207,51 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
     console.log('Opening dialog', name);
   }
 
-  exportData(): void {
-    this.analytics.logAction('export_data');
-    console.log('Exporting tracking data');
+  exportPdf(): void {
+    if (!this.trackingData?.tracking_history?.length) {
+      return;
+    }
+    const doc = new jsPDF();
+    doc.text('Tracking History', 10, 10);
+    let y = 20;
+    this.trackingData.tracking_history.forEach(ev => {
+      const date = new Date(ev.timestamp).toLocaleString();
+      const loc = [ev.location?.city, ev.location?.state, ev.location?.country]
+        .filter(Boolean)
+        .join(' ');
+      doc.text(`${date} - ${ev.status} - ${loc}`, 10, y);
+      y += 10;
+    });
+    doc.save(`${this.trackingData.tracking_number}.pdf`);
+    this.analytics.logAction('export_pdf');
+  }
+
+  exportCsv(): void {
+    if (!this.trackingData?.tracking_history?.length) {
+      return;
+    }
+    const csv = this.generateCsv();
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${this.trackingData.tracking_number}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+    this.analytics.logAction('export_csv');
+  }
+
+  private generateCsv(): string {
+    const header = 'Date,Status,Location';
+    const rows = this.trackingData!.tracking_history.map(ev => {
+      const date = new Date(ev.timestamp).toLocaleString();
+      const loc = [ev.location?.city, ev.location?.state, ev.location?.country]
+        .filter(Boolean)
+        .join(' ');
+      const safeStatus = ev.status.replace(/"/g, '""');
+      const safeLoc = loc.replace(/"/g, '""');
+      return `"${date}","${safeStatus}","${safeLoc}"`;
+    });
+    return [header, ...rows].join('\n');
   }
 }
