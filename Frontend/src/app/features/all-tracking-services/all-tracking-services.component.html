@@ -11,6 +11,9 @@
       <label>Tracking Number
         <input formControlName="trackingNumber" />
       </label>
+      <label>Package Name
+        <input formControlName="packageName" />
+      </label>
       <div class="error" *ngIf="singleForm.get('trackingNumber')?.touched && singleForm.get('trackingNumber')?.invalid">
         Invalid tracking number
       </div>

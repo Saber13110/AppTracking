@@ -23,6 +23,31 @@ export class TrackingService {
     return this.http.get<TrackingResponse>(`${this.baseUrl}/${identifier}`);
   }
 
+  trackNumber(trackingNumber: string, packageName?: string): Observable<TrackingResponse> {
+    return this.http.post<TrackingResponse>(`${this.baseUrl}/create`, {
+      id: trackingNumber,
+      description: packageName
+    });
+  }
+
+  trackReference(reference: string): Observable<TrackingResponse> {
+    return this.trackPackage(reference);
+  }
+
+  trackTcn(tcn: string): Observable<TrackingResponse> {
+    return this.trackPackage(tcn);
+  }
+
+  decodeBarcode(file: File): Observable<{ value: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<{ value: string }>(`${this.baseUrl}/decode-barcode`, formData);
+  }
+
+  downloadExport(): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/export`, { responseType: 'blob' });
+  }
+
   downloadProof(trackingNumber: string): Observable<Blob> {
     const url = `${this.baseUrl}/${trackingNumber}/proof`;
     return this.http.get(url, { responseType: 'blob' });
