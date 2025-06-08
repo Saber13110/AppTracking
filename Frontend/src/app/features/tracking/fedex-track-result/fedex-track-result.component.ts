@@ -3,6 +3,14 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { TrackingService, TrackingInfo } from '../services/tracking.service';
 import { AnalyticsService } from '../../../core/services/analytics.service';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { ScheduleDeliveryDialogComponent } from '../schedule-delivery-dialog/schedule-delivery-dialog.component';
+import { ChangeAddressDialogComponent } from '../change-address-dialog/change-address-dialog.component';
+import { HoldLocationDialogComponent } from '../hold-location-dialog/hold-location-dialog.component';
+import { DeliveryInstructionsDialogComponent } from '../delivery-instructions-dialog/delivery-instructions-dialog.component';
+import { showNotification } from '../../../shared/services/notification.util';
 
 interface FedexTrackingInfo extends TrackingInfo {
   currentLocation?: {
@@ -14,7 +22,16 @@ interface FedexTrackingInfo extends TrackingInfo {
 @Component({
   selector: 'app-fedex-track-result',
   standalone: true,
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatCardModule,
+    ScheduleDeliveryDialogComponent,
+    ChangeAddressDialogComponent,
+    HoldLocationDialogComponent,
+    DeliveryInstructionsDialogComponent
+  ],
   templateUrl: './fedex-track-result.component.html',
   styleUrls: ['./fedex-track-result.component.scss']
 })
@@ -31,7 +48,8 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private trackingService: TrackingService,
-    private analytics: AnalyticsService
+    private analytics: AnalyticsService,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -201,9 +219,30 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
     }
   }
 
-  openDialog(name: string): void {
-    this.analytics.logAction('open_dialog', name);
-    console.log('Opening dialog', name);
+  private openAndNotify(component: any, action: string, message: string): void {
+    const ref = this.dialog.open(component);
+    ref.afterClosed().subscribe(result => {
+      if (result) {
+        this.analytics.logAction(action);
+        showNotification(message, 'success');
+      }
+    });
+  }
+
+  openScheduleDelivery(): void {
+    this.openAndNotify(ScheduleDeliveryDialogComponent, 'schedule_delivery', 'Delivery scheduled');
+  }
+
+  openChangeAddress(): void {
+    this.openAndNotify(ChangeAddressDialogComponent, 'change_address', 'Address change requested');
+  }
+
+  openHoldLocation(): void {
+    this.openAndNotify(HoldLocationDialogComponent, 'hold_location', 'Hold request submitted');
+  }
+
+  openDeliveryInstructions(): void {
+    this.openAndNotify(DeliveryInstructionsDialogComponent, 'delivery_instructions', 'Instructions saved');
   }
 
   exportData(): void {

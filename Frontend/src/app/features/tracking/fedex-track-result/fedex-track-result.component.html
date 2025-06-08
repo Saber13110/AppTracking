@@ -16,6 +16,21 @@
       </div>
     </div>
 
+    <div class="options">
+      <mat-card class="option-card" (click)="openScheduleDelivery()">
+        Schedule Delivery
+      </mat-card>
+      <mat-card class="option-card" (click)="openChangeAddress()">
+        Change Address
+      </mat-card>
+      <mat-card class="option-card" (click)="openHoldLocation()">
+        Hold at Location
+      </mat-card>
+      <mat-card class="option-card" (click)="openDeliveryInstructions()">
+        Delivery Instructions
+      </mat-card>
+    </div>
+
     <div class="grid">
       <div id="fedex-map" class="map"></div>
       <div class="timeline" *ngIf="trackingData.tracking_history?.length">

@@ -102,6 +102,27 @@
   color: #666;
 }
 
+.options {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.option-card {
+  flex: 1 1 calc(50% - 0.5rem);
+  text-align: center;
+  cursor: pointer;
+  padding: 1rem;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.option-card:hover {
+  background: #f3f3f3;
+}
+
 @keyframes pulse {
   0% {
     transform: scale(1);
