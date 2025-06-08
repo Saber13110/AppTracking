@@ -9,7 +9,7 @@ import { TrackingInfo, TrackingResponse } from '../models/tracking';
   providedIn: 'root'
 })
 export class TrackingService {
-  private baseUrl = `${environment.apiUrl}/tracking`;
+  private baseUrl = `${environment.apiUrl}/track`;
 
   constructor(private http: HttpClient) {}
 
