@@ -4,6 +4,8 @@ import yaml
 import logging
 from typing import Dict, Any
 from datetime import datetime, timedelta
+from importlib import resources
+from pathlib import Path
 from ..models.tracking import (
     TrackingInfo, TrackingEvent, TrackingResponse, Location,
     PackageDetails, DeliveryDetails, PackageStatus, PackageType,
@@ -13,8 +15,14 @@ from ..models.tracking import (
 logger = logging.getLogger(__name__)
 
 class FedExService:
-    def __init__(self, config_path: str = "app/config/fedex.yaml"):
+    def __init__(self, config_path: str | None = None):
         try:
+            if config_path is None:
+                try:
+                    config_path = resources.files('backend.app.config').joinpath('fedex.yaml')
+                except Exception:
+                    config_path = Path(__file__).resolve().parents[1] / 'config' / 'fedex.yaml'
+
             logger.info(f"Loading FedEx configuration from {config_path}")
             with open(config_path, 'r') as file:
                 config = yaml.safe_load(file)['prod']
