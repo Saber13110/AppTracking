@@ -172,7 +172,7 @@ async def main():
     args = sys.argv[1:]
     if not args:
         print("Usage: python -m app.scripts.manage_colis [command] [options]")
-        print("Commands: create [fedex_id] [description], bulk_create [fedex_id1] [fedex_id2] ..., get [identifier_type] [value], list, update [id] [status] [location], delete [id]")
+        print("Commands: create [fedex_id] [description], bulk_create [fedex_id1] [fedex_id2] ..., get [identifier], list, update [id] [status] [location], delete [id]")
         return
 
     command = args[0]
@@ -194,14 +194,13 @@ async def main():
         db.commit()
         db.close()
     elif command == "get":
-        if len(args) < 3:
-            print("Usage: python -m app.scripts.manage_colis get [identifier_type] [value]")
+        if len(args) < 2:
+            print("Usage: python -m app.scripts.manage_colis get [identifier]")
             return
-        identifier_type = args[1]
-        value = args[2]
+        value = args[1]
         db = get_db_session()
         colis_service = ColisService(db)
-        colis = await colis_service.get_colis_by_identifier(identifier_type, value)
+        colis = await colis_service.get_colis_by_identifier(value)
         if colis:
             print("Colis Found:")
             print(f"  ID: {colis.id}")
@@ -216,7 +215,7 @@ async def main():
             print(f"  Updated At: {colis.updated_at}")
             print(f"  Meta Data: {colis.meta_data}")
         else:
-            print(f"Colis with {identifier_type} {value} not found.")
+            print(f"Colis with identifier {value} not found.")
         db.close()
     elif command == "list":
         db = get_db_session()
@@ -258,7 +257,7 @@ async def main():
     else:
         print(f"Unknown command: {command}")
         print("Usage: python -m app.scripts.manage_colis [command] [options]")
-        print("Commands: create [fedex_id] [description], bulk_create [fedex_id1] [fedex_id2] ..., get [identifier_type] [value], list, update [id] [status] [location], delete [id]")
+        print("Commands: create [fedex_id] [description], bulk_create [fedex_id1] [fedex_id2] ..., get [identifier], list, update [id] [status] [location], delete [id]")
 
 if __name__ == "__main__":
     import asyncio

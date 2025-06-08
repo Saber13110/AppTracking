@@ -1,11 +1,10 @@
 import os
-import requests
 import httpx
 import json
 import yaml
 import logging
 from typing import Dict, Any
-from datetime import datetime
+from datetime import datetime, timedelta
 from ..models.tracking import (
     TrackingInfo, TrackingEvent, TrackingResponse, Location,
     PackageDetails, DeliveryDetails, PackageStatus, PackageType,
@@ -34,23 +33,26 @@ class FedExService:
                 'client_secret': self.cdict['client_secret']
             }
             self.headers = {'Content-Type': "application/x-www-form-urlencoded"}
-            logger.info("Initializing FedEx authentication")
-            self.response = requests.post(self.auth_url, data=self.payload, headers=self.headers)
-            if self.response.status_code != 200:
-                logger.error(f"FedEx authentication failed: {self.response.text}")
-                raise Exception(f"FedEx authentication failed: {self.response.text}")
-            logger.info("FedEx authentication successful")
+            self._token: str | None = None
+            self._token_expiry: datetime | None = None
         except Exception as e:
             logger.error(f"Error initializing FedEx service: {str(e)}")
             raise
 
-    def _get_auth_token(self) -> str:
-        try:
-            token = json.loads(self.response.text)['access_token']
-            return token
-        except Exception as e:
-            logger.error(f"Error getting auth token: {str(e)}")
-            raise
+    async def _authenticate(self) -> None:
+        """Fetch a new OAuth token from FedEx"""
+        async with httpx.AsyncClient() as client:
+            response = await client.post(self.auth_url, data=self.payload, headers=self.headers)
+            response.raise_for_status()
+            data = response.json()
+            self._token = data.get('access_token')
+            expires_in = int(data.get('expires_in', 3600))
+            self._token_expiry = datetime.utcnow() + timedelta(seconds=expires_in)
+
+    async def _get_auth_token(self) -> str:
+        if not self._token or not self._token_expiry or datetime.utcnow() >= self._token_expiry:
+            await self._authenticate()
+        return self._token
 
     def _map_fedex_status(self, fedex_status: str) -> PackageStatus:
         """Map FedEx status to our PackageStatus enum"""
@@ -94,7 +96,7 @@ class FedExService:
         """
         try:
             logger.info(f"Tracking package: {tracking_number}")
-            access_token = self._get_auth_token()
+            access_token = await self._get_auth_token()
             url = f"{self.base_url}/track/v1/trackingnumbers"
             headers = {
                 'Authorization': f'Bearer {access_token}',
