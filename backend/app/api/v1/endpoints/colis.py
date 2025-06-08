@@ -44,11 +44,12 @@ async def get_colis(
     db: Session = Depends(get_db)
 ):
     """
-    Get a colis by reference type and value
+    Get a colis by any identifier value (FedEx ID, reference, TCN, or barcode)
     """
     colis_service = ColisService(db)
     try:
-        colis = await colis_service.get_colis_by_identifier(identifier_type, value)
+        # identifier_type is ignored; search by value across all identifier types
+        colis = await colis_service.get_colis_by_identifier(value)
         if not colis:
             raise HTTPException(status_code=404, detail="Colis not found")
         return colis
