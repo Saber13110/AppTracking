@@ -1,9 +1,9 @@
 # Build Angular app
 FROM node:20 AS build
 WORKDIR /app
-COPY Frontend/package*.json ./
+COPY package*.json ./
 RUN npm ci
-COPY Frontend/ ./
+COPY . ./
 RUN npm run build -- --configuration production
 
 # Serve with nginx

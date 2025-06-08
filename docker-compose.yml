@@ -14,8 +14,8 @@ services:
       - redis
   frontend:
     build:
-      context: .
-      dockerfile: frontend/Dockerfile
+      context: ./Frontend
+      dockerfile: Dockerfile
     ports:
       - "4200:80"
     depends_on:
