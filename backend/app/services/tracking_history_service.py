@@ -1,5 +1,6 @@
 import logging
 from sqlalchemy.orm import Session
+from datetime import datetime, timedelta
 from ..models.database import TrackedShipmentDB
 
 logger = logging.getLogger(__name__)
@@ -104,3 +105,14 @@ class TrackingHistoryService:
             self.db.rollback()
             logger.error(f"Failed to delete history item: {e}")
             return False
+
+    def delete_older_than(self, days: int) -> int:
+        """Remove history records older than the provided number of days."""
+        cutoff = datetime.utcnow() - timedelta(days=days)
+        count = (
+            self.db.query(TrackedShipmentDB)
+            .filter(TrackedShipmentDB.created_at < cutoff)
+            .delete()
+        )
+        self.db.commit()
+        return count
