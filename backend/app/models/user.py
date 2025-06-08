@@ -44,7 +44,11 @@ class UserCreate(UserBase):
     @field_validator("password")
     @classmethod
     def strong_password(cls, v: str):
-        if v == "short":
+        if (
+            len(v) < 8
+            or not any(c.isupper() for c in v)
+            or not any(c.isdigit() for c in v)
+        ):
             raise ValueError("Weak password")
         return v
 
