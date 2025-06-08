@@ -2,6 +2,22 @@
 /* You can add global styles to this file, and also import other style files */
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
 
+:root {
+  --primary-purple: #7b1fa2;
+  --primary-purple-light: #8835ab;
+  --primary-purple-dark: #0c0310;
+  --primary-red: #d32f2f;
+  --primary-orange: #ff6200;
+  --primary-orange-dark: #190900;
+  --text-color: #333;
+  --text-light: #d6d6d6;
+  --light-gray: #f5f5f5;
+  --border-color: #e0e0e0;
+  --success-green: #28a745;
+  --warning-yellow: #ffc107;
+  --error-red: #dc3545;
+}
+
 html, body {
   height: 100%;
   margin: 0;
@@ -44,18 +60,17 @@ html, body {
 }
 
 /* Global Theme */
-$primary-color: #7b1fa2;
-$secondary-color: #d32f2f;
+/* Theme variables are defined using CSS custom properties. */
 
 .navbar {
-  background-color: $primary-color;
+  background-color: var(--primary-purple);
   color: #fff;
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: Roboto, "Helvetica Neue", sans-serif;
-  color: $primary-color;
+  color: var(--primary-purple);
   margin-top: 0;
 }
 
@@ -67,14 +82,14 @@ h1, h2, h3, h4, h5, h6 {
   cursor: pointer;
 
   &--primary {
-    background: $primary-color;
+    background: var(--primary-purple);
     color: #fff;
   }
 
   &--secondary {
     background: transparent;
-    border: 2px solid $secondary-color;
-    color: $secondary-color;
+    border: 2px solid var(--primary-red);
+    color: var(--primary-red);
   }
 }
 
