@@ -57,3 +57,7 @@ python backend/app/init_db.py
 pytest
 ```
 
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
