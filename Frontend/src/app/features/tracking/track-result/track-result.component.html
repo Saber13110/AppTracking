@@ -94,6 +94,15 @@
         <button type="button"
                 role="button"
                 tabindex="0"
+                aria-label="View proof of delivery"
+                (click)="fetchProof()"
+                (keydown.enter)="fetchProof()"
+                (keydown.space)="fetchProof()">
+          Voir la preuve
+        </button>
+        <button type="button"
+                role="button"
+                tabindex="0"
                 aria-label="Contact support"
                 (click)="contactSupport()"
                 (keydown.enter)="contactSupport()"
@@ -101,6 +110,11 @@
           Contacter le support
         </button>
       </div>
+    </div>
+
+    <div *ngIf="proofUrl" class="proof-container mb-4">
+      <button class="close-proof" (click)="closeProof()" aria-label="Close proof">X</button>
+      <iframe [src]="proofUrl" class="proof-frame"></iframe>
     </div>
 
     <div class="mb-4">
