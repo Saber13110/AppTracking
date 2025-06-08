@@ -150,6 +150,17 @@ On the first run Docker Compose builds the backend and frontend images. Once the
 - Frontend: http://localhost:4200
 - Redis: localhost:6379
 
+## Running Tests
+
+Install the backend dependencies and the packages listed in
+`requirements-test.txt` before executing the test suite:
+
+```bash
+pip install -r backend/requirements.txt
+pip install -r requirements-test.txt
+pytest
+```
+
 ## Password requirements
 
 User registration requires a strong password. The password must be at least 8
