@@ -17,6 +17,7 @@ import { TrackingOptionsComponent } from '../../shared/components/tracking-optio
 import { TrackingMobileComponent } from '../../shared/components/tracking-mobile/tracking-mobile.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 import { TrackingFormComponent } from '../../shared/components/tracking-form/tracking-form.component';
+import { GlossaryComponent } from '../../shared/components/glossary/glossary.component';
 
 // Import Google Maps types
 declare global {
@@ -83,7 +84,8 @@ interface ServiceItem {
     TrackingOptionsComponent,
     TrackingMobileComponent,
     TrackingFormComponent,
-    FooterComponent
+    FooterComponent,
+    GlossaryComponent
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],

@@ -1,0 +1,11 @@
+<section class="glossary">
+  <div class="container">
+    <h2 class="section-title">Tracking Status Glossary</h2>
+    <ul class="status-list">
+      <li *ngFor="let item of statuses">
+        <span class="status-term">{{ item.term }}:</span>
+        <span class="status-def">{{ item.description }}</span>
+      </li>
+    </ul>
+  </div>
+</section>
