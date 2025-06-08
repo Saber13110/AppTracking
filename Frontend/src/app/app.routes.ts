@@ -9,6 +9,8 @@ import { ResetPasswordComponent } from './features/auth/reset-password/reset-pas
 import { TrackResultComponent } from './features/tracking/track-result/track-result.component';
 import { GoogleCallbackComponent } from './features/auth/google-callback/google-callback.component';
 import { NotificationsComponent } from './features/notifications/notifications.component';
+import { SetupTwofaComponent } from './features/auth/setup-twofa/setup-twofa.component';
+import { VerifyTwofaComponent } from './features/auth/verify-twofa/verify-twofa.component';
 
 // Assuming you might have other standalone components or lazy-loaded routes
 // import { HomeComponent } from './features/home/home.component';
@@ -33,4 +35,6 @@ export const routes: Routes = [
   { path: 'auth/callback', component: GoogleCallbackComponent },
   { path: 'auth/forgot-password', component: ForgotPasswordComponent },
   { path: 'auth/reset-password', component: ResetPasswordComponent },
+  { path: 'auth/setup-2fa', component: SetupTwofaComponent, canActivate: [AuthGuard] },
+  { path: 'auth/verify-2fa', component: VerifyTwofaComponent, canActivate: [AuthGuard] },
 ];

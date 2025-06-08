@@ -29,6 +29,8 @@ class UserDB(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     role = Column(SQLEnum(UserRole), default=UserRole.client, nullable=False)
     last_login_at = Column(DateTime(timezone=True), nullable=True)
+    twofa_secret = Column(String, nullable=True)
+    is_twofa_enabled = Column(Boolean, default=False)
 
 # Modèles Pydantic pour l'API
 class UserBase(BaseModel):
@@ -50,6 +52,7 @@ class User(UserBase):
     created_at: datetime
     role: UserRole = UserRole.client
     last_login_at: Optional[datetime] = None
+    is_twofa_enabled: bool = False
 
     class Config:
         from_attributes = True

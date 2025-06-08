@@ -1,7 +1,8 @@
 from datetime import timedelta
 import secrets
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm as BaseOAuth2PasswordRequestForm
+from fastapi import Form
 from fastapi_limiter.depends import RateLimiter
 from sqlalchemy.orm import Session
 
@@ -18,10 +19,34 @@ from ..services.auth import (
     create_password_reset_token,
     verify_password_reset_token,
     get_password_hash,
+    setup_twofa,
+    verify_twofa,
 )
 from ..config import settings
 from ..database import get_db
 from ..services.email import send_verification_email, send_password_reset_email
+
+
+class OAuth2PasswordRequestForm(BaseOAuth2PasswordRequestForm):
+    def __init__(
+        self,
+        grant_type: str | None = Form(None, regex="password"),
+        username: str = Form(...),
+        password: str = Form(...),
+        scope: str = Form(""),
+        client_id: str | None = Form(None),
+        client_secret: str | None = Form(None),
+        totp_code: str | None = Form(None),
+    ):
+        super().__init__(
+            grant_type=grant_type,
+            username=username,
+            password=password,
+            scope=scope,
+            client_id=client_id,
+            client_secret=client_secret,
+        )
+        self.totp_code = totp_code
 
 router = APIRouter(
     prefix="/auth",
@@ -36,6 +61,10 @@ class PasswordResetRequest(BaseModel):
 class PasswordReset(BaseModel):
     token: str
     new_password: str
+
+
+class TwoFACode(BaseModel):
+    code: str
 
 @router.post("/register", response_model=User)
 async def register(user: UserCreate, db: Session = Depends(get_db)):
@@ -104,6 +133,29 @@ async def reset_password(payload: PasswordReset, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "Password updated"}
 
+
+@router.post("/setup-2fa")
+async def setup_2fa(
+    current_user: UserDB = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    secret = setup_twofa(db, current_user)
+    import pyotp
+
+    uri = pyotp.totp.TOTP(secret).provisioning_uri(name=current_user.email, issuer_name="AppTracking")
+    return {"otpauth_url": uri, "secret": secret}
+
+
+@router.post("/verify-2fa")
+async def verify_2fa(
+    payload: TwoFACode,
+    current_user: UserDB = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    if not verify_twofa(db, current_user, payload.code, activate=True):
+        raise HTTPException(status_code=400, detail="Invalid TOTP code")
+    return {"message": "2FA enabled"}
+
 @router.post(
     "/token",
     response_model=Token,
@@ -121,13 +173,21 @@ async def login(
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     if not user.is_verified:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Email not verified",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+    if user.is_twofa_enabled:
+        if not form_data.totp_code or not verify_twofa(db, user, form_data.totp_code):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid or missing TOTP code",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
     
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
