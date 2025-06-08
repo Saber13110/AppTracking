@@ -13,5 +13,3 @@ backend/venv/
 # Ignore frontend dependencies and build outputs
 Frontend/node_modules/
 Frontend/dist/
-# Include if Docker builds create one
-frontend/node_modules/
