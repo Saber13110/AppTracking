@@ -37,6 +37,12 @@
               Track
             </button>
           </div>
+          <div class="error-message" *ngIf="trackingForm.get('trackingNumber')?.errors?.required && trackingForm.get('trackingNumber')?.touched">
+            Tracking number is required.
+          </div>
+          <div class="error-message" *ngIf="trackingForm.get('trackingNumber')?.errors?.pattern && trackingForm.get('trackingNumber')?.touched">
+            Tracking number must be alphanumeric.
+          </div>
           <!-- Barcode scan option removed from default form -->
         </form>
       </div>
@@ -62,6 +68,12 @@
               <i class="fas fa-download"></i>
               Download Proof
             </button>
+          </div>
+          <div class="error-message" *ngIf="trackingForm.get('trackingNumber')?.errors?.required && trackingForm.get('trackingNumber')?.touched">
+            Tracking number is required.
+          </div>
+          <div class="error-message" *ngIf="trackingForm.get('trackingNumber')?.errors?.pattern && trackingForm.get('trackingNumber')?.touched">
+            Tracking number must be alphanumeric.
           </div>
         </form>
       </div>
