@@ -6,6 +6,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { TrackingService } from '../tracking/services/tracking.service';
+import { TrackingHistoryService } from '../../core/services/tracking-history.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { AnalyticsService } from '../../core/services/analytics.service';
 import { Subject, Observable } from 'rxjs';
@@ -131,7 +132,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private trackingService: TrackingService,
     private notificationService: NotificationService,
-    private analytics: AnalyticsService
+    private analytics: AnalyticsService,
+    private history: TrackingHistoryService
   ) {
     this.trackingForm = this.fb.group({
       trackingNumber: ['', [Validators.required, Validators.pattern('^[A-Z0-9]{10,}$')]],
@@ -366,6 +368,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.trackingService.trackNumber(identifier, name).subscribe({
       next: (response) => {
         if (response.success && response.data) {
+          this.history.addIdentifier(identifier);
           this.router.navigate(['/track', identifier]);
           } else {
           this.addNotification('error', 'Erreur', response.error || 'Erreur inconnue');

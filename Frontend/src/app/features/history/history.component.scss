@@ -1,0 +1,22 @@
+.history {
+  padding: 1rem;
+}
+
+.history ul {
+  list-style: none;
+  padding: 0;
+}
+
+.history li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.history li a {
+  flex: 1;
+}
+
+.history button {
+  margin-left: 0.5rem;
+}
