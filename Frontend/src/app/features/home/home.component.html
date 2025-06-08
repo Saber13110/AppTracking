@@ -10,15 +10,36 @@
     </button>
 
     <div class="hero__features">
-      <div class="hero__feature-card" [class.active]="selectedHeroFeature === 'barcode_scan'" (click)="selectHeroFeature('barcode_scan')">
+      <div class="hero__feature-card"
+           role="button"
+           aria-label="Scan barcode feature"
+           tabindex="0"
+           [class.active]="selectedHeroFeature === 'barcode_scan'"
+           (click)="selectHeroFeature('barcode_scan')"
+           (keydown.enter)="selectHeroFeature('barcode_scan')"
+           (keydown.space)="selectHeroFeature('barcode_scan')">
         <i class="fas fa-barcode hero__feature-icon"></i>
         <p class="hero__feature-text">Scan<br>Barcode</p>
       </div>
-      <div class="hero__feature-card" [class.active]="selectedHeroFeature === null" (click)="selectHeroFeature(null)">
+      <div class="hero__feature-card"
+           role="button"
+           aria-label="Track by ID feature"
+           tabindex="0"
+           [class.active]="selectedHeroFeature === null"
+           (click)="selectHeroFeature(null)"
+           (keydown.enter)="selectHeroFeature(null)"
+           (keydown.space)="selectHeroFeature(null)">
         <i class="fas fa-search hero__feature-icon"></i>
         <p class="hero__feature-text">TRACK</p>
       </div>
-      <div class="hero__feature-card" [class.active]="selectedHeroFeature === 'obtain_proof'" (click)="selectHeroFeature('obtain_proof')">
+      <div class="hero__feature-card"
+           role="button"
+           aria-label="Obtain proof feature"
+           tabindex="0"
+           [class.active]="selectedHeroFeature === 'obtain_proof'"
+           (click)="selectHeroFeature('obtain_proof')"
+           (keydown.enter)="selectHeroFeature('obtain_proof')"
+           (keydown.space)="selectHeroFeature('obtain_proof')">
         <i class="fas fa-file-alt hero__feature-icon"></i>
         <p class="hero__feature-text">Obtain your<br>proof</p>
       </div>
@@ -51,7 +72,13 @@
       <!-- Barcode Scan Option -->
       <div *ngIf="selectedHeroFeature === 'barcode_scan'" class="barcode-scan-option">
         <p>Upload a barcode image or use Pro Scan to track your package.</p>
-        <div class="upload-box" (click)="fileInput.click()">
+        <div class="upload-box"
+             role="button"
+             aria-label="Upload barcode image"
+             tabindex="0"
+             (click)="fileInput.click()"
+             (keydown.enter)="fileInput.click()"
+             (keydown.space)="fileInput.click()">
           <i class="fas fa-cloud-upload-alt upload-icon"></i>
           <p>Drag and drop or click to upload</p>
           <input type="file" accept="image/*" (change)="onBarcodeFileSelected($event)" #fileInput hidden>
@@ -171,9 +198,14 @@
     <div class="locations-container">
       <div id="map" class="map-container"></div>
       <div class="locations-list">
-        <div class="location-card" *ngFor="let location of locations" 
+        <div class="location-card" *ngFor="let location of locations"
+             role="button"
+             [attr.aria-label]="'Select ' + location.name + ' location'"
+             tabindex="0"
              [class.active]="location === selectedLocation"
-             (click)="selectLocation(location)">
+             (click)="selectLocation(location)"
+             (keydown.enter)="selectLocation(location)"
+             (keydown.space)="selectLocation(location)">
           <h3>{{location.name}}</h3>
           <div class="location-details">
             <p><i class="fas fa-map-marker-alt"></i> {{location.address}}</p>
@@ -241,7 +273,10 @@
        [class.notification--error]="notification.type === 'error'">
     <div class="notification__header">
       <span class="notification__title">{{notification.title}}</span>
-      <button class="notification__close" (click)="removeNotification(notification)">
+      <button class="notification__close"
+              aria-label="Close notification"
+              tabindex="0"
+              (click)="removeNotification(notification)">
         <i class="fas fa-times"></i>
       </button>
     </div>

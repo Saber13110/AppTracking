@@ -134,6 +134,11 @@ $error-color: #dc3545;
     transition: all 0.3s ease;
     border: 2px solid transparent;
 
+    &:focus {
+      outline: 2px solid $primary-color;
+      outline-offset: 2px;
+    }
+
     &:hover {
       border-color: $primary-color;
       transform: translateY(-5px);
@@ -255,6 +260,11 @@ $error-color: #dc3545;
   flex-direction: column;
   align-items: center;
   gap: 15px;
+
+  &:focus {
+    outline: 2px dashed $primary-color;
+    outline-offset: 2px;
+  }
 
   &:hover {
     border-color: $primary-color;
@@ -569,6 +579,11 @@ $error-color: #dc3545;
   cursor: pointer;
   transition: all 0.3s ease;
 
+  &:focus {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
+
   &:hover {
     border-color: $primary-color;
     transform: translateY(-2px);
@@ -626,6 +641,11 @@ $error-color: #dc3545;
   align-items: center;
   cursor: pointer;
   transition: all 0.3s ease;
+
+  &:focus {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
 
   &:hover {
     border-color: $primary-color;
@@ -785,6 +805,11 @@ $error-color: #dc3545;
     color: color.mix($text-color, white, 80%);
     cursor: pointer;
     padding: 0.25rem;
+
+    &:focus {
+      outline: 2px solid $primary-color;
+      outline-offset: 2px;
+    }
     
     &:hover {
       color: $text-color;
