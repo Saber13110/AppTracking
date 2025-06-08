@@ -8,6 +8,7 @@
                        (formSubmit)="submitNumber()">
       Track
     </app-tracking-form>
+    <app-barcode-upload *ngIf="activeTab==='number'" [control]="numberForm.get('trackingNumber')"></app-barcode-upload>
 
     <app-tracking-form *ngIf="activeTab==='reference'"
                        [form]="referenceForm"
