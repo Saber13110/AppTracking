@@ -4,11 +4,12 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { TrackingService } from '../tracking/services/tracking.service';
 import { AnalyticsService } from '../../core/services/analytics.service';
 import { BarcodeUploadComponent } from '../barcode-upload/barcode-upload.component';
+import { TrackingFormComponent } from '../../shared/components/tracking-form/tracking-form.component';
 
 @Component({
   selector: 'app-all-tracking-services',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, BarcodeUploadComponent],
+  imports: [CommonModule, ReactiveFormsModule, BarcodeUploadComponent, TrackingFormComponent],
   templateUrl: './all-tracking-services.component.html',
   styleUrls: ['./all-tracking-services.component.scss']
 })

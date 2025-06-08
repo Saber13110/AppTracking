@@ -50,23 +50,10 @@
 
       <!-- Default tracking form (TRACK) -->
       <div *ngIf="selectedHeroFeature === null" class="tracking-form">
-        <form [formGroup]="trackingForm" (ngSubmit)="onSubmit()">
-          <div class="tracking-form__input-group">
-            <input type="text" formControlName="trackingNumber" class="tracking-form__input" placeholder="Enter your tracking number">
-            <input type="text" formControlName="packageName" class="tracking-form__input" placeholder="Package name (optional)">
-            <button type="submit" class="tracking-form__btn">
-              <i class="fas fa-search"></i>
-              Track
-            </button>
-          </div>
-          <div class="error-message" *ngIf="trackingForm.get('trackingNumber')?.errors?.required && trackingForm.get('trackingNumber')?.touched">
-            Tracking number is required.
-          </div>
-          <div class="error-message" *ngIf="trackingForm.get('trackingNumber')?.errors?.pattern && trackingForm.get('trackingNumber')?.touched">
-            Tracking number must be alphanumeric.
-          </div>
-          <!-- Barcode scan option removed from default form -->
-        </form>
+        <app-tracking-form
+          [form]="trackingForm"
+          (formSubmit)="onSubmit()"
+        >Track</app-tracking-form>
       </div>
 
       <!-- Barcode Scan Option -->
@@ -93,21 +80,12 @@
       <!-- Obtain Your Proof Option -->
       <div *ngIf="selectedHeroFeature === 'obtain_proof'" class="obtain-proof-option">
         <p>Enter tracking ID to download your proof of delivery.</p>
-        <form [formGroup]="trackingForm" (ngSubmit)="downloadProof()">
-          <div class="tracking-form__input-group">
-            <input type="text" formControlName="trackingNumber" class="tracking-form__input" placeholder="Enter tracking ID">
-            <button type="submit" class="tracking-form__btn">
-              <i class="fas fa-download"></i>
-              Download Proof
-            </button>
-          </div>
-          <div class="error-message" *ngIf="trackingForm.get('trackingNumber')?.errors?.required && trackingForm.get('trackingNumber')?.touched">
-            Tracking number is required.
-          </div>
-          <div class="error-message" *ngIf="trackingForm.get('trackingNumber')?.errors?.pattern && trackingForm.get('trackingNumber')?.touched">
-            Tracking number must be alphanumeric.
-          </div>
-        </form>
+        <app-tracking-form
+          [form]="trackingForm"
+          [includePackageName]="false"
+          buttonIcon="fas fa-download"
+          (formSubmit)="downloadProof()"
+        >Download Proof</app-tracking-form>
       </div>
 
     </div>

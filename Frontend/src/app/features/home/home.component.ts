@@ -16,6 +16,7 @@ import { BarcodeUploadComponent } from '../barcode-upload/barcode-upload.compone
 import { TrackingOptionsComponent } from '../../shared/components/tracking-options/tracking-options.component';
 import { TrackingMobileComponent } from '../../shared/components/tracking-mobile/tracking-mobile.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
+import { TrackingFormComponent } from '../../shared/components/tracking-form/tracking-form.component';
 
 // Import Google Maps types
 declare global {
@@ -81,6 +82,7 @@ interface ServiceItem {
     BarcodeUploadComponent,
     TrackingOptionsComponent,
     TrackingMobileComponent,
+    TrackingFormComponent,
     FooterComponent
   ],
   templateUrl: './home.component.html',

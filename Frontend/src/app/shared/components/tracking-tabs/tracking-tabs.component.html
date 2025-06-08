@@ -1,0 +1,6 @@
+<div class="tracking-tabs">
+  <button class="tab" [class.active]="active==='number'" (click)="setTab('number')">Numéro</button>
+  <button class="tab" [class.active]="active==='reference'" (click)="setTab('reference')">Référence</button>
+  <button class="tab" [class.active]="active==='tcn'" (click)="setTab('tcn')">TCN</button>
+  <button class="tab" [class.active]="active==='proof'" (click)="setTab('proof')">Preuve</button>
+</div>
