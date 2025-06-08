@@ -2,8 +2,12 @@
   <h2>Tracking History</h2>
   <ng-container *ngIf="history.length; else none">
     <ul>
-      <li *ngFor="let id of history">
-        <a [routerLink]="['/track', id]">{{ id }}</a>
+      <li *ngFor="let id of history" class="history-item">
+        <button class="star" role="button" aria-label="Toggle favorite" (click)="toggleFavorite(id)">
+          <i class="fas" [ngClass]="historyService.isFavorite(id) ? 'fa-star' : 'fa-star-o'"></i>
+        </button>
+        <a [routerLink]="['/track', id]">{{ historyService.getNickname(id) || id }}</a>
+        <button role="button" (click)="editNickname(id)">Edit</button>
         <button role="button"
                 tabindex="0"
                 aria-label="Delete {{id}} from history"

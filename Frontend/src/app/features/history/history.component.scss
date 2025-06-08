@@ -13,6 +13,16 @@
   margin-bottom: 0.5rem;
 }
 
+.history .star {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.history .star .fa-star {
+  color: gold;
+}
+
 .history li a {
   flex: 1;
 }

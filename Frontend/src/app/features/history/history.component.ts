@@ -32,4 +32,17 @@ export class HistoryComponent implements OnInit {
     this.historyService.clear();
     this.loadHistory();
   }
+
+  toggleFavorite(id: string): void {
+    const newValue = !this.historyService.isFavorite(id);
+    this.historyService.setFavorite(id, newValue);
+  }
+
+  editNickname(id: string): void {
+    const current = this.historyService.getNickname(id) || '';
+    const value = window.prompt('Nickname', current);
+    if (value !== null) {
+      this.historyService.setNickname(id, value);
+    }
+  }
 }

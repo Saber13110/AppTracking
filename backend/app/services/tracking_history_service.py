@@ -17,6 +17,8 @@ class TrackingHistoryService:
         status: str | None = None,
         meta_data: dict | None = None,
         note: str | None = None,
+        nickname: str | None = None,
+        favorite: bool | None = False,
     ) -> TrackedShipmentDB | None:
         """Persist a search in the user's tracking history."""
         try:
@@ -26,6 +28,8 @@ class TrackingHistoryService:
                 status=status,
                 meta_data=meta_data or {},
                 note=note,
+                nickname=nickname,
+                favorite=favorite or False,
             )
             self.db.add(record)
             self.db.commit()
@@ -43,3 +47,24 @@ class TrackingHistoryService:
             .order_by(TrackedShipmentDB.created_at.desc())
             .all()
         )
+
+    def update_entry(self, entry_id: str, **fields) -> TrackedShipmentDB | None:
+        try:
+            record = (
+                self.db.query(TrackedShipmentDB)
+                .filter(TrackedShipmentDB.id == entry_id)
+                .first()
+            )
+            if not record:
+                return None
+
+            for key, value in fields.items():
+                setattr(record, key, value)
+
+            self.db.commit()
+            self.db.refresh(record)
+            return record
+        except Exception as e:
+            self.db.rollback()
+            logger.error(f"Failed to update history entry: {e}")
+            return None
