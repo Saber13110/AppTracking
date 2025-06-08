@@ -26,6 +26,13 @@ export class TrackResultComponent implements OnInit, OnDestroy {
   markers: any[] = [];
   polyline: google.maps.Polyline | null = null;
 
+  successMessage: string | null = null;
+
+  private showSuccess(message: string) {
+    this.successMessage = message;
+    setTimeout(() => (this.successMessage = null), 3000);
+  }
+
   constructor(
     private route: ActivatedRoute,
     private trackingService: TrackingService
@@ -64,19 +71,32 @@ export class TrackResultComponent implements OnInit, OnDestroy {
 
   copyTracking() {
     if (this.trackingInfo?.tracking_number) {
-      navigator.clipboard.writeText(this.trackingInfo.tracking_number);
+      navigator.clipboard.writeText(this.trackingInfo.tracking_number).then(() => {
+        this.showSuccess('Numéro copié dans le presse-papiers');
+      });
     }
   }
 
   shareTracking() {
-    if (navigator.share && this.trackingInfo) {
-      navigator.share({
-        title: 'Suivi de colis',
-        text: `Suivi ${this.trackingInfo.tracking_number}`,
-        url: window.location.href,
-      });
+    if (!this.trackingInfo) {
+      return;
+    }
+
+    const url = `${window.location.origin}/track/${this.trackingInfo.tracking_number}`;
+
+    if (navigator.share) {
+      navigator
+        .share({
+          title: 'Suivi de colis',
+          text: `Suivi ${this.trackingInfo.tracking_number}`,
+          url,
+        })
+        .then(() => this.showSuccess('Lien partagé avec succès'))
+        .catch(() => {
+          navigator.clipboard.writeText(url).then(() => this.showSuccess('Lien copié dans le presse-papiers'));
+        });
     } else {
-      this.copyTracking();
+      navigator.clipboard.writeText(url).then(() => this.showSuccess('Lien copié dans le presse-papiers'));
     }
   }
 

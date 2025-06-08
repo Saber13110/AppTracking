@@ -12,6 +12,10 @@
     {{ error }}
   </div>
 
+  <div *ngIf="successMessage" class="success-message">
+    {{ successMessage }}
+  </div>
+
   <!-- Tracking information -->
   <div *ngIf="!loading && trackingInfo">
     <div class="summary-card mb-4">
