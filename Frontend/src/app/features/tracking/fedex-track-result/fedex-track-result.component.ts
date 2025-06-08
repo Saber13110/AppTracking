@@ -1,9 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { TrackingService, TrackingInfo } from '../services/tracking.service';
 import { AnalyticsService } from '../../../core/services/analytics.service';
 import { showNotification } from '../../../shared/services/notification.util';
+import { ScheduleDialogComponent } from './schedule-dialog.component';
+import { ChangeAddressDialogComponent } from './change-address-dialog.component';
 
 interface FedexTrackingInfo extends TrackingInfo {
   currentLocation?: {
@@ -15,7 +19,13 @@ interface FedexTrackingInfo extends TrackingInfo {
 @Component({
   selector: 'app-fedex-track-result',
   standalone: true,
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatDialogModule,
+    ScheduleDialogComponent,
+    ChangeAddressDialogComponent
+  ],
   templateUrl: './fedex-track-result.component.html',
   styleUrls: ['./fedex-track-result.component.scss']
 })
@@ -37,7 +47,8 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private trackingService: TrackingService,
-    private analytics: AnalyticsService
+    private analytics: AnalyticsService,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -230,12 +241,40 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
   }
 
   openDialog(name: string): void {
-    this.analytics.logAction('open_dialog', name);
-    console.log('Opening dialog', name);
+    let component: any | null = null;
+    switch (name) {
+      case 'schedule':
+        component = ScheduleDialogComponent;
+        break;
+      case 'change-address':
+        component = ChangeAddressDialogComponent;
+        break;
+      default:
+        component = null;
+    }
+
+    if (component) {
+      this.dialog.open(component, { width: '400px' });
+      this.analytics.logAction('open_dialog', name);
+    }
   }
 
-  exportData(): void {
-    this.analytics.logAction('export_data');
-    console.log('Exporting tracking data');
+  exportData(format: 'pdf' | 'csv'): void {
+    if (!this.trackingData) {
+      return;
+    }
+
+    this.trackingService
+      .exportTracking(this.trackingData.tracking_number, format)
+      .subscribe(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${this.trackingData!.tracking_number}.${format}`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      });
+
+    this.analytics.logAction('export_data', format);
   }
 }
