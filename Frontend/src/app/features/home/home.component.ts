@@ -383,7 +383,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.trackingService.trackNumber(identifier, name).subscribe({
       next: (response) => {
         if (response.success && response.data) {
-          this.history.addIdentifier(identifier);
+          this.history.addIdentifier(identifier, { status: response.data.status?.status });
           this.router.navigate(['/track', identifier]);
           } else {
           this.addNotification('error', 'Erreur', response.error || 'Erreur inconnue');

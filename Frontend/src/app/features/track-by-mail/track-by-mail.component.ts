@@ -32,8 +32,8 @@ export class TrackByMailComponent {
       return;
     }
     const { trackingNumber, email, packageName } = this.form.value;
-    this.trackingService.trackNumber(trackingNumber, packageName).subscribe(() => {
-      this.history.addIdentifier(trackingNumber);
+    this.trackingService.trackNumber(trackingNumber, packageName).subscribe(res => {
+      this.history.addIdentifier(trackingNumber, { status: res.data?.status?.status });
       this.trackingService.trackByEmail(trackingNumber, email).subscribe(res => {
         this.result = res;
       });

@@ -1,24 +1,44 @@
 <div class="history">
   <h2>Tracking History</h2>
-  <ng-container *ngIf="history.length; else none">
-    <ul>
-      <li *ngFor="let id of history">
-        <a [routerLink]="['/track', id]">{{ id }}</a>
-        <button role="button"
-                tabindex="0"
-                aria-label="Delete {{id}} from history"
-                (click)="delete(id)"
-                (keydown.enter)="delete(id)"
-                (keydown.space)="delete(id)">Delete</button>
-      </li>
-    </ul>
-    <button role="button"
-            tabindex="0"
-            aria-label="Clear tracking history"
-            (click)="clear()"
-            (keydown.enter)="clear()"
-            (keydown.space)="clear()">Clear History</button>
+
+  <div class="filters" *ngIf="history.length">
+    <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()" placeholder="Search number" aria-label="Search tracking number">
+    <select [(ngModel)]="statusFilter" (change)="applyFilters()" aria-label="Filter by status">
+      <option value="">All statuses</option>
+      <option value="delivered">Delivered</option>
+      <option value="transit">In transit</option>
+    </select>
+  </div>
+
+  <ng-container *ngIf="filteredHistory.length; else none">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+        <tr>
+          <th>Number</th>
+          <th>Sender</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th class="sr-only">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let item of filteredHistory" [class.delivered]="isDelivered(item)">
+          <td>{{ item.tracking_number }}</td>
+          <td>{{ item.sender || '-' }}</td>
+          <td>{{ item.last_consulted | date:'short' }}</td>
+          <td>{{ item.status || '-' }}</td>
+          <td>
+            <a [routerLink]="['/track', item.tracking_number]" class="track-btn">{{ isDelivered(item) ? 'View' : 'Track' }}</a>
+            <button role="button" aria-label="Delete {{item.tracking_number}}" (click)="delete(item.tracking_number)">Delete</button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <button role="button" class="clear-btn" (click)="clear()">Clear History</button>
   </ng-container>
+
   <ng-template #none>
     <p>No history yet.</p>
   </ng-template>

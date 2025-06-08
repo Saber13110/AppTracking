@@ -4,6 +4,13 @@ import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
 
+export interface HistoryRecord {
+  tracking_number: string;
+  sender?: string;
+  status?: string;
+  last_consulted?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -13,14 +20,36 @@ export class TrackingHistoryService {
 
   constructor(private http: HttpClient, private auth: AuthService) {}
 
-  getHistory(): string[] {
+  getHistory(): HistoryRecord[] {
     const raw = localStorage.getItem(this.storageKey);
-    return raw ? JSON.parse(raw) as string[] : [];
+    if (!raw) {
+      return [];
+    }
+    try {
+      const data = JSON.parse(raw);
+      if (Array.isArray(data)) {
+        if (data.length && typeof data[0] === 'string') {
+          return (data as string[]).map(num => ({ tracking_number: num }));
+        }
+        return data as HistoryRecord[];
+      }
+      return [];
+    } catch {
+      return [];
+    }
   }
 
-  addIdentifier(id: string): void {
-    const history = this.getHistory().filter(item => item !== id);
-    history.unshift(id);
+  addIdentifier(id: string, extras: Partial<HistoryRecord> = {}): void {
+    this.addRecord({
+      tracking_number: id,
+      last_consulted: new Date().toISOString(),
+      ...extras
+    });
+  }
+
+  private addRecord(record: HistoryRecord): void {
+    const history = this.getHistory().filter(h => h.tracking_number !== record.tracking_number);
+    history.unshift(record);
     if (history.length > this.maxItems) {
       history.pop();
     }
@@ -28,7 +57,7 @@ export class TrackingHistoryService {
   }
 
   removeIdentifier(id: string): void {
-    const history = this.getHistory().filter(item => item !== id);
+    const history = this.getHistory().filter(item => item.tracking_number !== id);
     localStorage.setItem(this.storageKey, JSON.stringify(history));
   }
 
@@ -43,11 +72,21 @@ export class TrackingHistoryService {
     }
     try {
       const records = await firstValueFrom(
-        this.http.get<{ tracking_number: string }[]>(`${environment.apiUrl}/history`)
+        this.http.get<HistoryRecord[]>(`${environment.apiUrl}/history`)
       );
-      const serverNumbers = records.map(r => r.tracking_number);
-      const merged = Array.from(new Set([...serverNumbers, ...this.getHistory()]));
-      localStorage.setItem(this.storageKey, JSON.stringify(merged.slice(0, this.maxItems)));
+      const mergedMap = new Map<string, HistoryRecord>();
+      records.forEach(r => mergedMap.set(r.tracking_number, r));
+      this.getHistory().forEach(item => {
+        if (!mergedMap.has(item.tracking_number)) {
+          mergedMap.set(item.tracking_number, item);
+        }
+      });
+      const merged = Array.from(mergedMap.values()).sort((a, b) => {
+        const da = new Date(a.last_consulted || '').getTime();
+        const db = new Date(b.last_consulted || '').getTime();
+        return db - da;
+      }).slice(0, this.maxItems);
+      localStorage.setItem(this.storageKey, JSON.stringify(merged));
     } catch {
       // ignore errors
     }
