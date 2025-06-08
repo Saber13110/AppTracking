@@ -176,3 +176,40 @@
   border-radius: 4px;
   cursor: pointer;
 }
+
+/* Timeline styling */
+.timeline {
+  position: relative;
+  margin-top: 1rem;
+  padding-left: 2rem;
+  border-left: 2px solid #4d148c;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+}
+
+.timeline-icon {
+  position: absolute;
+  left: -1.1rem;
+  top: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background: #ff6600;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.timeline-item.current .timeline-icon {
+  background: #4d148c;
+}
+
+.timeline-item.current .status {
+  font-weight: 700;
+}
