@@ -1,0 +1,32 @@
+<div class="ats">
+  <h1>All Tracking Services</h1>
+  <div class="tabs">
+    <button class="tab" [class.active]="activeTab==='single'" (click)="switchTab('single')">Single</button>
+    <button class="tab" [class.active]="activeTab==='bulk'" (click)="switchTab('bulk')">Bulk</button>
+    <button class="tab" [class.active]="activeTab==='barcode'" (click)="switchTab('barcode')">Barcode</button>
+  </div>
+
+  <div class="tab-content">
+    <form *ngIf="activeTab==='single'" [formGroup]="singleForm" (ngSubmit)="submitSingle()" class="single-form">
+      <label>Tracking Number
+        <input formControlName="trackingNumber" />
+      </label>
+      <div class="error" *ngIf="singleForm.get('trackingNumber')?.touched && singleForm.get('trackingNumber')?.invalid">
+        Invalid tracking number
+      </div>
+      <button type="submit">Track</button>
+    </form>
+
+    <form *ngIf="activeTab==='bulk'" [formGroup]="bulkForm" (ngSubmit)="submitBulk()" class="bulk-form">
+      <label>Tracking Numbers
+        <textarea formControlName="trackingNumbers" rows="5" placeholder="One ID per line"></textarea>
+      </label>
+      <button type="submit">Track All</button>
+    </form>
+
+    <div *ngIf="activeTab==='barcode'" class="barcode-form">
+      <p>Scan your barcode using the camera.</p>
+      <button type="button" (click)="startBarcodeScan()">Start Scan</button>
+    </div>
+  </div>
+</div>
