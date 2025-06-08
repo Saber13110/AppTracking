@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TrackingService, TrackingResponse } from '../tracking/services/tracking.service';
+import { TrackingHistoryService } from '../../core/services/tracking-history.service';
 
 @Component({
   selector: 'app-track-by-mail',
@@ -14,7 +15,11 @@ export class TrackByMailComponent {
   form: FormGroup;
   result: TrackingResponse | null = null;
 
-  constructor(private fb: FormBuilder, private trackingService: TrackingService) {
+  constructor(
+    private fb: FormBuilder,
+    private trackingService: TrackingService,
+    private history: TrackingHistoryService
+  ) {
     this.form = this.fb.group({
       trackingNumber: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
@@ -28,6 +33,7 @@ export class TrackByMailComponent {
     }
     const { trackingNumber, email, packageName } = this.form.value;
     this.trackingService.trackNumber(trackingNumber, packageName).subscribe(() => {
+      this.history.addIdentifier(trackingNumber);
       this.trackingService.trackByEmail(trackingNumber, email).subscribe(res => {
         this.result = res;
       });

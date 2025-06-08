@@ -1,0 +1,15 @@
+<div class="history">
+  <h2>Tracking History</h2>
+  <ng-container *ngIf="history.length; else none">
+    <ul>
+      <li *ngFor="let id of history">
+        <a [routerLink]="['/track', id]">{{ id }}</a>
+        <button (click)="delete(id)">Delete</button>
+      </li>
+    </ul>
+    <button (click)="clear()">Clear History</button>
+  </ng-container>
+  <ng-template #none>
+    <p>No history yet.</p>
+  </ng-template>
+</div>

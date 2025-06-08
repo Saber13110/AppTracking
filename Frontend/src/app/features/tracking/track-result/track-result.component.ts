@@ -3,6 +3,7 @@ import { trigger, transition, style, animate, query, stagger } from '@angular/an
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { TrackingService, TrackingInfo } from '../services/tracking.service';
+import { TrackingHistoryService } from '../../../core/services/tracking-history.service';
 import { AnalyticsService } from '../../../core/services/analytics.service';
 import { showNotification } from '../../../shared/services/notification.util';
 import { environment } from '../../../../environments/environment';
@@ -43,7 +44,8 @@ export class TrackResultComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private trackingService: TrackingService,
-    private analytics: AnalyticsService
+    private analytics: AnalyticsService,
+    private history: TrackingHistoryService
   ) {}
 
   ngOnInit() {
@@ -63,6 +65,7 @@ export class TrackResultComponent implements OnInit, OnDestroy {
       next: (response) => {
         if (response.success && response.data) {
           this.trackingInfo = response.data;
+          this.history.addIdentifier(identifier);
           this.waitForGoogleMaps().then(() => this.initializeMap());
         } else {
           this.error = response.error || 'Impossible de récupérer les informations de suivi';

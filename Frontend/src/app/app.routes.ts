@@ -18,6 +18,7 @@ import { SetupTwofaComponent } from './features/auth/setup-twofa/setup-twofa.com
 import { VerifyTwofaComponent } from './features/auth/verify-twofa/verify-twofa.component';
 import { ResendVerificationComponent } from './features/auth/resend-verification/resend-verification.component';
 import { NewsDetailComponent } from './features/news/news-detail.component';
+import { HistoryComponent } from './features/history/history.component';
 import { NotFoundComponent } from './shared/not-found.component';
 
 // Assuming you might have other standalone components or lazy-loaded routes
@@ -39,6 +40,7 @@ export const routes: Routes = [
   { path: 'track/:identifier', component: TrackResultComponent, canActivate: [AuthGuard] },
   { path: 'fedex-track/:identifier', component: FedexTrackResultComponent, canActivate: [AuthGuard] },
   { path: 'notifications', component: NotificationsComponent, canActivate: [AuthGuard] },
+  { path: 'history', component: HistoryComponent, canActivate: [AuthGuard] },
   // Service routes
   { path: 'services/track-by-mail', component: TrackByMailComponent, canActivate: [AuthGuard] },
   { path: 'services/notifications', component: NotificationOptionsComponent, canActivate: [AuthGuard] },
