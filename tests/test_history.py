@@ -69,3 +69,48 @@ def test_delete_history_endpoint(db_session):
     asyncio.run(history_router.delete_history(user, db_session))
     remaining = service.get_history(user.id)
     assert remaining == []
+
+
+def _read_streaming_response(resp):
+    async def _read():
+        chunks = []
+        async for chunk in resp.body_iterator:
+            chunks.append(chunk)
+        return b"".join(chunks)
+
+    return asyncio.run(_read())
+
+
+def test_get_history_endpoint_authenticated(db_session):
+    user = create_user(db_session)
+    service = TrackingHistoryService(db_session)
+    service.log_search(user.id, "XYZ", status="OK")
+
+    records = asyncio.run(history_router.get_history(user, db_session))
+    assert len(records) == 1
+    assert records[0].tracking_number == "XYZ"
+
+
+def test_get_history_endpoint_unauthenticated(db_session):
+    from starlette.requests import Request
+    from fastapi import HTTPException
+
+    req = Request({"type": "http", "headers": []})
+    with pytest.raises(HTTPException):
+        asyncio.run(auth.get_current_user(req, db_session, token=None))
+
+
+def test_export_history_csv_and_pdf(db_session):
+    user = create_user(db_session)
+    service = TrackingHistoryService(db_session)
+    service.log_search(user.id, "CSV1", status="OK")
+
+    csv_resp = asyncio.run(history_router.export_history("csv", user, db_session))
+    csv_content = _read_streaming_response(csv_resp)
+    assert b"tracking_number" in csv_content
+    assert csv_resp.headers["Content-Disposition"] == "attachment; filename=history.csv"
+
+    pdf_resp = asyncio.run(history_router.export_history("pdf", user, db_session))
+    pdf_content = _read_streaming_response(pdf_resp)
+    assert pdf_content.startswith(b"%PDF")
+    assert pdf_resp.headers["Content-Disposition"] == "attachment; filename=history.pdf"
