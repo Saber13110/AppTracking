@@ -27,7 +27,9 @@ class Settings(BaseSettings):
     # Security
     SECRET_KEY: Optional[str] = os.environ.get("SECRET_KEY")
     if not SECRET_KEY:
-        raise ValueError("SECRET_KEY must be set")
+        raise ValueError(
+            "SECRET_KEY must be set (see README: Environment Variables)"
+        )
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
