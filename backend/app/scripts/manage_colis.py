@@ -141,25 +141,25 @@ def get_db():
 def get_db_session():
     return SessionLocal()
 
-async def create_colis_entry(db: Session, fedex_id: str, description: str = "Colis créé via script"):
+def create_colis_entry(db: Session, fedex_id: str, description: str = "Colis créé via script"):
     """Creates a single colis entry using ColisService"""
     colis_data = ColisCreate(id=fedex_id, description=description)
     colis_service = ColisService(db)
     try:
-        db_colis = await colis_service.create_colis(colis_data)
+        db_colis = colis_service.create_colis(colis_data)
         print(f"Successfully created colis with ID: {db_colis.id}, Reference: {db_colis.reference}, TCN: {db_colis.tcn}, Code Barre: {db_colis.code_barre}")
         return db_colis
     except Exception as e:
         print(f"Error creating colis with ID {fedex_id}: {e}")
         return None
 
-async def bulk_create_colis(fedex_ids: List[str]):
+def bulk_create_colis(fedex_ids: List[str]):
     """Creates multiple colis entries from a list of FedEx IDs"""
     print(f"Attempting to create {len(fedex_ids)} colis entries...")
     db = get_db_session()
     try:
         for fedex_id in fedex_ids:
-            await create_colis_entry(db, fedex_id)
+            create_colis_entry(db, fedex_id)
         db.commit()
         print("Bulk creation process finished.")
     except Exception as e:
@@ -168,7 +168,7 @@ async def bulk_create_colis(fedex_ids: List[str]):
     finally:
         db.close()
 
-async def main():
+def main():
     args = sys.argv[1:]
     if not args:
         print("Usage: python -m app.scripts.manage_colis [command] [options]")
@@ -182,7 +182,7 @@ async def main():
             print("Usage: python -m app.scripts.manage_colis bulk_create [fedex_id1] [fedex_id2] ...")
             return
         fedex_ids = args[1:]
-        await bulk_create_colis(fedex_ids)
+        bulk_create_colis(fedex_ids)
     elif command == "create":
         if len(args) < 2:
             print("Usage: python -m app.scripts.manage_colis create [fedex_id] [description]")
@@ -190,7 +190,7 @@ async def main():
         fedex_id = args[1]
         description = args[2] if len(args) > 2 else "Colis créé manuellement"
         db = get_db_session()
-        await create_colis_entry(db, fedex_id, description)
+        create_colis_entry(db, fedex_id, description)
         db.commit()
         db.close()
     elif command == "get":
@@ -200,7 +200,7 @@ async def main():
         value = args[1]
         db = get_db_session()
         colis_service = ColisService(db)
-        colis = await colis_service.get_colis_by_identifier(value)
+        colis = colis_service.get_colis_by_identifier(value)
         if colis:
             print("Colis Found:")
             print(f"  ID: {colis.id}")
@@ -220,7 +220,7 @@ async def main():
     elif command == "list":
         db = get_db_session()
         colis_service = ColisService(db)
-        colis_list, total = await colis_service.search_colis(ColisFilter(page=1, page_size=1000)) # List up to 1000 for simplicity
+        colis_list, total = colis_service.search_colis(ColisFilter(page=1, page_size=1000)) # List up to 1000 for simplicity
         print(f"Found {total} colis:")
         for colis in colis_list:
              print(f"- ID: {colis.id}, Ref: {colis.reference}, TCN: {colis.tcn}, CB: {colis.code_barre}, Status: {colis.status}")
@@ -235,7 +235,7 @@ async def main():
         db = get_db_session()
         colis_service = ColisService(db)
         colis_update = ColisUpdate(status=status, location=location)
-        updated_colis = await colis_service.update_colis(colis_id, colis_update)
+        updated_colis = colis_service.update_colis(colis_id, colis_update)
         if updated_colis:
              print(f"Colis {colis_id} updated successfully.")
         else:
@@ -248,7 +248,7 @@ async def main():
          colis_id = args[1]
          db = get_db_session()
         colis_service = ColisService(db)
-        deleted = await colis_service.delete_colis(colis_id)
+        deleted = colis_service.delete_colis(colis_id)
         if deleted:
             print(f"Colis {colis_id} deleted.")
         else:
@@ -260,5 +260,4 @@ async def main():
         print("Commands: create [fedex_id] [description], bulk_create [fedex_id1] [fedex_id2] ..., get [identifier], list, update [id] [status] [location], delete [id]")
 
 if __name__ == "__main__":
-    import asyncio
-    asyncio.run(main()) 
+    main()

@@ -47,7 +47,7 @@ async def create_package(
         colis_service = ColisService(db)
         
         # Create the colis
-        colis = await colis_service.create_colis(colis_data)
+        colis = colis_service.create_colis(colis_data)
         
         if not colis:
             return TrackingResponse(
@@ -62,7 +62,7 @@ async def create_package(
 
         # Track the newly created package
         fedex_service = FedExService()
-        response = await fedex_service.track_package(colis.id)
+        response = fedex_service.track_package(colis.id)
 
         # Add metadata about the identifier used
         if response.metadata:
@@ -108,7 +108,7 @@ async def track_package(
         fedex_service = FedExService()
 
         # Try to find the colis using any identifier type
-        colis = await colis_service.get_colis_by_identifier(identifier)
+        colis = colis_service.get_colis_by_identifier(identifier)
 
         if not colis:
             # If colis not found, try to create it with the identifier as FedEx ID
@@ -117,7 +117,7 @@ async def track_package(
                     id=identifier,
                     description=f"Package with FedEx ID {identifier}"
                 )
-                colis = await colis_service.create_colis(colis_data)
+                colis = colis_service.create_colis(colis_data)
                 if not colis:
                     return TrackingResponse(
                         success=False,
@@ -144,7 +144,7 @@ async def track_package(
         fedex_id = colis.id
 
         # Track via FedEx
-        response = await fedex_service.track_package(fedex_id)
+        response = fedex_service.track_package(fedex_id)
 
         # Add metadata about the identifier used
         if response.metadata:
@@ -186,7 +186,7 @@ async def track_multiple_packages(
     Track multiple packages (max 40)
     """
     tracking_service = TrackingService(db=db)
-    response = await tracking_service.track_multiple_packages(tracking_numbers)
+    response = tracking_service.track_multiple_packages(tracking_numbers)
     if not response:
         raise HTTPException(status_code=400, detail="Failed to track packages")
     return response
@@ -199,7 +199,7 @@ async def track_by_email(
 ):
     """Track a package and send the result via email."""
     fedex_service = FedExService()
-    response = await fedex_service.track_package(request.tracking_number)
+    response = fedex_service.track_package(request.tracking_number)
     if response.success:
         status = response.data.status if response.data else ""
         try:
@@ -219,7 +219,7 @@ async def search_trackings(
     """
     tracking_service = TrackingService(db=db)
     try:
-        results, total_count = await tracking_service.search_trackings(filters)
+        results, total_count = tracking_service.search_trackings(filters)
         return {
             "success": True,
             "data": results,
@@ -240,7 +240,7 @@ async def get_tracking_stats(
     """
     tracking_service = TrackingService(db=db)
     try:
-        stats = await tracking_service.get_tracking_stats()
+        stats = tracking_service.get_tracking_stats()
         return {
             "success": True,
             "data": stats
@@ -259,7 +259,7 @@ async def track_by_number(tracking_number: str, db: Session = Depends(get_db)):
 async def track_by_reference(reference: str, db: Session = Depends(get_db)):
     """Track a package using its reference."""
     colis_service = ColisService(db)
-    colis = await colis_service.get_colis_by_reference(reference)
+    colis = colis_service.get_colis_by_reference(reference)
     if not colis:
         raise HTTPException(status_code=404, detail="Colis not found")
     return await track_package(colis.id, db)
@@ -269,7 +269,7 @@ async def track_by_reference(reference: str, db: Session = Depends(get_db)):
 async def track_by_tcn(tcn: str, db: Session = Depends(get_db)):
     """Track a package using its TCN."""
     colis_service = ColisService(db)
-    colis = await colis_service.get_colis_by_tcn(tcn)
+    colis = colis_service.get_colis_by_tcn(tcn)
     if not colis:
         raise HTTPException(status_code=404, detail="Colis not found")
     return await track_package(colis.id, db)
@@ -283,7 +283,7 @@ async def export_tracking_events(
 ):
     """Export tracking events for a package in CSV or PDF format."""
     colis_service = ColisService(db)
-    colis = await colis_service.get_colis_by_identifier(identifier)
+    colis = colis_service.get_colis_by_identifier(identifier)
     if not colis:
         raise HTTPException(status_code=404, detail="Colis not found")
     events = colis.tracking_events

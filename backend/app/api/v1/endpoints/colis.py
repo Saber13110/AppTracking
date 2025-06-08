@@ -19,7 +19,7 @@ async def create_colis(
     """
     colis_service = ColisService(db)
     try:
-        return await colis_service.create_colis(colis)
+        return colis_service.create_colis(colis)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -32,7 +32,7 @@ async def list_colis(
     """
     colis_service = ColisService(db)
     try:
-        colis, _ = await colis_service.search_colis(ColisFilter(page=1, page_size=100))
+        colis, _ = colis_service.search_colis(ColisFilter(page=1, page_size=100))
         return colis
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -49,7 +49,7 @@ async def get_colis(
     colis_service = ColisService(db)
     try:
         # identifier_type is ignored; search by value across all identifier types
-        colis = await colis_service.get_colis_by_identifier(value)
+        colis = colis_service.get_colis_by_identifier(value)
         if not colis:
             raise HTTPException(status_code=404, detail="Colis not found")
         return colis
@@ -69,7 +69,7 @@ async def update_colis(
     """
     colis_service = ColisService(db)
     try:
-        updated_colis = await colis_service.update_colis(colis_id, colis_update)
+        updated_colis = colis_service.update_colis(colis_id, colis_update)
         if not updated_colis:
             raise HTTPException(status_code=404, detail="Colis not found")
         return updated_colis
@@ -86,7 +86,7 @@ async def delete_colis(
     """Delete a colis"""
     colis_service = ColisService(db)
     try:
-        deleted = await colis_service.delete_colis(colis_id)
+        deleted = colis_service.delete_colis(colis_id)
         if not deleted:
             raise HTTPException(status_code=404, detail="Colis not found")
         return {"success": True}
@@ -105,7 +105,7 @@ async def search_colis(
     """
     colis_service = ColisService(db)
     try:
-        colis, total = await colis_service.search_colis(filters)
+        colis, total = colis_service.search_colis(filters)
         return {
             "items": colis,
             "total": total,
@@ -125,7 +125,7 @@ async def get_colis_stats(
     """
     colis_service = ColisService(db)
     try:
-        stats = await colis_service.get_colis_stats()
+        stats = colis_service.get_colis_stats()
         return {
             "success": True,
             "data": stats
@@ -142,7 +142,7 @@ async def get_codebar_image(
     Get barcode image
     """
     colis_service = ColisService(db)
-    colis = await colis_service.get_colis_by_code_barre(value)
+    colis = colis_service.get_colis_by_code_barre(value)
     if not colis:
         raise HTTPException(status_code=404, detail="Colis not found")
 

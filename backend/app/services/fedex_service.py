@@ -46,19 +46,19 @@ class FedExService:
             logger.error(f"Error initializing FedEx service: {str(e)}")
             raise
 
-    async def _authenticate(self) -> None:
+    def _authenticate(self) -> None:
         """Fetch a new OAuth token from FedEx"""
-        async with httpx.AsyncClient() as client:
-            response = await client.post(self.auth_url, data=self.payload, headers=self.headers)
+        with httpx.Client() as client:
+            response = client.post(self.auth_url, data=self.payload, headers=self.headers)
             response.raise_for_status()
             data = response.json()
             self._token = data.get('access_token')
             expires_in = int(data.get('expires_in', 3600))
             self._token_expiry = datetime.utcnow() + timedelta(seconds=expires_in)
 
-    async def _get_auth_token(self) -> str:
+    def _get_auth_token(self) -> str:
         if not self._token or not self._token_expiry or datetime.utcnow() >= self._token_expiry:
-            await self._authenticate()
+            self._authenticate()
         return self._token
 
     async def get_proof_of_delivery(self, tracking_number: str) -> bytes:
@@ -108,13 +108,13 @@ class FedExService:
             } if location_data.get('coordinates') else None
         )
 
-    async def track_package(self, tracking_number: str) -> TrackingResponse:
+    def track_package(self, tracking_number: str) -> TrackingResponse:
         """
         Track a package using FedEx API
         """
         try:
             logger.info(f"Tracking package: {tracking_number}")
-            access_token = await self._get_auth_token()
+            access_token = self._get_auth_token()
             url = f"{self.base_url}/track/v1/trackingnumbers"
             headers = {
                 'Authorization': f'Bearer {access_token}',
@@ -128,8 +128,8 @@ class FedExService:
                 }],
                 'includeDetailedScans': True
             }
-            async with httpx.AsyncClient() as client:
-                response = await client.post(url, headers=headers, json=payload)
+            with httpx.Client() as client:
+                response = client.post(url, headers=headers, json=payload)
                 response.raise_for_status()
                 tracking_data = response.json()
             
