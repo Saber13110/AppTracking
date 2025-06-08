@@ -1,1 +1,14 @@
-<p>track-by-mail works!</p>
+<form [formGroup]="form" (ngSubmit)="submit()" class="tbm-form">
+  <label>Tracking Number
+    <input formControlName="trackingNumber" />
+  </label>
+  <label>Email
+    <input formControlName="email" type="email" />
+  </label>
+  <button type="submit">Send Update</button>
+</form>
+
+<div *ngIf="result">
+  <p *ngIf="result.success">Email sent for {{ form.value.trackingNumber }}</p>
+  <p *ngIf="!result.success">Failed: {{ result.error }}</p>
+</div>

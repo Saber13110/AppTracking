@@ -1,1 +1,7 @@
-<p>notification-options works!</p>
+<form [formGroup]="form" (ngSubmit)="save()" class="notif-options-form">
+  <label>
+    <input type="checkbox" formControlName="email_updates" />
+    Email tracking updates
+  </label>
+  <button type="submit">Save</button>
+</form>

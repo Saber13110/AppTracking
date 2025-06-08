@@ -1,1 +1,10 @@
-<p>generate-barcode works!</p>
+<form [formGroup]="form" (ngSubmit)="generate()" class="barcode-form">
+  <label>Tracking ID
+    <input formControlName="trackingId" />
+  </label>
+  <button type="submit">Generate</button>
+</form>
+
+<div *ngIf="barcodeUrl" class="barcode-preview">
+  <img [src]="barcodeUrl" alt="Barcode" />
+</div>

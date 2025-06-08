@@ -23,6 +23,8 @@ class NotificationDB(Base):
     read_at = Column(DateTime, nullable=True)
     meta_data = Column(JSON, default=dict)
 
+
+
 class ColisDB(Base):
     __tablename__ = "colis"
 

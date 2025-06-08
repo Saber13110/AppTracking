@@ -44,4 +44,14 @@ class NotificationResponse(BaseModel):
     success: bool
     data: Optional[Notification] = None
     error: Optional[str] = None
-    metadata: Dict[str, Any] = Field(default_factory=dict) 
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+
+
+class NotificationPreference(BaseModel):
+    email_updates: bool = True
+
+
+class NotificationPreferenceResponse(BaseModel):
+    success: bool
+    data: Optional[NotificationPreference] = None
+    error: Optional[str] = None

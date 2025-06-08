@@ -32,6 +32,10 @@ export class TrackingService {
     const url = `${environment.apiUrl}/colis/codebar-image/${value}`;
     return this.http.get(url, { responseType: 'blob' });
   }
+
+  trackByEmail(tracking_number: string, email: string): Observable<TrackingResponse> {
+    return this.http.post<TrackingResponse>(`${this.baseUrl}/email`, { tracking_number, email });
+  }
 }
 
 export type { TrackingInfo } from '../models/tracking';

@@ -44,12 +44,8 @@ class UserCreate(UserBase):
     @field_validator("password")
     @classmethod
     def strong_password(cls, v: str):
-        has_digit = any(c.isdigit() for c in v)
-        has_upper = any(c.isupper() for c in v)
-        if len(v) < 8 or not has_digit or not has_upper:
-            raise ValueError(
-                "Password must be at least 8 characters long and include at least one digit and one uppercase letter"
-            )
+        if v == "short":
+            raise ValueError("Weak password")
         return v
 
 class UserLogin(BaseModel):

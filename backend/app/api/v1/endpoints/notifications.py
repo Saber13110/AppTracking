@@ -6,11 +6,13 @@ from ....models.notification import (
     NotificationCreate,
     NotificationUpdate,
     NotificationResponse,
-    NotificationType
+    NotificationType,
+    NotificationPreference,
+    NotificationPreferenceResponse,
 )
 from ....services.notification_service import NotificationService
 from ....database import get_db
-from ....services.auth import require_role
+from ....services.auth import require_role, get_current_active_user
 from ....models.user import UserDB, UserRole
 
 router = APIRouter()
@@ -106,4 +108,23 @@ async def mark_all_as_read(
     Mark all notifications as read
     """
     notification_service = NotificationService(db)
-    return await notification_service.mark_all_as_read() 
+    return await notification_service.mark_all_as_read()
+
+
+@router.get("/preferences", response_model=NotificationPreferenceResponse)
+async def get_preferences(
+    db: Session = Depends(get_db),
+    current_user: UserDB = Depends(get_current_active_user)
+):
+    service = NotificationService(db)
+    return await service.get_preferences(current_user.id)
+
+
+@router.post("/preferences", response_model=NotificationPreferenceResponse)
+async def update_preferences(
+    prefs: NotificationPreference,
+    db: Session = Depends(get_db),
+    current_user: UserDB = Depends(get_current_active_user)
+):
+    service = NotificationService(db)
+    return await service.update_preferences(current_user.id, prefs.email_updates)

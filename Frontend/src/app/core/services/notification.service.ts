@@ -11,6 +11,10 @@ export interface Notification {
   is_read: boolean;
 }
 
+export interface NotificationPreferences {
+  email_updates: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -32,5 +36,13 @@ export class NotificationService {
 
   markAllAsRead(): Observable<any> {
     return this.http.post(`${this.baseUrl}/mark-all-read`, {});
+  }
+
+  getPreferences(): Observable<NotificationPreferences> {
+    return this.http.get<NotificationPreferences>(`${this.baseUrl}/preferences`);
+  }
+
+  updatePreferences(prefs: NotificationPreferences): Observable<NotificationPreferences> {
+    return this.http.post<NotificationPreferences>(`${this.baseUrl}/preferences`, prefs);
   }
 }
