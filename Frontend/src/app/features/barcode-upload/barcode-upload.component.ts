@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AbstractControl } from '@angular/forms';
 import { TrackingService } from '../tracking/services/tracking.service';
+import { showNotification } from '../../shared/services/notification.util';
 
 @Component({
   selector: 'app-barcode-upload',
@@ -35,14 +36,28 @@ export class BarcodeUploadComponent {
   }
 
   private decode(file: File) {
-    this.trackingService.decodeBarcodeClient(file)
-      .then(code => {
+    this.trackingService.decodeBarcodeServer(file).subscribe({
+      next: ({ value }) => {
         if (this.control) {
-          this.control.setValue(code);
+          this.control.setValue(value);
           this.control.markAsTouched();
           this.control.updateValueAndValidity();
         }
-      })
-      .catch(err => console.error('Barcode decode failed', err));
+      },
+      error: (err) => {
+        if (err?.status === 400) {
+          showNotification('Unable to decode barcode', 'error');
+        }
+        this.trackingService.decodeBarcodeClient(file)
+          .then(code => {
+            if (this.control) {
+              this.control.setValue(code);
+              this.control.markAsTouched();
+              this.control.updateValueAndValidity();
+            }
+          })
+          .catch(e => console.error('Barcode decode failed', e));
+      }
+    });
   }
 }
