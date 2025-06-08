@@ -1,17 +1,42 @@
 <div class="history">
   <h2>Tracking History</h2>
-  <ng-container *ngIf="history.length; else none">
-    <ul>
-      <li *ngFor="let id of history">
-        <a [routerLink]="['/track', id]">{{ id }}</a>
-        <button role="button"
-                tabindex="0"
-                aria-label="Delete {{id}} from history"
-                (click)="delete(id)"
-                (keydown.enter)="delete(id)"
-                (keydown.space)="delete(id)">Delete</button>
-      </li>
-    </ul>
+
+  <div class="filters">
+    <input type="text" placeholder="Search" [(ngModel)]="searchTerm">
+    <input type="text" placeholder="Status" [(ngModel)]="filterStatus">
+    <input type="date" [(ngModel)]="filterDate">
+  </div>
+
+  <ng-container *ngIf="sortedHistory.length; else none">
+    <table>
+      <thead>
+        <tr>
+          <th>Tracking #</th>
+          <th>Status</th>
+          <th (click)="toggleSort()" class="sortable">
+            Date
+            <span *ngIf="sortAsc">&#9650;</span>
+            <span *ngIf="!sortAsc">&#9660;</span>
+          </th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of sortedHistory">
+          <td><a [routerLink]="['/track', item.tracking_number]">{{item.tracking_number}}</a></td>
+          <td>{{item.status || '-'}}</td>
+          <td>{{item.created_at | date:'short'}}</td>
+          <td>
+            <button role="button"
+                    tabindex="0"
+                    aria-label="Delete {{item.tracking_number}} from history"
+                    (click)="delete(item.tracking_number)"
+                    (keydown.enter)="delete(item.tracking_number)"
+                    (keydown.space)="delete(item.tracking_number)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
     <button role="button"
             tabindex="0"
             aria-label="Clear tracking history"

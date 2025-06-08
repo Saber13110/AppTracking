@@ -4,6 +4,15 @@ import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
 
+export interface TrackedShipment {
+  tracking_number: string;
+  status?: string | null;
+  created_at?: string | null;
+  id?: string;
+  meta_data?: any;
+  note?: string | null;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -13,14 +22,19 @@ export class TrackingHistoryService {
 
   constructor(private http: HttpClient, private auth: AuthService) {}
 
-  getHistory(): string[] {
+  getHistory(): TrackedShipment[] {
     const raw = localStorage.getItem(this.storageKey);
-    return raw ? JSON.parse(raw) as string[] : [];
+    return raw ? (JSON.parse(raw) as TrackedShipment[]) : [];
   }
 
   addIdentifier(id: string, status?: string, note?: string, metaData?: any): void {
-    const history = this.getHistory().filter(item => item !== id);
-    history.unshift(id);
+    const history = this.getHistory().filter(item => item.tracking_number !== id);
+    const entry: TrackedShipment = {
+      tracking_number: id,
+      status: status ?? null,
+      created_at: new Date().toISOString(),
+    };
+    history.unshift(entry);
     if (history.length > this.maxItems) {
       history.pop();
     }
@@ -31,14 +45,18 @@ export class TrackingHistoryService {
     if (note !== undefined) payload.note = note;
     if (metaData !== undefined) payload.meta_data = metaData;
 
-    this.http.post(`${environment.apiUrl}/history`, payload).subscribe({
-      next: () => {},
+    this.http.post<TrackedShipment>(`${environment.apiUrl}/history`, payload).subscribe({
+      next: (record) => {
+        const updated = this.getHistory().filter(h => h.tracking_number !== id);
+        updated.unshift(record);
+        localStorage.setItem(this.storageKey, JSON.stringify(updated.slice(0, this.maxItems)));
+      },
       error: () => {}
     });
   }
 
   removeIdentifier(id: string): void {
-    const history = this.getHistory().filter(item => item !== id);
+    const history = this.getHistory().filter(item => item.tracking_number !== id);
     localStorage.setItem(this.storageKey, JSON.stringify(history));
   }
 
@@ -53,11 +71,24 @@ export class TrackingHistoryService {
     }
     try {
       const records = await firstValueFrom(
-        this.http.get<{ tracking_number: string }[]>(`${environment.apiUrl}/history`)
+        this.http.get<TrackedShipment[]>(`${environment.apiUrl}/history`)
       );
-      const serverNumbers = records.map(r => r.tracking_number);
-      const merged = Array.from(new Set([...serverNumbers, ...this.getHistory()]));
-      localStorage.setItem(this.storageKey, JSON.stringify(merged.slice(0, this.maxItems)));
+
+      const map = new Map<string, TrackedShipment>();
+      records.forEach(r => map.set(r.tracking_number, r));
+      this.getHistory().forEach(h => {
+        if (!map.has(h.tracking_number)) {
+          map.set(h.tracking_number, h);
+        }
+      });
+
+      const merged = Array.from(map.values()).sort((a, b) => {
+        const da = new Date(a.created_at || '').getTime();
+        const db = new Date(b.created_at || '').getTime();
+        return db - da;
+      }).slice(0, this.maxItems);
+
+      localStorage.setItem(this.storageKey, JSON.stringify(merged));
     } catch {
       // ignore errors
     }
