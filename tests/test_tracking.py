@@ -13,24 +13,12 @@ os.environ.setdefault('SECRET_KEY', 'testsecret')
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from backend.app.database import Base, engine, SessionLocal
 from backend.app.models.database import Base as ModelsBase, ColisDB
 from backend.app.services.colis_service import ColisService
 from backend.app.models.colis import ColisCreate
 from backend.app.models.tracking import TrackingResponse
 from backend.app.api.v1.endpoints import tracking as tracking_router
 
-@pytest.fixture
-def db_session():
-    Base.metadata.drop_all(bind=engine)
-    ModelsBase.metadata.drop_all(bind=engine)
-    Base.metadata.create_all(bind=engine)
-    ModelsBase.metadata.create_all(bind=engine)
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 def setup_colis(db, monkeypatch, colis_id="123456789012"):

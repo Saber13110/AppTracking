@@ -15,20 +15,10 @@ os.environ.setdefault('SECRET_KEY', 'testsecret')
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from backend.app.database import Base, engine, SessionLocal
 from backend.app.models.user import UserCreate
 from pydantic import ValidationError
 from backend.app.services import auth
 
-@pytest.fixture
-def db_session():
-    Base.metadata.drop_all(bind=engine)
-    Base.metadata.create_all(bind=engine)
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 def setup_user(db):
     return auth.create_user(db, UserCreate(email='u@example.com', full_name='U', password='Password1'))
