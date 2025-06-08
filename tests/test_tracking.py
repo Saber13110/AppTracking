@@ -33,7 +33,7 @@ def db_session():
         db.close()
 
 
-def setup_colis(db, monkeypatch, colis_id="TEST123"):
+def setup_colis(db, monkeypatch, colis_id="123456789012"):
     # Avoid actual barcode generation
     monkeypatch.setattr(ColisService, "generate_codebar_image", lambda self, val: "dummy.png")
     service = ColisService(db)
@@ -65,3 +65,15 @@ def test_track_package_by_id(db_session, monkeypatch):
     resp = asyncio.run(tracking_router.track_package(colis_id, req, db_session))
     assert resp.success is True
     assert resp.metadata["identifier"] == colis_id
+
+
+def test_update_tracking(db_session, monkeypatch):
+    colis_id = setup_colis(db_session, monkeypatch)
+    import backend.app.services.tracking_service as ts_mod
+    monkeypatch.setattr(ts_mod, "FedExService", DummyFedExService)
+
+    update_req = tracking_router.UpdateTrackingRequest(customer_name="Bob", note="hi")
+    resp = asyncio.run(
+        tracking_router.update_tracking(colis_id, update_req, db_session)
+    )
+    assert resp.success is True
