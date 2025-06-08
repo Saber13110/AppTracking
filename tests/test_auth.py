@@ -228,3 +228,18 @@ def test_password_reset_flow(db_session, patched_router):
     assert auth.verify_password("newpw", user.hashed_password)
     assert token_db.revoked is True
 
+
+def test_last_login_timestamp_updated(db_session, patched_router):
+    user_data = UserCreate(email="ll@example.com", full_name="LastLogin", password="pw")
+    user = asyncio.run(patched_router.register(user_data, db_session))
+    asyncio.run(patched_router.verify_email(patched_router.EmailVerification(token=user.verification_token), db_session))
+
+    assert user.last_login_at is None
+
+    form = patched_router.OAuth2PasswordRequestForm(username=user.email, password="pw", scope="")
+    resp = patched_router.Response()
+    asyncio.run(patched_router.login(resp, form, db_session))
+    db_session.refresh(user)
+
+    assert user.last_login_at is not None
+
