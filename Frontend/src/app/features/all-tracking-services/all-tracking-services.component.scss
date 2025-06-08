@@ -4,19 +4,55 @@
   padding: 20px;
 }
 
+/* Gradient styling for the tab component */
+app-tracking-tabs {
+  .tracking-tabs {
+    display: flex;
+    background: linear-gradient(90deg, #4d148c, #e30613);
+    padding: 2px;
+    border-radius: 5px;
+  }
 
+  .tab {
+    flex: 1;
+    border: none;
+    background: #fff;
+    cursor: pointer;
+    padding: 0.5rem;
+    text-align: center;
+  }
+
+  .tab.active {
+    background: linear-gradient(90deg, #4d148c, #e30613);
+    color: #fff;
+    border-radius: 3px;
+  }
+}
+
+
+
+@media (max-width: 768px) {
+  .tracking-form__input-group {
+    flex-direction: column;
+  }
+
+  .tracking-form__btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
 
 @media (max-width: 480px) {
-  input,
-  textarea,
-  button {
+  .tracking-form__input,
+  .tracking-form__btn {
     width: 100%;
   }
 }
 
 
 
-.error {
-  color: #d9534f;
-  font-size: 12px;
+.error-message {
+  color: #dc3545;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
 }
