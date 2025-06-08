@@ -513,7 +513,12 @@ export class HomeComponent implements OnInit, OnDestroy {
           link.href = url;
           link.download = `${trackingId}.png`;
           link.click();
-          window.URL.revokeObjectURL(url);
+
+          // Delay revoking the object URL to ensure the image loads
+          // and the download has completed before releasing the blob
+          setTimeout(() => {
+            window.URL.revokeObjectURL(url);
+          }, 1000);
 
           this.addNotification(
             'success',
