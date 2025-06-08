@@ -63,11 +63,34 @@ class FedExService:
 
     async def get_proof_of_delivery(self, tracking_number: str) -> bytes:
         """Return the proof of delivery PDF for a tracking number."""
+        file_path = Path(__file__).resolve().parents[1] / "static" / "proofs" / f"{tracking_number}.pdf"
         try:
-            file_path = Path(__file__).resolve().parents[1] / "static" / "proofs" / f"{tracking_number}.pdf"
             if file_path.exists():
                 return file_path.read_bytes()
-            raise FileNotFoundError(f"Proof of delivery for {tracking_number} not found")
+
+            access_token = self._get_auth_token()
+            url = f"{self.base_url}/track/v1/shipments/{tracking_number}/proof-of-delivery"
+            headers = {
+                "Authorization": f"Bearer {access_token}",
+                "Accept": "application/pdf",
+            }
+
+            async with httpx.AsyncClient() as client:
+                response = await client.get(url, headers=headers)
+                if response.status_code == 404:
+                    raise FileNotFoundError(f"Proof of delivery for {tracking_number} not found")
+                response.raise_for_status()
+                pdf_bytes = response.content
+
+            file_path.parent.mkdir(parents=True, exist_ok=True)
+            file_path.write_bytes(pdf_bytes)
+            return pdf_bytes
+
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 404:
+                raise FileNotFoundError(f"Proof of delivery for {tracking_number} not found") from e
+            logger.error(f"FedEx API returned an error: {str(e)}")
+            raise
         except Exception as e:
             logger.error(f"Error fetching proof of delivery: {str(e)}")
             raise
