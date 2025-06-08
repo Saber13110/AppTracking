@@ -44,6 +44,13 @@ export const routes: Routes = [
   { path: 'notifications', component: NotificationsComponent, canActivate: [AuthGuard] },
   { path: 'shipments', component: ShipmentsComponent, canActivate: [AuthGuard] },
   { path: 'history', component: HistoryComponent, canActivate: [AuthGuard] },
+  {
+    path: 'help',
+    loadComponent: () =>
+      import('./features/help-center/help-center.component').then(
+        m => m.HelpCenterComponent
+      )
+  },
   // Service routes
   { path: 'services/track-by-mail', component: TrackByMailComponent, canActivate: [AuthGuard] },
   { path: 'services/notifications', component: NotificationOptionsComponent, canActivate: [AuthGuard] },

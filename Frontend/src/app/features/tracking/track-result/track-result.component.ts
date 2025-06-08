@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { TrackingService, TrackingInfo } from '../services/tracking.service';
 import { TrackingHistoryService } from '../../../core/services/tracking-history.service';
@@ -51,6 +51,7 @@ export class TrackResultComponent implements OnInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private trackingService: TrackingService,
     private analytics: AnalyticsService,
     private history: TrackingHistoryService,
@@ -196,7 +197,7 @@ export class TrackResultComponent implements OnInit, OnDestroy {
 
   contactSupport() {
     this.analytics.logAction('contact_support');
-    window.location.href = '/support';
+    this.router.navigate(['/help'], { fragment: 'contact' });
   }
 
   ngOnDestroy() {
