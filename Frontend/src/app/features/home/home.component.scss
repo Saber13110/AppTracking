@@ -217,10 +217,16 @@ $error-color: #dc3545;
     gap: 0.5rem;
     color: $text-color;
     cursor: pointer;
-    
+
     &:hover {
       color: $primary-color;
     }
+  }
+
+  .error-message {
+    color: $error-color;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
   }
 }
 
