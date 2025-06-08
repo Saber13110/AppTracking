@@ -10,13 +10,16 @@ from ....models.notification import (
 )
 from ....services.notification_service import NotificationService
 from ....database import get_db
+from ....services.auth import require_role
+from ....models.user import UserDB, UserRole
 
 router = APIRouter()
 
 @router.post("/", response_model=NotificationResponse)
 async def create_notification(
     notification: NotificationCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: UserDB = Depends(require_role(UserRole.admin))
 ):
     """
     Create a new notification
@@ -64,7 +67,8 @@ async def get_notifications(
 async def update_notification(
     notification_id: str,
     update_data: NotificationUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: UserDB = Depends(require_role(UserRole.admin))
 ):
     """
     Update a notification
@@ -81,7 +85,8 @@ async def update_notification(
 @router.delete("/{notification_id}", response_model=NotificationResponse)
 async def delete_notification(
     notification_id: str,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: UserDB = Depends(require_role(UserRole.admin))
 ):
     """
     Delete a notification
@@ -93,7 +98,10 @@ async def delete_notification(
     return response
 
 @router.post("/mark-all-read", response_model=NotificationResponse)
-async def mark_all_as_read(db: Session = Depends(get_db)):
+async def mark_all_as_read(
+    db: Session = Depends(get_db),
+    current_user: UserDB = Depends(require_role(UserRole.admin))
+):
     """
     Mark all notifications as read
     """
