@@ -1,0 +1,21 @@
+.quick-search {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+
+  input {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px 0 0 4px;
+  }
+
+  button {
+    padding: 0.5rem 1rem;
+    border: 1px solid #4d148c;
+    background: #4d148c;
+    color: #fff;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+  }
+}

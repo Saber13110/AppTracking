@@ -2,17 +2,19 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
 import { SimpleTabsComponent, TabItem } from '../../shared/components/simple-tabs/simple-tabs.component';
-
-interface Faq {
-  question: string;
-  answer: string;
-  open?: boolean;
-}
+import { QuickSearchComponent } from './quick-search/quick-search.component';
+import { FaqListComponent, Faq } from './faq-list/faq-list.component';
 
 @Component({
   selector: 'app-help-center',
   standalone: true,
-  imports: [CommonModule, BreadcrumbComponent, SimpleTabsComponent],
+  imports: [
+    CommonModule,
+    BreadcrumbComponent,
+    SimpleTabsComponent,
+    QuickSearchComponent,
+    FaqListComponent
+  ],
   templateUrl: './help-center.component.html',
   styleUrls: ['./help-center.component.scss']
 })
@@ -35,7 +37,8 @@ export class HelpCenterComponent {
     this.activeTab = id;
   }
 
-  toggleFaq(f: Faq) {
-    f.open = !f.open;
+  onSearch(query: string) {
+    // For now simply log the query. A real implementation could filter results.
+    console.log('Help search:', query);
   }
 }
