@@ -345,10 +345,21 @@ async def decode_barcode(file: UploadFile = File(...)):
 
 
 @router.get("/proof/{identifier}")
-async def get_proof_of_delivery(identifier: str):
-    """Placeholder endpoint for proof of delivery."""
-    return {
-        "success": False,
-        "error": "Proof of delivery not implemented",
-        "identifier": identifier,
-    }
+async def get_proof_of_delivery(identifier: str, db: Session = Depends(get_db)):
+    """Return the proof-of-delivery PDF for a package."""
+    colis_service = ColisService(db)
+    fedex_service = FedExService()
+
+    colis = await colis_service.get_colis_by_identifier(identifier)
+    tracking_number = colis.id if colis else identifier
+
+    try:
+        pdf_bytes = await fedex_service.get_proof_of_delivery(tracking_number)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Proof of delivery not found")
+    except Exception as e:
+        logger.error(f"Error fetching proof of delivery for {identifier}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch proof of delivery")
+
+    headers = {"Content-Disposition": f"attachment; filename=proof_{tracking_number}.pdf"}
+    return StreamingResponse(io.BytesIO(pdf_bytes), media_type="application/pdf", headers=headers)
