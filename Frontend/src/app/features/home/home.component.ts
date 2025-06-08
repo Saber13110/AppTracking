@@ -327,16 +327,20 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
-    if (this.trackingForm.valid) {
-      const trackingNumber = this.trackingForm.get('trackingNumber')?.value;
-      this.router.navigate(['/track', trackingNumber]);
-    }
+    this.trackPackage();
   }
 
   // === TRAITEMENT TRACKING
   trackPackage(): void {
+    if (this.trackingForm.invalid) {
+      this.trackingForm.markAllAsTouched();
+      return;
+    }
+
     const identifier = this.trackingForm.get('trackingNumber')?.value.trim();
-    if (!identifier) return;
+    if (!identifier) {
+      return;
+    }
 
     this.addNotification(
       'success',
