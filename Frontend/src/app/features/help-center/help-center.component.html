@@ -1,6 +1,7 @@
 <section class="help-center">
   <app-breadcrumb [items]="[{label: 'Home', url: '/home'}, {label: 'Help Center'}]"></app-breadcrumb>
   <h1>Help Center</h1>
+  <app-quick-search (search)="onSearch($event)"></app-quick-search>
   <app-simple-tabs [tabs]="tabs" [active]="activeTab" (select)="selectTab($event)"></app-simple-tabs>
 
   <div [ngSwitch]="activeTab">
@@ -16,10 +17,7 @@
 
     <div *ngSwitchCase="'faq'" id="faq">
       <h2>Frequently Asked Questions</h2>
-      <div class="faq-item" *ngFor="let f of faqs">
-        <h3 (click)="toggleFaq(f)">{{ f.question }}</h3>
-        <p *ngIf="f.open">{{ f.answer }}</p>
-      </div>
+      <app-faq-list [faqs]="faqs"></app-faq-list>
     </div>
 
     <div *ngSwitchCase="'contact'" id="contact">

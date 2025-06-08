@@ -1,0 +1,6 @@
+<div class="faq-list">
+  <div class="faq-item" *ngFor="let f of faqs">
+    <h3 (click)="toggleFaq(f)">{{ f.question }}</h3>
+    <p *ngIf="f.open">{{ f.answer }}</p>
+  </div>
+</div>
