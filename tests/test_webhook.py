@@ -17,22 +17,10 @@ os.environ.setdefault('FEDEX_WEBHOOK_SECRET', 'hooksecret')
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from backend.app.database import Base, engine, SessionLocal
 from backend.app.models.database import Base as ModelsBase
 from backend.app.routers import webhook as webhook_router
 
 
-@pytest.fixture
-def db_session():
-    Base.metadata.drop_all(bind=engine)
-    ModelsBase.metadata.drop_all(bind=engine)
-    Base.metadata.create_all(bind=engine)
-    ModelsBase.metadata.create_all(bind=engine)
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 def make_request(payload: bytes, signature: str | None = None) -> Request:

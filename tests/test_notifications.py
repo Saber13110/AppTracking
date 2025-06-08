@@ -13,7 +13,6 @@ os.environ.setdefault('SECRET_KEY', 'testsecret')
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from backend.app.database import Base, engine, SessionLocal
 from backend.app.models.database import Base as ModelsBase, NotificationDB
 from backend.app.api.v1.endpoints import notifications as notifications_router
 from backend.app.models.notification import (
@@ -27,17 +26,6 @@ from backend.app.models.user import UserCreate, UserRole
 from backend.app.services import auth
 
 
-@pytest.fixture
-def db_session():
-    Base.metadata.drop_all(bind=engine)
-    ModelsBase.metadata.drop_all(bind=engine)
-    Base.metadata.create_all(bind=engine)
-    ModelsBase.metadata.create_all(bind=engine)
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 def create_user_with_role(db, role: UserRole):
