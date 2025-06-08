@@ -29,4 +29,8 @@ export class NotificationService {
       catchError(() => of(0))
     );
   }
+
+  markAllAsRead(): Observable<any> {
+    return this.http.post(`${this.baseUrl}/mark-all-read`, {});
+  }
 }
