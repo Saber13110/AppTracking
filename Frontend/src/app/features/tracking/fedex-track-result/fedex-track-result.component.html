@@ -4,6 +4,13 @@
   <div *ngIf="!loading && trackingData" class="content">
     <h2>Tracking #{{ trackingData.tracking_number }}</h2>
     <p class="status">{{ trackingData.status.status }} - {{ trackingData.status.description }}</p>
+
+    <div class="progress">
+      <div *ngFor="let step of steps; let i = index" class="progress-step" [ngClass]="getStepClass(i)">
+        {{ step }}
+      </div>
+    </div>
+
     <div id="fedex-map" class="map"></div>
   </div>
 </div>

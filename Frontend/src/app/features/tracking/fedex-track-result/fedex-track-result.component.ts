@@ -22,12 +22,54 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
   loading = true;
   error: string | null = null;
 
+  steps = ['Shipment Info', 'In Transit', 'Delivered'];
+  currentStep = 0;
+  currentStatusClass = '';
+
   private refreshInterval: any;
   private map: google.maps.Map | null = null;
   private marker: google.maps.Marker | null = null;
   private identifier = '';
 
   constructor(private route: ActivatedRoute, private trackingService: TrackingService) {}
+
+  private updateProgress(): void {
+    if (!this.trackingData) {
+      this.currentStep = 0;
+      this.currentStatusClass = '';
+      return;
+    }
+
+    const status = this.trackingData.status.status.toLowerCase();
+    if (status.includes('delivered')) {
+      this.currentStep = 2;
+      this.currentStatusClass = 'delivered';
+    } else if (status.includes('exception')) {
+      this.currentStep = 1;
+      this.currentStatusClass = 'exception';
+    } else if (status.includes('transit')) {
+      this.currentStep = 1;
+      this.currentStatusClass = 'in-transit';
+    } else {
+      this.currentStep = 0;
+      this.currentStatusClass = '';
+    }
+  }
+
+  getStepClass(index: number): string {
+    const classes = [] as string[];
+    if (index < this.currentStep) {
+      classes.push('completed');
+    } else if (index === this.currentStep) {
+      classes.push('current');
+      if (this.currentStatusClass) {
+        classes.push(this.currentStatusClass);
+      }
+    } else {
+      classes.push('pending');
+    }
+    return classes.join(' ');
+  }
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -56,6 +98,7 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
         if (res.success && res.data) {
           this.trackingData = res.data as FedexTrackingInfo;
           this.initializeMap();
+          this.updateProgress();
         } else {
           this.useMockData();
         }
@@ -72,10 +115,15 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
     this.trackingService.trackPackage(this.identifier).subscribe({
       next: res => {
         const loc = (res.data as FedexTrackingInfo | undefined)?.currentLocation;
+        const status = (res.data as FedexTrackingInfo | undefined)?.status;
         if (loc && this.marker && this.map) {
           const position = { lat: loc.latitude, lng: loc.longitude };
           this.marker.setPosition(position);
           this.map.panTo(position);
+        }
+        if (status) {
+          this.trackingData = { ...(this.trackingData as FedexTrackingInfo), status };
+          this.updateProgress();
         }
       },
       error: () => {}
@@ -105,5 +153,6 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
       currentLocation: { latitude: 33.5731, longitude: -7.5898 }
     } as FedexTrackingInfo;
     this.initializeMap();
+    this.updateProgress();
   }
 }
