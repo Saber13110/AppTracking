@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { TrackingService, TrackingInfo } from '../services/tracking.service';
 import { environment } from '../../../../environments/environment';
+import { jsPDF } from 'jspdf';
 
 declare global {
   interface Window {
@@ -89,6 +90,64 @@ export class TrackResultComponent implements OnInit, OnDestroy {
 
   contactSupport() {
     window.location.href = '/support';
+  }
+
+  generatePdf() {
+    if (!this.trackingInfo) {
+      return;
+    }
+    const doc = new jsPDF();
+    let y = 10;
+    doc.text(`Suivi ${this.trackingInfo.tracking_number}`, 10, y);
+    y += 10;
+    doc.text(`Statut: ${this.trackingInfo.status.status}`, 10, y);
+    y += 10;
+    if (this.trackingInfo.origin) {
+      const { city = '', country = '' } = this.trackingInfo.origin;
+      doc.text(`Origine: ${city} ${country}`, 10, y);
+      y += 10;
+    }
+    if (this.trackingInfo.destination) {
+      const { city = '', country = '' } = this.trackingInfo.destination;
+      doc.text(`Destination: ${city} ${country}`, 10, y);
+      y += 10;
+    }
+
+    if (this.trackingInfo.tracking_history?.length) {
+      y += 10;
+      doc.text('Historique:', 10, y);
+      y += 10;
+      this.trackingInfo.tracking_history.forEach(event => {
+        const loc = event.location ? `${event.location.city ?? ''} ${event.location.country ?? ''}` : '';
+        doc.text(`${event.timestamp} - ${event.status} ${loc}`, 10, y);
+        y += 10;
+        if (y > 280) {
+          doc.addPage();
+          y = 10;
+        }
+      });
+    }
+
+    doc.save(`tracking-${this.trackingInfo.tracking_number}.pdf`);
+  }
+
+  exportCsv() {
+    if (!this.trackingInfo?.tracking_history?.length) {
+      return;
+    }
+
+    const rows = this.trackingInfo.tracking_history.map(e => {
+      const loc = e.location ? `${e.location.city ?? ''} ${e.location.state ?? ''} ${e.location.country ?? ''}`.trim() : '';
+      return `${e.timestamp},${e.status},${loc}`;
+    });
+    const csv = ['date,status,location', ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `tracking-${this.trackingInfo.tracking_number}-history.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
   }
 
   ngOnDestroy() {
