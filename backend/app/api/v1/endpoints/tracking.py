@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
 from fastapi.responses import StreamingResponse
+import httpx
 from typing import List, Dict, Any, Optional
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
@@ -357,6 +358,9 @@ async def get_proof_of_delivery(identifier: str, db: Session = Depends(get_db)):
         pdf_bytes = await fedex_service.get_proof_of_delivery(tracking_number)
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail="Proof of delivery not found")
+    except httpx.HTTPStatusError as e:
+        logger.error(f"FedEx error for {identifier}: {e}")
+        raise HTTPException(status_code=e.response.status_code, detail="FedEx service error")
     except Exception as e:
         logger.error(f"Error fetching proof of delivery for {identifier}: {e}")
         raise HTTPException(status_code=500, detail="Failed to fetch proof of delivery")
