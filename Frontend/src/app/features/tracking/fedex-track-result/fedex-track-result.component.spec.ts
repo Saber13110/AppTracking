@@ -164,4 +164,46 @@ describe('FedexTrackResultComponent', () => {
     expect(clickSpy).toHaveBeenCalled();
     expect(analytics.logAction).toHaveBeenCalledWith('export_data', 'pdf');
   });
+
+  it('updateLocation() should refresh tracking info and progress', () => {
+    component.trackingData = {
+      tracking_number: 'FEDEXID',
+      carrier: 'FedEx',
+      status: { status: 'Picked up', description: '', is_delivered: false },
+      tracking_history: []
+    } as any;
+
+    const newData = {
+      status: { status: 'Out for delivery', description: '', is_delivered: false },
+      tracking_history: [{ status: 'Out for delivery', description: '', timestamp: '2024-01-01T00:00:00Z' }],
+      currentLocation: { latitude: 10, longitude: 20 }
+    } as any;
+
+    trackingService.trackPackage.and.returnValue(of({ success: true, data: newData } as any));
+
+    (component as any).marker = { setPosition: jasmine.createSpy('setPosition') };
+    (component as any).map = { panTo: jasmine.createSpy('panTo') };
+
+    const progressSpy = spyOn(component as any, 'updateProgressBar');
+
+    (component as any).identifier = 'FEDEXID';
+
+    (component as any).updateLocation();
+
+    expect(component.trackingData?.status).toEqual(newData.status);
+    expect(component.trackingData?.tracking_history).toEqual(newData.tracking_history);
+    expect(progressSpy).toHaveBeenCalled();
+    expect((component as any).marker.setPosition).toHaveBeenCalledWith({ lat: 10, lng: 20 });
+    expect((component as any).map.panTo).toHaveBeenCalledWith({ lat: 10, lng: 20 });
+  });
+
+  it('updateLocation() should notify on error', () => {
+    trackingService.trackPackage.and.returnValue(throwError(() => new Error('fail')));
+
+    (component as any).identifier = 'FEDEXID';
+
+    (component as any).updateLocation();
+
+    expect(notificationUtil.showNotification).toHaveBeenCalledWith('Location update failed', 'error');
+  });
 });

@@ -106,14 +106,27 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
   private updateLocation(): void {
     this.trackingService.trackPackage(this.identifier).subscribe({
       next: res => {
-        const loc = (res.data as FedexTrackingInfo | undefined)?.currentLocation;
-        if (loc && this.marker && this.map) {
-          const position = { lat: loc.latitude, lng: loc.longitude };
-          this.marker.setPosition(position);
-          this.map.panTo(position);
+        const data = res.data as FedexTrackingInfo | undefined;
+        if (res.success && data && this.trackingData) {
+          this.trackingData.status = data.status;
+          this.trackingData.tracking_history = data.tracking_history;
+          this.trackingData.currentLocation = data.currentLocation;
+
+          const loc = data.currentLocation;
+          if (loc && this.marker && this.map) {
+            const position = { lat: loc.latitude, lng: loc.longitude };
+            this.marker.setPosition(position);
+            this.map.panTo(position);
+          }
+
+          this.updateProgressBar();
+        } else if (!res.success) {
+          showNotification('Location update failed', 'error');
         }
       },
-      error: () => {}
+      error: () => {
+        showNotification('Location update failed', 'error');
+      }
     });
   }
 
