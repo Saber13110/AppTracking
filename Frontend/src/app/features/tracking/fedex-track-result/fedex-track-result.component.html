@@ -35,9 +35,27 @@
         </p>
       </div>
       <div class="summary-actions">
-        <button type="button" (click)="shareTracking()">Share</button>
-        <button type="button" (click)="printTracking()">Print</button>
-        <button type="button" (click)="saveTracking()">Save</button>
+        <button type="button"
+                role="button"
+                tabindex="0"
+                aria-label="Share tracking details"
+                (click)="shareTracking()"
+                (keydown.enter)="shareTracking()"
+                (keydown.space)="shareTracking()">Share</button>
+        <button type="button"
+                role="button"
+                tabindex="0"
+                aria-label="Print tracking details"
+                (click)="printTracking()"
+                (keydown.enter)="printTracking()"
+                (keydown.space)="printTracking()">Print</button>
+        <button type="button"
+                role="button"
+                tabindex="0"
+                aria-label="Save tracking number"
+                (click)="saveTracking()"
+                (keydown.enter)="saveTracking()"
+                (keydown.space)="saveTracking()">Save</button>
       </div>
     </div>
 

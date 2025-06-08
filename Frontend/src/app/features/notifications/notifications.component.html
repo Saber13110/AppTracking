@@ -1,6 +1,12 @@
 <div class="notifications">
   <h2>Notifications</h2>
-  <button (click)="markAllAsRead()" [disabled]="notifications.length === 0">Mark all as read</button>
+  <button role="button"
+          tabindex="0"
+          aria-label="Mark all notifications as read"
+          (click)="markAllAsRead()"
+          (keydown.enter)="markAllAsRead()"
+          (keydown.space)="markAllAsRead()"
+          [disabled]="notifications.length === 0">Mark all as read</button>
   <div *ngIf="loading">Loading...</div>
   <ul *ngIf="!loading && notifications.length">
     <li *ngFor="let notif of notifications">
