@@ -5,6 +5,10 @@
   max-width: 400px;
 }
 
+textarea {
+  resize: vertical;
+}
+
 .result {
   margin-top: 1rem;
   padding: 1rem;
