@@ -77,3 +77,42 @@ def test_update_tracking(db_session, monkeypatch):
         tracking_router.update_tracking(colis_id, update_req, db_session)
     )
     assert resp.success is True
+
+
+def test_get_proof_of_delivery_success(db_session, monkeypatch):
+    colis_id = setup_colis(db_session, monkeypatch)
+    sample_pdf = b"%PDF-1.4 test"
+
+    async def dummy_get_pod(self, tracking_number: str):
+        assert tracking_number == colis_id
+        return sample_pdf
+
+    monkeypatch.setattr(tracking_router.FedExService, "get_proof_of_delivery", dummy_get_pod)
+
+    resp = asyncio.run(tracking_router.get_proof_of_delivery(colis_id, db_session))
+
+    assert resp.status_code == 200
+    assert resp.headers["Content-Disposition"] == f"attachment; filename=proof_{colis_id}.pdf"
+
+    async def collect(response):
+        data = b""
+        async for chunk in response.body_iterator:
+            data += chunk
+        return data
+
+    content = asyncio.run(collect(resp))
+    assert content == sample_pdf
+
+
+def test_get_proof_of_delivery_not_found(db_session, monkeypatch):
+    colis_id = setup_colis(db_session, monkeypatch)
+
+    async def dummy_not_found(self, tracking_number: str):
+        raise FileNotFoundError()
+
+    monkeypatch.setattr(tracking_router.FedExService, "get_proof_of_delivery", dummy_not_found)
+
+    with pytest.raises(tracking_router.HTTPException) as exc:
+        asyncio.run(tracking_router.get_proof_of_delivery(colis_id, db_session))
+
+    assert exc.value.status_code == 404
