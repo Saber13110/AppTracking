@@ -1,12 +1,14 @@
 @use "sass:color";
 
-$primary-color: #4D148C;
+$primary-color: #7b1fa2;
+$secondary-color: #d32f2f;
 $text-color: #333;
 
 .footer {
   background: $primary-color;
   color: white;
-  padding: 2rem 0;
+  padding: 1.5rem 0;
+  border-top: 4px solid $secondary-color;
   text-align: center;
 
   .footer-links {

@@ -44,13 +44,19 @@ html, body {
 }
 
 /* Global Theme */
-$primary-color: #4d148c;
-$secondary-color: #ff6600;
+$primary-color: #7b1fa2;
+$secondary-color: #d32f2f;
 
 .navbar {
   background-color: $primary-color;
   color: #fff;
   font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  color: $primary-color;
+  margin-top: 0;
 }
 
 .btn {
@@ -61,7 +67,7 @@ $secondary-color: #ff6600;
   cursor: pointer;
 
   &--primary {
-    background: $secondary-color;
+    background: $primary-color;
     color: #fff;
   }
 
@@ -127,4 +133,16 @@ $secondary-color: #ff6600;
 
 .notification.fade-out {
   opacity: 0;
+}
+
+@media (max-width: 600px) {
+  .btn {
+    width: 100%;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-size: 1.5rem;
+  }
 }
