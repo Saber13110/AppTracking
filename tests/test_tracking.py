@@ -116,3 +116,28 @@ def test_get_proof_of_delivery_not_found(db_session, monkeypatch):
         asyncio.run(tracking_router.get_proof_of_delivery(colis_id, db_session))
 
     assert exc.value.status_code == 404
+
+
+def test_track_single_package_returns_response(db_session, monkeypatch):
+    import backend.app.services.tracking_service as ts_mod
+
+    class DummyFedExService:
+        def __init__(self, *a, **k):
+            pass
+
+        async def track_package(self, tracking_number: str):
+            return TrackingResponse(
+                success=True,
+                data=None,
+                error=None,
+                metadata={"tracking_number": tracking_number},
+            )
+
+    monkeypatch.setattr(ts_mod, "FedExService", DummyFedExService)
+
+    service = ts_mod.TrackingService(db_session)
+    resp = asyncio.run(service.track_single_package("123456789012"))
+
+    assert isinstance(resp, TrackingResponse)
+    assert resp.success is True
+    assert resp.metadata["tracking_number"] == "123456789012"

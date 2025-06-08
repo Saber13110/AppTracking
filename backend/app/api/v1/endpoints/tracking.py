@@ -244,7 +244,7 @@ async def track_multiple_packages(
     Track multiple packages (max 40)
     """
     tracking_service = TrackingService(db=db, account=account)
-    response = tracking_service.track_multiple_packages(tracking_numbers)
+    response = await tracking_service.track_multiple_packages(tracking_numbers)
     if not response:
         raise HTTPException(status_code=400, detail="Failed to track packages")
     return response

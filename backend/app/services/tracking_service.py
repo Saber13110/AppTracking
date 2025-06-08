@@ -29,7 +29,7 @@ class TrackingService:
             return False
         return True
 
-    def track_single_package(
+    async def track_single_package(
         self,
         tracking_number: str
     ) -> TrackingResponse:
@@ -52,7 +52,7 @@ class TrackingService:
                 )
 
             # Track package with FedEx
-            result = self.fedex_service.track_package(tracking_number)
+            result = await self.fedex_service.track_package(tracking_number)
             
             if not result.success:
                 logger.error(f"Failed to track package {tracking_number}: {result.error}")
@@ -76,13 +76,13 @@ class TrackingService:
                 }
             )
 
-    def track_multiple_packages(self, tracking_numbers: List[str]) -> List[TrackingResponse]:
+    async def track_multiple_packages(self, tracking_numbers: List[str]) -> List[TrackingResponse]:
         """
         Track multiple packages using FedEx API (simplified)
         """
         responses = []
         for tracking_number in tracking_numbers:
-            response = self.track_single_package(tracking_number)
+            response = await self.track_single_package(tracking_number)
             responses.append(response)
         return responses
 

@@ -34,6 +34,6 @@ async def fedex_webhook(request: Request, db: Session = Depends(get_db)):
     )
     if tracking_number:
         service = TrackingService(db)
-        service.track_single_package(tracking_number)
+        await service.track_single_package(tracking_number)
 
     return {"success": True}
