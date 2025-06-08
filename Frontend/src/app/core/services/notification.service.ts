@@ -16,6 +16,7 @@ export interface NotificationPreferences {
   addresses: string[];
   preferred_language: string;
   event_settings: { [key: string]: string[] };
+  default_account?: string;
 }
 
 @Injectable({

@@ -12,9 +12,9 @@ from ..models.database import TrackingDB, TrackingEventDB
 logger = logging.getLogger(__name__)
 
 class TrackingService:
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, account: str | None = None):
         self.db = db
-        self.fedex_service = FedExService()
+        self.fedex_service = FedExService(account)
 
     def _validate_tracking_number(self, tracking_number: str) -> bool:
         """

@@ -96,9 +96,11 @@ def test_update_preferences(db_session):
         addresses=["a@example.com", "b@example.com"],
         preferred_language="fr",
         event_settings={"delivery": ["email"]},
+        default_account="A001",
     )
     service = NotificationService(db_session)
     resp = service.update_preferences(user.id, prefs)
     assert resp.success is True
     assert resp.data.addresses == ["a@example.com", "b@example.com"]
     assert resp.data.preferred_language == "fr"
+    assert resp.data.default_account == "A001"

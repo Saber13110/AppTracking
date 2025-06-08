@@ -55,6 +55,7 @@ class NotificationPreference(BaseModel):
     addresses: List[str] = []
     preferred_language: str = "en"
     event_settings: Dict[str, Any] = Field(default_factory=dict)
+    default_account: Optional[str] = None
 
 
 class NotificationPreferenceResponse(BaseModel):

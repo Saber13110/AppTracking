@@ -9,3 +9,4 @@ class NotificationPreferenceDB(Base):
     addresses = Column(JSON, default=list)
     preferred_language = Column(String, default="en")
     event_settings = Column(JSON, default=dict)
+    default_account = Column(String, nullable=True)

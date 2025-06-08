@@ -16,7 +16,7 @@ from ..models.tracking import (
 logger = logging.getLogger(__name__)
 
 class FedExService:
-    def __init__(self, config_path: str | None = None):
+    def __init__(self, account: str | None = None, config_path: str | None = None):
         try:
             if config_path is None:
                 try:
@@ -35,6 +35,8 @@ class FedExService:
                 'client_secret': os.path.expandvars(config['client_secret']),
                 'account_number': os.path.expandvars(config['account_number'])
             }
+            if account:
+                self.cdict['account_number'] = account
             self.payload = {
                 "grant_type": "client_credentials",
                 'client_id': self.cdict['client_id'],
@@ -168,7 +170,8 @@ class FedExService:
                     error=error_msg,
                     metadata={
                         'timestamp': datetime.now().isoformat(),
-                        'tracking_number': tracking_number
+                        'tracking_number': tracking_number,
+                        'account_number': self.cdict['account_number']
                     }
                 )
                 
@@ -185,7 +188,8 @@ class FedExService:
                     'response_time': response.elapsed.total_seconds(),
                     'timestamp': datetime.now().isoformat(),
                     'tracking_number': tracking_number,
-                    'raw_response': tracking_data
+                    'raw_response': tracking_data,
+                    'account_number': self.cdict['account_number']
                 }
             )
 
@@ -198,7 +202,8 @@ class FedExService:
                 error=error_msg,
                 metadata={
                     'timestamp': datetime.now().isoformat(),
-                    'tracking_number': tracking_number
+                    'tracking_number': tracking_number,
+                    'account_number': self.cdict['account_number']
                 }
             )
         except httpx.HTTPStatusError as e:
@@ -210,7 +215,8 @@ class FedExService:
                 error=error_msg,
                 metadata={
                     'timestamp': datetime.now().isoformat(),
-                    'tracking_number': tracking_number
+                    'tracking_number': tracking_number,
+                    'account_number': self.cdict['account_number']
                 }
             )
         except Exception as e:
@@ -222,7 +228,8 @@ class FedExService:
                 error=error_msg,
                 metadata={
                     'timestamp': datetime.now().isoformat(),
-                    'tracking_number': tracking_number
+                    'tracking_number': tracking_number,
+                    'account_number': self.cdict['account_number']
                 }
             )
 
