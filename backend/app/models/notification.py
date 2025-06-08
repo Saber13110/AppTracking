@@ -47,8 +47,14 @@ class NotificationResponse(BaseModel):
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
 
+from typing import List
+
+
 class NotificationPreference(BaseModel):
     email_updates: bool = True
+    addresses: List[str] = []
+    preferred_language: str = "en"
+    event_settings: Dict[str, Any] = Field(default_factory=dict)
 
 
 class NotificationPreferenceResponse(BaseModel):

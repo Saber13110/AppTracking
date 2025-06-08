@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import List, Optional
 from uuid import uuid4
 from sqlalchemy.orm import Session
+from .email import send_tracking_update_email, send_sms
 from ..models.notification import (
     Notification,
     NotificationCreate,
@@ -40,6 +41,9 @@ class NotificationService:
             self.db.add(db_notification)
             self.db.commit()
             self.db.refresh(db_notification)
+
+            # Send alerts based on user preferences
+            self._send_alerts(db_notification)
             
             # Convert meta_data back to metadata for the response
             notification_dict = {
@@ -274,14 +278,42 @@ class NotificationService:
                 self.db.refresh(pref)
             return NotificationPreferenceResponse(
                 success=True,
-                data=NotificationPreference(email_updates=pref.email_updates),
+                data=NotificationPreference(
+                    email_updates=pref.email_updates,
+                    addresses=pref.addresses or [],
+                    preferred_language=pref.preferred_language,
+                    event_settings=pref.event_settings or {},
+                ),
             )
         except Exception as e:
             self.db.rollback()
             return NotificationPreferenceResponse(success=False, error=str(e))
 
+    def _send_alerts(self, notification: NotificationDB) -> None:
+        """Send email/SMS alerts according to user preferences."""
+        try:
+            prefs = self.db.query(NotificationPreferenceDB).all()
+            for pref in prefs:
+                channels = (pref.event_settings or {}).get(notification.type.value, [])
+                if not channels:
+                    continue
+                addresses = pref.addresses or []
+                for addr in addresses[:5]:
+                    if 'email' in channels and '@' in addr:
+                        send_tracking_update_email(
+                            addr,
+                            notification.tracking_number or '',
+                            notification.message,
+                        )
+                    if 'sms' in channels and '@' not in addr:
+                        send_sms(addr, notification.message)
+        except Exception:
+            logger.error("Failed sending alert for notification %s", notification.id)
+
     def update_preferences(
-        self, user_id: int, email_updates: bool
+        self,
+        user_id: int,
+        preferences: NotificationPreference,
     ) -> NotificationPreferenceResponse:
         """Update notification preferences for a user."""
         try:
@@ -293,12 +325,22 @@ class NotificationService:
             if not pref:
                 pref = NotificationPreferenceDB(user_id=user_id)
                 self.db.add(pref)
-            pref.email_updates = email_updates
+
+            pref.email_updates = preferences.email_updates
+            pref.addresses = preferences.addresses[:5]
+            pref.preferred_language = preferences.preferred_language
+            pref.event_settings = preferences.event_settings
+
             self.db.commit()
             self.db.refresh(pref)
             return NotificationPreferenceResponse(
                 success=True,
-                data=NotificationPreference(email_updates=pref.email_updates),
+                data=NotificationPreference(
+                    email_updates=pref.email_updates,
+                    addresses=pref.addresses or [],
+                    preferred_language=pref.preferred_language,
+                    event_settings=pref.event_settings or {},
+                ),
             )
         except Exception as e:
             self.db.rollback()
