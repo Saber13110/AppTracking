@@ -358,6 +358,27 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
+  downloadProof(): void {
+    const identifier = this.trackingForm.get('trackingNumber')?.value.trim();
+    if (!identifier) return;
+
+    this.trackingService.downloadProof(identifier).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `proof_${identifier}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        const msg = err.error?.error || 'Erreur lors du téléchargement de la preuve';
+        this.addNotification('error', 'Erreur', msg);
+        console.error('Erreur de preuve:', err);
+      }
+    });
+  }
+
   // === AJOUTER NOTIFICATION FLOTTANTE
   addNotification(type: 'success' | 'warning' | 'error', title: string, message: string): void {
     const notification: Notification = {

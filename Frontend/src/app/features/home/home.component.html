@@ -55,7 +55,7 @@
       <!-- Obtain Your Proof Option -->
       <div *ngIf="selectedHeroFeature === 'obtain_proof'" class="obtain-proof-option">
         <p>Enter tracking ID to download your proof of delivery.</p>
-        <form [formGroup]="trackingForm" (ngSubmit)="onSubmit()">
+        <form [formGroup]="trackingForm" (ngSubmit)="downloadProof()">
           <div class="tracking-form__input-group">
             <input type="text" formControlName="trackingNumber" class="tracking-form__input" placeholder="Enter tracking ID">
             <button type="submit" class="tracking-form__btn">
