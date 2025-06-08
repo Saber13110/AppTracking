@@ -27,9 +27,23 @@
       <button type="submit">Track All</button>
     </form>
 
-    <div *ngIf="activeTab==='barcode'" class="barcode-form">
-      <p>Scan your barcode using the camera.</p>
-      <button type="button" (click)="startBarcodeScan()">Start Scan</button>
+    <form *ngIf="activeTab==='barcode'" [formGroup]="barcodeForm" (ngSubmit)="submitBarcode()" class="barcode-form">
+      <label>Tracking Number
+        <input formControlName="trackingNumber" />
+      </label>
+      <label>Package Name
+        <input formControlName="packageName" />
+      </label>
+      <input type="file" accept="image/*" (change)="onBarcodeFileSelected($event)" />
+      <button type="button" (click)="startBarcodeScan()">
+        {{ isScanning ? 'Stop Scan' : 'Scan with Webcam' }}
+      </button>
+      <video #videoPreview *ngIf="isScanning" class="webcam-preview" autoplay></video>
+      <button type="submit">Track</button>
+    </form>
+    <div *ngIf="barcodeResult" class="barcode-result">
+      <p *ngIf="barcodeResult.success">Tracked {{ barcodeResult.metadata?.identifier || barcodeResult.data?.tracking_number }}</p>
+      <p *ngIf="!barcodeResult.success">Failed: {{ barcodeResult.error }}</p>
     </div>
   </div>
 </div>
