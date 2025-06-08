@@ -20,9 +20,12 @@ export class AuthService {
 
   login(credentials: any): Observable<any> {
     // Endpoint pour la connexion avec envoi en x-www-form-urlencoded
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('username', credentials.email)
       .set('password', credentials.password);
+    if (credentials.totp_code) {
+      params = params.set('totp_code', credentials.totp_code);
+    }
 
     const headers = new HttpHeaders({
       'Content-Type': 'application/x-www-form-urlencoded'
@@ -79,6 +82,14 @@ export class AuthService {
       token,
       new_password: newPassword,
     });
+  }
+
+  setupTwofa(): Observable<any> {
+    return this.http.post(`${this.apiUrl}/setup-2fa`, {}, { withCredentials: true });
+  }
+
+  verifyTwofa(code: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/verify-2fa`, { code }, { withCredentials: true });
   }
 
   // Vous pourriez ajouter d'autres méthodes ici, comme logout, getUserInfo, etc.

@@ -1,0 +1,6 @@
+<div class="setup-twofa">
+  <h2>Configuration de la double authentification</h2>
+  <p *ngIf="secret">Code secret : {{ secret }}</p>
+  <p *ngIf="otpauthUrl">Scannez ce QR code ou utilisez le secret ci-dessus dans votre application d'authentification.</p>
+  <img *ngIf="otpauthUrl" [src]="'https://api.qrserver.com/v1/create-qr-code/?data=' + otpauthUrl" alt="QR code">
+</div>

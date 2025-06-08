@@ -1,0 +1,6 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <label for="code">Code TOTP</label>
+  <input id="code" formControlName="code" type="text" />
+  <button type="submit">Vérifier</button>
+  <p *ngIf="message">{{ message }}</p>
+</form>
