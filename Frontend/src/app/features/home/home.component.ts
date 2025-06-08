@@ -7,6 +7,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { TrackingService } from '../tracking/services/tracking.service';
 import { NotificationService } from '../../core/services/notification.service';
+import { AnalyticsService } from '../../core/services/analytics.service';
 import { Subject, Observable } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { BrowserCodeReader, IScannerControls, BrowserMultiFormatReader } from '@zxing/browser';
@@ -129,7 +130,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     private router: Router,
     private authService: AuthService,
     private trackingService: TrackingService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private analytics: AnalyticsService
   ) {
     this.trackingForm = this.fb.group({
       trackingNumber: ['', [Validators.required, Validators.pattern('^[A-Z0-9]{10,}$')]],
@@ -347,6 +349,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.analytics.logAction('track_package', this.trackingForm.get('trackingNumber')?.value);
+
     const identifier = this.trackingForm.get('trackingNumber')?.value.trim();
     const name = this.trackingForm.get('packageName')?.value;
     if (!identifier) {
@@ -378,6 +382,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   downloadProof(): void {
     const identifier = this.trackingForm.get('trackingNumber')?.value.trim();
     if (!identifier) return;
+
+    this.analytics.logAction('download_proof', identifier);
 
     this.trackingService.downloadProof(identifier).subscribe({
       next: (blob) => {
@@ -481,6 +487,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.scannerControls?.stop();
       (this.webcamReader as any)?.reset();
       this.isScanning = false;
+      this.analytics.logAction('stop_webcam_scan');
       return;
     }
 
@@ -489,6 +496,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       const devices = await BrowserCodeReader.listVideoInputDevices();
       const deviceId = devices[0]?.deviceId;
       this.isScanning = true;
+      this.analytics.logAction('start_webcam_scan');
 
       this.scannerControls = await this.webcamReader.decodeFromVideoDevice(
         deviceId,
@@ -498,12 +506,14 @@ export class HomeComponent implements OnInit, OnDestroy {
             this.trackingForm.get('trackingNumber')?.setValue(result.getText());
             controls.stop();
             this.isScanning = false;
+            this.analytics.logAction('barcode_scanned', result.getText());
           }
         }
       );
     } catch (err) {
       console.error('Webcam scan error:', err);
       this.isScanning = false;
+      this.analytics.logAction('webcam_scan_error');
     }
   }
   
@@ -511,6 +521,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   generateBarcode(): void {
     if (this.barcodeForm.valid) {
       const trackingId = this.barcodeForm.get('trackingId')?.value;
+      this.analytics.logAction('generate_barcode', trackingId);
       this.trackingService.getBarcodeImage(trackingId).subscribe({
         next: (blob) => {
           const url = window.URL.createObjectURL(blob);
