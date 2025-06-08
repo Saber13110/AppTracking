@@ -1,6 +1,6 @@
 /// <reference types="google.maps" />
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
+import { of, throwError, Observable } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -18,18 +18,20 @@ describe('FedexTrackResultComponent', () => {
   let trackingService: jasmine.SpyObj<TrackingService>;
   let analytics: jasmine.SpyObj<AnalyticsService>;
   let dialog: jasmine.SpyObj<MatDialog>;
+  let route: any;
 
   beforeEach(async () => {
     trackingService = jasmine.createSpyObj('TrackingService', ['trackPackage', 'exportTracking']);
     analytics = jasmine.createSpyObj('AnalyticsService', ['logAction']);
     dialog = jasmine.createSpyObj('MatDialog', ['open']);
+    route = { params: of({ identifier: 'FEDEXID' }) };
 
     await TestBed.configureTestingModule({
       imports: [FedexTrackResultComponent],
       providers: [
         { provide: TrackingService, useValue: trackingService },
         { provide: AnalyticsService, useValue: analytics },
-        { provide: ActivatedRoute, useValue: { params: of({ identifier: 'FEDEXID' }) } },
+        { provide: ActivatedRoute, useValue: route },
         { provide: MatDialog, useValue: dialog }
       ]
     }).compileComponents();
@@ -42,6 +44,7 @@ describe('FedexTrackResultComponent', () => {
   afterEach(() => {
     (notificationUtil.showNotification as jasmine.Spy).calls.reset();
     analytics.logAction.calls.reset();
+    dialog.open.calls.reset();
   });
 
   it('shareTracking() should log action and show notification', () => {
@@ -124,6 +127,33 @@ describe('FedexTrackResultComponent', () => {
 
     expect(dialog.open).toHaveBeenCalledWith(ScheduleDialogComponent, { width: '400px' });
     expect(analytics.logAction).toHaveBeenCalledWith('open_dialog', 'schedule');
+  });
+
+  it("openDialog('hold-location') should not open a dialog", () => {
+    component.openDialog('hold-location');
+
+    expect(dialog.open).not.toHaveBeenCalled();
+    expect(analytics.logAction).not.toHaveBeenCalled();
+  });
+
+  it("openDialog('instructions') should not open a dialog", () => {
+    component.openDialog('instructions');
+
+    expect(dialog.open).not.toHaveBeenCalled();
+    expect(analytics.logAction).not.toHaveBeenCalled();
+  });
+
+  it('should unsubscribe from route params on destroy', () => {
+    const unsubscribeSpy = jasmine.createSpy('unsubscribe');
+    route.params = new Observable(observer => {
+      observer.next({ identifier: 'FEDEXID' });
+      return { unsubscribe: unsubscribeSpy } as any;
+    });
+
+    fixture.detectChanges();
+    component.ngOnDestroy();
+
+    expect(unsubscribeSpy).toHaveBeenCalled();
   });
 
   it("exportData('pdf') should trigger a download and log action", () => {

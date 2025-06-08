@@ -7,7 +7,7 @@ import { TrackingService, TrackingInfo } from '../services/tracking.service';
 import { AnalyticsService } from '../../../core/services/analytics.service';
 import { showNotification } from '../../../shared/services/notification.util';
 import { catchError } from 'rxjs/operators';
-import { throwError } from 'rxjs';
+import { throwError, Subscription } from 'rxjs';
 import { ScheduleDialogComponent } from './schedule-dialog.component';
 import { ChangeAddressDialogComponent } from './change-address-dialog.component';
 
@@ -37,6 +37,7 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
   error: string | null = null;
 
   private refreshInterval: any;
+  private paramSub: Subscription | null = null;
   private map: google.maps.Map | null = null;
   private marker: google.maps.Marker | null = null;
   private identifier = '';
@@ -56,7 +57,7 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.route.params.subscribe(params => {
+    this.paramSub = this.route.params.subscribe(params => {
       this.identifier = params['identifier'];
       if (this.identifier) {
         this.loadData();
@@ -68,6 +69,9 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.refreshInterval) {
       clearInterval(this.refreshInterval);
+    }
+    if (this.paramSub) {
+      this.paramSub.unsubscribe();
     }
     if (this.marker) {
       this.marker.setMap(null);
