@@ -1,6 +1,11 @@
-<div class="news-detail" *ngIf="slug">
-  <h2>Article: {{ slug }}</h2>
-  <p>This is a placeholder for the news article with slug <strong>{{ slug }}</strong>.</p>
+<div class="news-detail" *ngIf="article">
+  <h2>{{ article.title }}</h2>
+  <img *ngIf="article.imageUrl" [src]="article.imageUrl" [alt]="article.title" />
+  <div [innerHTML]="article.content"></div>
+</div>
+
+<div class="news-detail" *ngIf="!article && slug">
+  <p>Loading...</p>
 </div>
 
 <div class="news-detail" *ngIf="!slug">
