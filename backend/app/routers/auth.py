@@ -1,9 +1,10 @@
 from datetime import timedelta
 import secrets
-from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import APIRouter, Depends, HTTPException, status, Response, Request, Form
+from fastapi.security import OAuth2PasswordRequestForm as FastAPIOAuth2PasswordRequestForm
 from fastapi_limiter.depends import RateLimiter
 from sqlalchemy.orm import Session
+from pydantic import BaseModel
 
 from ..models.user import User, UserCreate, Token, EmailVerification, UserDB
 from ..services.auth import (
@@ -14,10 +15,33 @@ from ..services.auth import (
     create_refresh_token,
     verify_refresh_token,
     revoke_refresh_token,
+    setup_2fa,
+    verify_2fa,
 )
 from ..config import settings
 from ..database import get_db
 from ..services.email import send_verification_email
+
+class OAuth2PasswordRequestForm(FastAPIOAuth2PasswordRequestForm):
+    def __init__(
+        self,
+        totp: str | None = Form(default=None),
+        grant_type: str = Form(default=None, regex="password"),
+        username: str = Form(),
+        password: str = Form(),
+        scope: str = Form(default=""),
+        client_id: str | None = Form(default=None),
+        client_secret: str | None = Form(default=None),
+    ):
+        self.totp = totp
+        super().__init__(
+            grant_type=grant_type,
+            username=username,
+            password=password,
+            scope=scope,
+            client_id=client_id,
+            client_secret=client_secret,
+        )
 
 router = APIRouter(
     prefix="/auth",
@@ -60,8 +84,34 @@ async def verify_email(verification: EmailVerification, db: Session = Depends(ge
     user.is_verified = True
     user.verification_token = None
     db.commit()
-    
+
     return {"message": "Email verified successfully"}
+
+
+@router.post("/setup-2fa")
+async def setup_twofa(
+    current_user: UserDB = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    qr = setup_2fa(db, current_user)
+    return {"qr": qr}
+
+
+class TwoFAToken(BaseModel):
+    token: str
+
+
+@router.post("/verify-2fa")
+async def verify_twofa(
+    data: TwoFAToken,
+    current_user: UserDB = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    if verify_2fa(current_user, data.token):
+        current_user.is_twofa_enabled = True
+        db.commit()
+        return {"message": "2FA enabled"}
+    raise HTTPException(status_code=400, detail="Invalid two factor code")
 
 @router.post(
     "/token",
@@ -87,6 +137,14 @@ async def login(
             detail="Email not verified",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+    if user.is_twofa_enabled:
+        if not form_data.totp or not verify_2fa(user, form_data.totp):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid two factor code",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
     
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(

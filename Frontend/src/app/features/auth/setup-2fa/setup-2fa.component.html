@@ -1,0 +1,10 @@
+<div class="setup-2fa">
+  <div *ngIf="qrData">
+    <img [src]="qrData" alt="QR Code" />
+  </div>
+  <form [formGroup]="codeForm" (ngSubmit)="verify()">
+    <label for="code">Code</label>
+    <input id="code" type="text" formControlName="code" />
+    <button type="submit">Activer</button>
+  </form>
+</div>

@@ -1,5 +1,9 @@
 from datetime import datetime, timedelta
 from typing import Optional
+import base64
+from io import BytesIO
+import pyotp
+import qrcode
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status, Request
@@ -127,3 +131,24 @@ def revoke_refresh_token(db: Session, token: str) -> None:
     if db_token:
         db_token.revoked = True
         db.commit()
+
+
+def setup_2fa(db: Session, user: UserDB) -> str:
+    """Generate a TOTP secret for the user and return a QR code in base64."""
+    if not user.twofa_secret:
+        user.twofa_secret = pyotp.random_base32()
+        db.commit()
+
+    totp = pyotp.TOTP(user.twofa_secret)
+    uri = totp.provisioning_uri(name=user.email, issuer_name=settings.PROJECT_NAME)
+    img = qrcode.make(uri)
+    buffer = BytesIO()
+    img.save(buffer, format="PNG")
+    return base64.b64encode(buffer.getvalue()).decode()
+
+
+def verify_2fa(user: UserDB, token: str) -> bool:
+    if not user.twofa_secret:
+        return False
+    totp = pyotp.TOTP(user.twofa_secret)
+    return totp.verify(token)
