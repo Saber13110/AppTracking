@@ -208,8 +208,40 @@
 
 .timeline-item.current .timeline-icon {
   background: #4d148c;
+  animation: pulse 2s infinite;
 }
 
 .timeline-item.current .status {
   font-weight: 700;
+}
+
+.timeline-item.past .timeline-icon {
+  opacity: 0.5;
+}
+
+.timeline-item.delivered .timeline-icon {
+  background: #16a34a;
+}
+
+.timeline-item.in-transit .timeline-icon {
+  background: #2563eb;
+}
+
+.timeline-item.exception .timeline-icon {
+  background: #dc2626;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }

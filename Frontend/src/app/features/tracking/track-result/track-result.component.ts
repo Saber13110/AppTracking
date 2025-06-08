@@ -191,4 +191,27 @@ export class TrackResultComponent implements OnInit, OnDestroy {
       check();
     });
   }
+
+  getItemClasses(event: any, index: number): string {
+    const classes = ['timeline-item'];
+    if (!this.trackingInfo) {
+      return classes.join(' ');
+    }
+    if (index === this.trackingInfo.tracking_history.length - 1) {
+      classes.push('current');
+    } else {
+      classes.push('past');
+    }
+
+    const status = (event.status || '').toLowerCase();
+    if (status.includes('delivered')) {
+      classes.push('delivered');
+    } else if (status.includes('exception')) {
+      classes.push('exception');
+    } else if (status.includes('transit')) {
+      classes.push('in-transit');
+    }
+
+    return classes.join(' ');
+  }
 }
