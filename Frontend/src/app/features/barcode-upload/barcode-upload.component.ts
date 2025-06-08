@@ -37,9 +37,9 @@ export class BarcodeUploadComponent {
 
   private decode(file: File) {
     this.trackingService.decodeBarcodeServer(file).subscribe({
-      next: ({ value }) => {
+      next: ({ barcode }) => {
         if (this.control) {
-          this.control.setValue(value);
+          this.control.setValue(barcode);
           this.control.markAsTouched();
           this.control.updateValueAndValidity();
         }
