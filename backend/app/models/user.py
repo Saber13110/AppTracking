@@ -26,6 +26,7 @@ class UserDB(Base):
     is_google_user = Column(Boolean, default=False)  # Indique si l'utilisateur s'est connecté via Google
     google_id = Column(String, nullable=True)  # ID Google de l'utilisateur
     verification_token = Column(String, nullable=True)
+    verification_token_expires_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     role = Column(SQLEnum(UserRole), default=UserRole.client, nullable=False)
     last_login_at = Column(DateTime(timezone=True), nullable=True)
