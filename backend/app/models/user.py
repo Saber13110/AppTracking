@@ -29,6 +29,8 @@ class UserDB(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     role = Column(SQLEnum(UserRole), default=UserRole.client, nullable=False)
     last_login_at = Column(DateTime(timezone=True), nullable=True)
+    failed_login_attempts = Column(Integer, default=0)
+    locked_until = Column(DateTime(timezone=True), nullable=True)
     twofa_secret = Column(String, nullable=True)
     is_twofa_enabled = Column(Boolean, default=False)
 

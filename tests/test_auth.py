@@ -1,6 +1,7 @@
 import os
 import sys
 import asyncio
+from datetime import datetime, timedelta
 from starlette.requests import Request
 from starlette.datastructures import Headers
 import pytest
@@ -242,4 +243,32 @@ def test_last_login_timestamp_updated(db_session, patched_router):
     db_session.refresh(user)
 
     assert user.last_login_at is not None
+
+
+def test_account_lockout_flow(db_session, patched_router):
+    user_data = UserCreate(email="lock@example.com", full_name="Lock", password="pw")
+    user = asyncio.run(patched_router.register(user_data, db_session))
+    asyncio.run(patched_router.verify_email(patched_router.EmailVerification(token=user.verification_token), db_session))
+
+    wrong_form = patched_router.OAuth2PasswordRequestForm(username=user.email, password="bad", scope="")
+    for _ in range(5):
+        with pytest.raises(patched_router.HTTPException):
+            asyncio.run(patched_router.login(patched_router.Response(), wrong_form, db_session))
+
+    db_session.refresh(user)
+    assert user.failed_login_attempts == 5
+    assert user.locked_until is not None
+
+    correct_form = patched_router.OAuth2PasswordRequestForm(username=user.email, password="pw", scope="")
+    with pytest.raises(patched_router.HTTPException) as exc:
+        asyncio.run(patched_router.login(patched_router.Response(), correct_form, db_session))
+    assert exc.value.status_code == 403
+
+    user.locked_until = datetime.utcnow() - timedelta(seconds=1)
+    db_session.commit()
+    resp = patched_router.Response()
+    asyncio.run(patched_router.login(resp, correct_form, db_session))
+    db_session.refresh(user)
+    assert user.failed_login_attempts == 0
+    assert user.locked_until is None
 
