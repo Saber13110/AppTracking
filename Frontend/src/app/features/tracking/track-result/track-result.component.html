@@ -94,6 +94,13 @@
       </div>
     </div>
 
+    <div class="option-card-container mb-4">
+      <div class="option-card" (click)="openScheduleDelivery()">Schedule Delivery</div>
+      <div class="option-card" (click)="openChangeAddress()">Change Address</div>
+      <div class="option-card" (click)="openHoldAtLocation()">Hold at Location</div>
+      <div class="option-card" (click)="openDeliveryInstructions()">Delivery Instructions</div>
+    </div>
+
     <div *ngIf="trackingInfo.tracking_history?.length">
       <h3 class="font-bold mb-2">Historique</h3>
       <ul class="space-y-4">

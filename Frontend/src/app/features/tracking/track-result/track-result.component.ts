@@ -1,5 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { ScheduleDeliveryDialogComponent } from '../dialogs/schedule-delivery-dialog.component';
+import { ChangeAddressDialogComponent } from '../dialogs/change-address-dialog.component';
+import { HoldLocationDialogComponent } from '../dialogs/hold-location-dialog.component';
+import { DeliveryInstructionsDialogComponent } from '../dialogs/delivery-instructions-dialog.component';
 import { ActivatedRoute } from '@angular/router';
 import { TrackingService, TrackingInfo } from '../services/tracking.service';
 import { environment } from '../../../../environments/environment';
@@ -13,7 +19,7 @@ declare global {
 @Component({
   selector: 'app-track-result',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatDialogModule, MatSnackBarModule],
   templateUrl: './track-result.component.html',
   styleUrls: ['./track-result.component.scss']
 })
@@ -28,7 +34,9 @@ export class TrackResultComponent implements OnInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit() {
@@ -89,6 +97,38 @@ export class TrackResultComponent implements OnInit, OnDestroy {
 
   contactSupport() {
     window.location.href = '/support';
+  }
+
+  openScheduleDelivery() {
+    this.dialog.open(ScheduleDeliveryDialogComponent).afterClosed().subscribe(res => {
+      if (res) {
+        this.snackBar.open('Delivery scheduled', undefined, { duration: 3000 });
+      }
+    });
+  }
+
+  openChangeAddress() {
+    this.dialog.open(ChangeAddressDialogComponent).afterClosed().subscribe(res => {
+      if (res) {
+        this.snackBar.open('Address updated', undefined, { duration: 3000 });
+      }
+    });
+  }
+
+  openHoldAtLocation() {
+    this.dialog.open(HoldLocationDialogComponent).afterClosed().subscribe(res => {
+      if (res) {
+        this.snackBar.open('Hold request sent', undefined, { duration: 3000 });
+      }
+    });
+  }
+
+  openDeliveryInstructions() {
+    this.dialog.open(DeliveryInstructionsDialogComponent).afterClosed().subscribe(res => {
+      if (res) {
+        this.snackBar.open('Instructions saved', undefined, { duration: 3000 });
+      }
+    });
   }
 
   ngOnDestroy() {
