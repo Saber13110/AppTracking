@@ -87,6 +87,21 @@ export class TrackResultComponent implements OnInit, OnDestroy {
     }
   }
 
+  printTracking() {
+    window.print();
+  }
+
+  saveTracking() {
+    if (this.trackingInfo?.tracking_number) {
+      const key = 'savedTrackingNumbers';
+      const saved = JSON.parse(localStorage.getItem(key) || '[]');
+      if (!saved.includes(this.trackingInfo.tracking_number)) {
+        saved.push(this.trackingInfo.tracking_number);
+        localStorage.setItem(key, JSON.stringify(saved));
+      }
+    }
+  }
+
   contactSupport() {
     window.location.href = '/support';
   }
