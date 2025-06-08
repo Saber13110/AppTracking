@@ -20,3 +20,40 @@ The repository excludes `backend/.env` from version control. Store your secrets 
 
 `REDIS_URL` controls the Redis connection used for rate limiting. If omitted, the API defaults to `redis://localhost:6379/0`.
 
+## Installation
+
+Install Python dependencies:
+
+```bash
+pip install -r backend/requirements.txt
+```
+
+Then install the Node packages used by the Angular frontend:
+
+```bash
+cd Frontend
+npm install
+```
+
+## Running the application
+
+Start the backend API server:
+
+```bash
+uvicorn backend.app.main:app
+```
+
+From the `Frontend` directory, launch the Angular development server:
+
+```bash
+npm start
+```
+
+## Testing
+
+After installing the backend requirements, run the tests with:
+
+```bash
+pytest
+```
+
