@@ -79,3 +79,31 @@ $secondary-color: #ff6600;
   padding: 1rem;
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
+
+/* Global Notification Styles */
+.notification-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 1000;
+}
+
+.notification {
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  background-color: #2196f3;
+  transition: opacity 0.3s ease;
+}
+
+.notification.success { background-color: #4caf50; }
+.notification.error { background-color: #f44336; }
+.notification.info { background-color: #2196f3; }
+
+.notification.fade-out {
+  opacity: 0;
+}
