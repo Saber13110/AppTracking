@@ -71,6 +71,25 @@
 </section>
 
 <!-- =======================
+📦 GENERATE BARCODE SECTION
+======================= -->
+<section class="generate-barcode-option">
+  <div class="container">
+    <p>Enter a tracking ID to generate its barcode.</p>
+    <form [formGroup]="barcodeForm" (ngSubmit)="generateBarcode()">
+      <div class="input-group">
+        <input type="text" formControlName="trackingId" placeholder="Tracking ID">
+        <button type="submit" class="btn btn--primary">Generate</button>
+      </div>
+    </form>
+    <div class="barcode-display" *ngIf="generatedBarcode">
+      <img [src]="generatedBarcode" alt="Generated barcode">
+      <a [href]="generatedBarcode" download="barcode.png" class="btn btn--primary mt-2">Download</a>
+    </div>
+  </div>
+</section>
+
+<!-- =======================
 🚀 SERVICES SECTION
 ======================= -->
 <section class="services">

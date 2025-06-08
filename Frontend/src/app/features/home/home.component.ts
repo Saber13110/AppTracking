@@ -8,6 +8,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { TrackingService } from '../tracking/services/tracking.service';
 import { Subject, Observable } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import JsBarcode from 'jsbarcode';
 
 // Import Google Maps types
 declare global {
@@ -117,6 +118,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // Form for barcode generation
   barcodeForm: FormGroup;
+  generatedBarcode: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -445,8 +447,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   generateBarcode(): void {
     if (this.barcodeForm.valid) {
       const trackingId = this.barcodeForm.get('trackingId')?.value;
-      // TODO: Implement actual barcode generation logic
-      // For now, just show a notification
+      // Generate the barcode using JsBarcode
+      const canvas = document.createElement('canvas');
+      JsBarcode(canvas, trackingId, { format: 'CODE128', displayValue: false });
+      this.generatedBarcode = canvas.toDataURL('image/png');
+
       this.addNotification(
         'success',
         'Barcode Generated',
