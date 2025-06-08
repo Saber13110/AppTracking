@@ -53,7 +53,7 @@ def test_webhook_valid_signature_calls_service(db_session, monkeypatch):
         def __init__(self, db):
             pass
 
-        def track_single_package(self, number):
+        async def track_single_package(self, number):
             called["number"] = number
 
     monkeypatch.setattr(webhook_router, "TrackingService", DummyService)
@@ -82,7 +82,7 @@ def test_webhook_no_signature_allowed(db_session, monkeypatch):
         def __init__(self, db):
             pass
 
-        def track_single_package(self, number):
+        async def track_single_package(self, number):
             called["number"] = number
 
     monkeypatch.setattr(webhook_router, "TrackingService", DummyService)
