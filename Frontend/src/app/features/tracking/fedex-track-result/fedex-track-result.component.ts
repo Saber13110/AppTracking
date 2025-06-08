@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { TrackingService, TrackingInfo } from '../services/tracking.service';
 import { AnalyticsService } from '../../../core/services/analytics.service';
+import { showNotification } from '../../../shared/services/notification.util';
 
 interface FedexTrackingInfo extends TrackingInfo {
   currentLocation?: {
@@ -112,33 +113,6 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
     this.waitForGoogleMaps().then(() => this.initializeMap());
   }
 
-  shareTracking(): void {
-    if (navigator.share && this.trackingData) {
-      navigator.share({
-        title: 'Tracking',
-        text: `Tracking ${this.trackingData.tracking_number}`,
-        url: window.location.href
-      });
-    } else if (this.trackingData?.tracking_number) {
-      navigator.clipboard.writeText(this.trackingData.tracking_number);
-    }
-  }
-
-  printTracking(): void {
-    window.print();
-  }
-
-  saveTracking(): void {
-    if (!this.trackingData?.tracking_number) {
-      return;
-    }
-    const key = 'savedTrackingNumbers';
-    const saved: string[] = JSON.parse(localStorage.getItem(key) || '[]');
-    if (!saved.includes(this.trackingData.tracking_number)) {
-      saved.push(this.trackingData.tracking_number);
-      localStorage.setItem(key, JSON.stringify(saved));
-    }
-  }
 
   getItemClasses(event: any, index: number): string {
     const classes = ['timeline-item'];
@@ -176,6 +150,17 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
   }
 
   shareTracking(): void {
+    if (navigator.share && this.trackingData) {
+      navigator.share({
+        title: 'Tracking',
+        text: `Tracking ${this.trackingData.tracking_number}`,
+        url: window.location.href
+      });
+      showNotification('Share dialog opened', 'info');
+    } else if (this.trackingData?.tracking_number) {
+      navigator.clipboard.writeText(this.trackingData.tracking_number);
+      showNotification('Tracking number copied', 'success');
+    }
     if (this.trackingData?.tracking_number) {
       this.analytics.logAction('share_tracking', this.trackingData.tracking_number);
       console.log('Sharing tracking number', this.trackingData.tracking_number);
@@ -185,6 +170,7 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
   printTracking(): void {
     window.print();
     this.analytics.logAction('print_tracking');
+    showNotification('Printing...', 'info');
     console.log('Printing tracking information');
   }
 
@@ -195,6 +181,7 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
       if (!saved.includes(this.trackingData.tracking_number)) {
         saved.push(this.trackingData.tracking_number);
         localStorage.setItem(key, JSON.stringify(saved));
+        showNotification('Tracking saved', 'success');
       }
       this.analytics.logAction('save_tracking', this.trackingData.tracking_number);
       console.log('Saving tracking number', this.trackingData.tracking_number);
@@ -203,6 +190,7 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
 
   openDialog(name: string): void {
     this.analytics.logAction('open_dialog', name);
+    showNotification(`Dialog opened: ${name}`, 'info');
     console.log('Opening dialog', name);
   }
 

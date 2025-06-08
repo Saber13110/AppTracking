@@ -113,6 +113,7 @@ export class TrackResultComponent implements OnInit, OnDestroy {
   printTracking() {
     window.print();
     showNotification('Printing...', 'info');
+    this.analytics.logAction('print_tracking', this.trackingInfo?.tracking_number);
   }
 
   saveTracking() {
@@ -124,6 +125,7 @@ export class TrackResultComponent implements OnInit, OnDestroy {
         localStorage.setItem(key, JSON.stringify(saved));
         showNotification('Tracking saved', 'success');
       }
+      this.analytics.logAction('save_tracking', this.trackingInfo.tracking_number);
     }
   }
 
