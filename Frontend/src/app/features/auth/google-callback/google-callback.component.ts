@@ -18,7 +18,10 @@ export class GoogleCallbackComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe(() => {
+    this.route.queryParams.subscribe(params => {
+      const token = params['token'];
+      // Le token est inclus dans l'URL par le backend lors du callback Google.
+      // Il peut être utilisé ultérieurement si nécessaire.
       this.authService.me().subscribe({
         next: () => this.router.navigate(['/home']),
         error: () => this.router.navigate(['/auth/login'])
