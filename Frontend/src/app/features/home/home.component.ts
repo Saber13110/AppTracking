@@ -139,10 +139,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.initializeFAQ();
     this.initializeServices();
     
-    // Initialize map after a short delay to ensure DOM is ready
-    setTimeout(() => {
-      this.initializeMap();
-    }, 1000);
+    this.waitForGoogleMaps().then(() => this.initializeMap());
   }
 
   ngOnDestroy() {
@@ -456,6 +453,19 @@ export class HomeComponent implements OnInit, OnDestroy {
         'Please enter a valid tracking ID (minimum 10 alphanumeric characters).'
       );
     }
+  }
+
+  private waitForGoogleMaps(): Promise<void> {
+    return new Promise(resolve => {
+      const check = () => {
+        if (typeof window !== 'undefined' && (window as any).google && (window as any).google.maps) {
+          resolve();
+        } else {
+          setTimeout(check, 100);
+        }
+      };
+      check();
+    });
   }
 
   logout(): void {
