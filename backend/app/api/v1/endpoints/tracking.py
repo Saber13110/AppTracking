@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
+from fastapi.responses import StreamingResponse
 from typing import List, Dict, Any, Optional
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
@@ -11,7 +12,12 @@ from ....services.colis_service import ColisService
 from ....services.fedex_service import FedExService
 from datetime import datetime
 import logging
+import io
+import csv
 from ....models.colis import ColisCreate
+from PIL import Image
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -240,4 +246,109 @@ async def get_tracking_stats(
             "data": stats
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e)) 
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/number/{tracking_number}", response_model=TrackingResponse)
+async def track_by_number(tracking_number: str, db: Session = Depends(get_db)):
+    """Track a package using its tracking number."""
+    return await track_package(tracking_number, db)
+
+
+@router.get("/reference/{reference}", response_model=TrackingResponse)
+async def track_by_reference(reference: str, db: Session = Depends(get_db)):
+    """Track a package using its reference."""
+    colis_service = ColisService(db)
+    colis = await colis_service.get_colis_by_reference(reference)
+    if not colis:
+        raise HTTPException(status_code=404, detail="Colis not found")
+    return await track_package(colis.id, db)
+
+
+@router.get("/tcn/{tcn}", response_model=TrackingResponse)
+async def track_by_tcn(tcn: str, db: Session = Depends(get_db)):
+    """Track a package using its TCN."""
+    colis_service = ColisService(db)
+    colis = await colis_service.get_colis_by_tcn(tcn)
+    if not colis:
+        raise HTTPException(status_code=404, detail="Colis not found")
+    return await track_package(colis.id, db)
+
+
+@router.get("/{identifier}/export")
+async def export_tracking_events(
+    identifier: str,
+    format: str = "csv",
+    db: Session = Depends(get_db)
+):
+    """Export tracking events for a package in CSV or PDF format."""
+    colis_service = ColisService(db)
+    colis = await colis_service.get_colis_by_identifier(identifier)
+    if not colis:
+        raise HTTPException(status_code=404, detail="Colis not found")
+    events = colis.tracking_events
+
+    if format.lower() == "pdf":
+        buffer = io.BytesIO()
+        pdf = canvas.Canvas(buffer, pagesize=letter)
+        y = 750
+        pdf.drawString(50, y, f"Tracking events for {identifier}")
+        y -= 20
+        for evt in events:
+            loc = evt.location
+            loc_str = ""
+            if loc:
+                loc_str = f"{loc.city or ''} {loc.state or ''} {loc.country or ''}"
+            pdf.drawString(50, y, f"{evt.timestamp} - {evt.status} - {loc_str}")
+            y -= 15
+            if y < 50:
+                pdf.showPage()
+                y = 750
+        pdf.save()
+        buffer.seek(0)
+        headers = {"Content-Disposition": f"attachment; filename={identifier}.pdf"}
+        return StreamingResponse(buffer, media_type="application/pdf", headers=headers)
+
+    out = io.StringIO()
+    writer = csv.writer(out)
+    writer.writerow(["timestamp", "status", "description", "city", "state", "country", "postal_code"])
+    for evt in events:
+        loc = evt.location
+        writer.writerow([
+            evt.timestamp,
+            evt.status,
+            evt.description,
+            getattr(loc, "city", ""),
+            getattr(loc, "state", ""),
+            getattr(loc, "country", ""),
+            getattr(loc, "postal_code", ""),
+        ])
+    out.seek(0)
+    headers = {"Content-Disposition": f"attachment; filename={identifier}.csv"}
+    return StreamingResponse(io.BytesIO(out.getvalue().encode()), media_type="text/csv", headers=headers)
+
+
+@router.post("/barcode/decode")
+async def decode_barcode(file: UploadFile = File(...)):
+    """Decode a barcode image and return the embedded number."""
+    content = await file.read()
+    img = Image.open(io.BytesIO(content))
+    try:
+        from pyzbar.pyzbar import decode as decode_bar
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail="pyzbar not available") from exc
+
+    decoded = decode_bar(img)
+    if not decoded:
+        raise HTTPException(status_code=400, detail="Unable to decode barcode")
+    return {"barcode": decoded[0].data.decode("utf-8")}
+
+
+@router.get("/proof/{identifier}")
+async def get_proof_of_delivery(identifier: str):
+    """Placeholder endpoint for proof of delivery."""
+    return {
+        "success": False,
+        "error": "Proof of delivery not implemented",
+        "identifier": identifier,
+    }
