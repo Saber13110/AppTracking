@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { TrackingService, TrackingInfo } from '../services/tracking.service';
 import { TrackingHistoryService } from '../../../core/services/tracking-history.service';
 import { AnalyticsService } from '../../../core/services/analytics.service';
@@ -42,6 +43,8 @@ export class TrackResultComponent implements OnInit, OnDestroy {
   map: google.maps.Map | null = null;
   markers: any[] = [];
   polyline: google.maps.Polyline | null = null;
+  proofUrl: SafeResourceUrl | null = null;
+  private proofObjectUrl: string | null = null;
   private refreshIntervalId: any;
   private identifier: string | null = null;
   private paramsSub: Subscription | null = null;
@@ -50,7 +53,8 @@ export class TrackResultComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private trackingService: TrackingService,
     private analytics: AnalyticsService,
-    private history: TrackingHistoryService
+    private history: TrackingHistoryService,
+    private sanitizer: DomSanitizer
   ) {}
 
   ngOnInit() {
@@ -84,6 +88,7 @@ export class TrackResultComponent implements OnInit, OnDestroy {
           this.trackingInfo = response.data;
           this.history.addIdentifier(identifier);
           this.waitForGoogleMaps().then(() => this.initializeMap());
+          this.fetchProof();
         } else {
           this.error = response.error || 'Impossible de récupérer les informations de suivi';
           showNotification(this.error, 'error');
@@ -148,6 +153,30 @@ export class TrackResultComponent implements OnInit, OnDestroy {
     });
   }
 
+  fetchProof() {
+    if (!this.trackingInfo) return;
+    this.trackingService.downloadProof(this.trackingInfo.tracking_number).subscribe({
+      next: blob => {
+        const url = window.URL.createObjectURL(blob);
+        this.proofObjectUrl = url;
+        this.proofUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+      },
+      error: () => {
+        this.proofUrl = null;
+      }
+    });
+  }
+
+  closeProof() {
+    if (this.proofUrl) {
+      if (this.proofObjectUrl) {
+        window.URL.revokeObjectURL(this.proofObjectUrl);
+        this.proofObjectUrl = null;
+      }
+      this.proofUrl = null;
+    }
+  }
+
   printTracking() {
     window.print();
     showNotification('Printing...', 'info');
@@ -200,6 +229,7 @@ export class TrackResultComponent implements OnInit, OnDestroy {
 
     const origin = this.getLatLng(this.trackingInfo.origin);
     const destination = this.getLatLng(this.trackingInfo.destination);
+    const delivered = this.getLatLng(this.trackingInfo.delivery_details?.delivery_location);
 
     const path: google.maps.LatLngLiteral[] = [];
     if (origin) {
@@ -219,7 +249,11 @@ export class TrackResultComponent implements OnInit, OnDestroy {
       path.push(destination);
     }
 
-    const center = current || origin || destination || path[0] || { lat: 0, lng: 0 };
+    if (delivered) {
+      path.push(delivered);
+    }
+
+    const center = current || delivered || origin || destination || path[0] || { lat: 0, lng: 0 };
 
     const mapEl = document.getElementById('map') as HTMLElement;
     this.map = new window.google.maps.Map(mapEl, { center, zoom: 6 });
@@ -230,6 +264,10 @@ export class TrackResultComponent implements OnInit, OnDestroy {
 
     if (destination) {
       this.markers.push(new window.google.maps.Marker({ position: destination, map: this.map, label: 'D' }));
+    }
+
+    if (delivered) {
+      this.markers.push(new window.google.maps.Marker({ position: delivered, map: this.map, label: 'X' }));
     }
 
     if (current) {
