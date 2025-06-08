@@ -6,8 +6,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { TrackingService } from '../tracking/services/tracking.service';
-import { Subject, Observable } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 import { BrowserMultiFormatReader } from '@zxing/browser';
 
 // Import Google Maps types
@@ -93,7 +92,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // === Notifications en file d'attente
   notifications: Notification[] = [];
-  currentNotifs: Notification[] = [];
 
   // === Liste d'actualités
   news: News[] = [];
@@ -110,7 +108,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   selectedLocation: Location | null = null;
   private map: any = null;
   private markers: any[] = [];
-  private destroy$ = new Subject<void>();
 
   // === GESTION DES CARTES DE FONCTIONNALITÉS HERO
   // Tracks the currently selected feature card in the hero section ('barcode_scan', 'obtain_proof', or null for default track by ID)
@@ -147,8 +144,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
     // Clean up map resources
     if (this.map) {
       this.map = null;
