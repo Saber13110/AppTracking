@@ -11,6 +11,7 @@ from ..config import settings
 from ..database import get_db
 from secrets import token_urlsafe
 from ..models.refresh_token import RefreshTokenDB
+from ..models.password_reset import PasswordResetTokenDB
 
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -127,3 +128,27 @@ def revoke_refresh_token(db: Session, token: str) -> None:
     if db_token:
         db_token.revoked = True
         db.commit()
+
+def create_password_reset_token(db: Session, user: UserDB) -> str:
+    """Create and store a password reset token for the given user."""
+    token = token_urlsafe(32)
+    expires = datetime.utcnow() + timedelta(hours=1)
+    db_token = PasswordResetTokenDB(token=token, user_id=user.id, expires_at=expires)
+    db.add(db_token)
+    db.commit()
+    return token
+
+
+def verify_password_reset_token(token: str, db: Session) -> Optional[UserDB]:
+    """Return the user linked to the token if valid and not expired/revoked."""
+
+    db_token = (
+        db.query(PasswordResetTokenDB)
+        .filter(PasswordResetTokenDB.token == token, PasswordResetTokenDB.revoked.is_(False))
+        .first()
+    )
+    if not db_token:
+        return None
+    if db_token.expires_at and db_token.expires_at < datetime.utcnow():
+        return None
+    return db.query(UserDB).filter(UserDB.id == db_token.user_id).first()

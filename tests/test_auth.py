@@ -78,6 +78,8 @@ def patched_router(monkeypatch):
     # Prevent real emails from being sent
     monkeypatch.setattr(auth_router, "send_verification_email", lambda *a, **k: True)
     monkeypatch.setattr(email, "send_verification_email", lambda *a, **k: True)
+    monkeypatch.setattr(auth_router, "send_password_reset_email", lambda *a, **k: True)
+    monkeypatch.setattr(email, "send_password_reset_email", lambda *a, **k: True)
 
     return auth_router
 
@@ -207,4 +209,22 @@ def test_google_callback_sets_cookies(db_session, monkeypatch):
     cookies = parse_cookies(response.headers.getlist("set-cookie"))
     assert cookies.get("access_token")
     assert cookies.get("refresh_token")
+
+
+def test_password_reset_flow(db_session, patched_router):
+    user_data = UserCreate(email="reset@example.com", full_name="Res", password="pw")
+    user = asyncio.run(patched_router.register(user_data, db_session))
+    asyncio.run(patched_router.verify_email(patched_router.EmailVerification(token=user.verification_token), db_session))
+
+    resp = asyncio.run(patched_router.request_password_reset(patched_router.PasswordResetRequest(email=user.email), db_session))
+    assert "reset link" in resp["message"]
+
+    from backend.app.models.password_reset import PasswordResetTokenDB
+    token_db = db_session.query(PasswordResetTokenDB).filter_by(user_id=user.id).first()
+    assert token_db is not None
+
+    asyncio.run(patched_router.reset_password(patched_router.PasswordReset(token=token_db.token, new_password="newpw"), db_session))
+    db_session.refresh(user)
+    assert auth.verify_password("newpw", user.hashed_password)
+    assert token_db.revoked is True
 
