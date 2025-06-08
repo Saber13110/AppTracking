@@ -2,6 +2,17 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.12.
 
+## Environment Variables
+
+The build uses `dotenv-webpack` to replace references to `process.env` with values
+from the `.env` file at the repository root. Provide your Google Maps key in this file:
+
+```bash
+GOOGLE_MAPS_API_KEY=your-google-maps-key
+```
+
+Running `ng serve` or `ng build` will automatically read the key and embed it into the application.
+
 ## Development server
 
 To start a local development server, run:
