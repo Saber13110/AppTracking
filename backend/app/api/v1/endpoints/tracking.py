@@ -280,6 +280,22 @@ async def get_tracking_stats(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.get("/active", response_model=Dict[str, Any])
+async def get_active_shipments(
+    db: Session = Depends(get_db)
+):
+    """Return active shipments with their latest known location."""
+    tracking_service = TrackingService(db=db)
+    try:
+        shipments = tracking_service.get_active_shipments()
+        return {
+            "success": True,
+            "data": shipments,
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.get("/number/{tracking_number}", response_model=TrackingResponse)
 async def track_by_number(tracking_number: str, db: Session = Depends(get_db)):
     """Track a package using its tracking number."""

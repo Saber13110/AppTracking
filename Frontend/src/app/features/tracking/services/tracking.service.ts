@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { BrowserMultiFormatReader } from '@zxing/browser';
 import { environment } from '../../../../environments/environment';
 import { TrackingInfo, TrackingResponse } from '../models/tracking';
@@ -56,6 +56,18 @@ export class TrackingService {
 
   trackByEmail(tracking_number: string, email: string): Observable<TrackingResponse> {
     return this.http.post<TrackingResponse>(`${this.baseUrl}/email`, { tracking_number, email });
+  }
+
+  getActiveShipments(): Observable<any[]> {
+    return this.http.get<{ success: boolean; data: any[] }>(`${this.baseUrl}/active`).pipe(
+      map(res => res.data)
+    );
+  }
+
+  getTrackingStats(): Observable<any> {
+    return this.http.get<{ success: boolean; data: any }>(`${this.baseUrl}/stats`).pipe(
+      map(res => res.data)
+    );
   }
 
   decodeBarcodeClient(file: File): Promise<string> {

@@ -165,6 +165,12 @@ curl -X POST http://localhost:8000/api/v1/auth/resend-verification \
 L'interface Angular propose un formulaire accessible à l'adresse
 `/auth/resend-verification` pour effectuer cette action.
 
+## Tracking Dashboard
+
+The `/dashboard` route displays a real‑time map of all active shipments. Markers
+are clustered automatically and the page also shows charts summarizing delivery
+statistics.
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).

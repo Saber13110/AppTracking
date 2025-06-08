@@ -7,7 +7,7 @@ from ..models.tracking import (
 )
 from sqlalchemy.orm import Session
 from sqlalchemy import asc, desc, and_
-from ..models.database import TrackingDB, TrackingEventDB
+from ..models.database import TrackingDB, TrackingEventDB, LocationDB
 
 logger = logging.getLogger(__name__)
 
@@ -237,4 +237,38 @@ class TrackingService:
 
         except Exception as e:
             logger.error(f"Error getting tracking stats: {str(e)}")
-            raise 
+            raise
+
+    def get_active_shipments(self) -> List[Dict[str, Any]]:
+        """Return active (undelivered) shipments with latest known location."""
+        try:
+            active = (
+                self.db.query(TrackingDB)
+                .filter(TrackingDB.status != "DELIVERED")
+                .all()
+            )
+
+            shipments: List[Dict[str, Any]] = []
+            for track in active:
+                event = (
+                    self.db.query(TrackingEventDB)
+                    .filter(TrackingEventDB.tracking_id == track.id)
+                    .join(LocationDB, TrackingEventDB.location)
+                    .order_by(TrackingEventDB.timestamp.desc())
+                    .first()
+                )
+
+                if event and event.location and event.location.latitude is not None and event.location.longitude is not None:
+                    shipments.append(
+                        {
+                            "tracking_number": track.tracking_number,
+                            "status": track.status,
+                            "lat": event.location.latitude,
+                            "lng": event.location.longitude,
+                        }
+                    )
+
+            return shipments
+        except Exception as e:
+            logger.error(f"Error getting active shipments: {str(e)}")
+            raise
