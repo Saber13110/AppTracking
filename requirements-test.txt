@@ -26,3 +26,5 @@ redis>=4.2.0
 pyotp==2.9.0
 pyzbar==0.1.9
 reportlab==4.0.6
+pdfminer.six==20221105
+apscheduler==3.10.4
