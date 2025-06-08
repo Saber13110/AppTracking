@@ -32,10 +32,10 @@ export class TrackingService {
     return this.http.get<TrackingResponse>(`${this.baseUrl}/tcn/${tcn}`);
   }
 
-  decodeBarcodeServer(file: File): Observable<{ value: string }> {
+  decodeBarcodeServer(file: File): Observable<{ barcode: string }> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<{ value: string }>(`${this.baseUrl}/barcode/decode`, formData);
+    return this.http.post<{ barcode: string }>(`${this.baseUrl}/barcode/decode`, formData);
   }
 
 
