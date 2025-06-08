@@ -11,6 +11,7 @@ import { AnalyticsService } from '../../core/services/analytics.service';
 import { Subject, Observable } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { BrowserCodeReader, IScannerControls, BrowserMultiFormatReader } from '@zxing/browser';
+import { BarcodeUploadComponent } from '../barcode-upload/barcode-upload.component';
 
 // Import Google Maps types
 declare global {
@@ -68,7 +69,7 @@ interface ServiceItem {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule, BarcodeUploadComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
   animations: [

@@ -87,6 +87,7 @@
           {{ isScanning ? 'Stop Scan' : 'Pro Scan (Webcam)' }}
         </button>
         <video #videoPreview *ngIf="isScanning" class="webcam-preview" autoplay></video>
+        <app-barcode-upload [control]="trackingForm.get('trackingNumber')"></app-barcode-upload>
       </div>
 
       <!-- Obtain Your Proof Option -->
