@@ -26,3 +26,4 @@ Both `backend/.env` and `backend/.env.local` are ignored by Git. Store your secr
 
 The frontend needs a Google Maps API key. Set `GOOGLE_MAPS_API_KEY` in a `.env` file at the project root or export it in your shell before running the Angular app.
 
+The backend is implemented purely in Python and no longer uses npm dependencies.
