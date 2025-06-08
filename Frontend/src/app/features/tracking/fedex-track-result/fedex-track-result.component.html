@@ -91,7 +91,7 @@
     </div>
 
     <div class="grid md:grid-cols-2 gap-4 mb-4">
-      <div id="fedex-map" class="h-64 w-full bg-gray-200 rounded" *ngIf="trackingData">
+      <div id="fedex-map" role="region" aria-label="Tracking map" tabindex="0" class="h-64 w-full bg-gray-200 rounded" *ngIf="trackingData">
         <!-- Google Map will be rendered here -->
       </div>
       <div>
