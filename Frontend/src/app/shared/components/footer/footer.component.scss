@@ -1,0 +1,25 @@
+@use "sass:color";
+
+$primary-color: #4D148C;
+$text-color: #333;
+
+.footer {
+  background: $primary-color;
+  color: white;
+  padding: 2rem 0;
+  text-align: center;
+
+  .footer-links {
+    margin-bottom: 1rem;
+
+    a {
+      color: white;
+      margin: 0 0.5rem;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}

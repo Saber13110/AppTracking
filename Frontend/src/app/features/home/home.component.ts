@@ -13,6 +13,9 @@ import { Subject, Observable } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { BrowserCodeReader, IScannerControls, BrowserMultiFormatReader } from '@zxing/browser';
 import { BarcodeUploadComponent } from '../barcode-upload/barcode-upload.component';
+import { TrackingOptionsComponent } from '../../shared/components/tracking-options/tracking-options.component';
+import { TrackingMobileComponent } from '../../shared/components/tracking-mobile/tracking-mobile.component';
+import { FooterComponent } from '../../shared/components/footer/footer.component';
 
 // Import Google Maps types
 declare global {
@@ -70,7 +73,16 @@ interface ServiceItem {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule, BarcodeUploadComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    RouterModule,
+    BarcodeUploadComponent,
+    TrackingOptionsComponent,
+    TrackingMobileComponent,
+    FooterComponent
+  ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
   animations: [
