@@ -83,7 +83,6 @@ interface ServiceItem {
   ]
 })
 export class HomeComponent implements OnInit, OnDestroy {
-  @ViewChild('mapContainer') mapContainer!: ElementRef;
   @ViewChild('videoPreview') videoPreview!: ElementRef<HTMLVideoElement>;
 
   private webcamReader: BrowserMultiFormatContinuousReader | null = null;
@@ -92,14 +91,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   
   // === Champs du formulaire de tracking
   trackingForm: FormGroup;
-  trackingNumber: string = '';
 
   // === Auth pour afficher outils avancés
   isLoggedIn$!: Observable<boolean>;
 
   // === Notifications en file d'attente
   notifications: Notification[] = [];
-  currentNotifs: Notification[] = [];
 
   // === Liste d'actualités
   news: News[] = [];
@@ -111,7 +108,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // === Liste des services
   servicesList: ServiceItem[] = [];
-  currentServiceIndex: number = 0;
 
   selectedLocation: Location | null = null;
   private map: any = null;
@@ -437,18 +433,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   // === FONCTION POUR FAQ ACCORDÉON
   toggleFaq(faq: FAQ): void {
     faq.isOpen = !faq.isOpen;
-  }
-
-  prevService(): void {
-    if (this.currentServiceIndex > 0) {
-      this.currentServiceIndex--;
-    }
-  }
-
-  nextService(): void {
-    if (this.currentServiceIndex < this.servicesList.length - 1) {
-      this.currentServiceIndex++;
-    }
   }
 
   // === SÉLECTIONNER UNE CARTE DE FONCTIONNALITÉ HERO
