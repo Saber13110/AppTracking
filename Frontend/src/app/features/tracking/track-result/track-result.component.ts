@@ -97,7 +97,8 @@ export class TrackResultComponent implements OnInit, OnDestroy {
       });
       showNotification('Share dialog opened', 'info');
     } else {
-      this.copyTracking();
+      navigator.clipboard.writeText(window.location.href);
+      showNotification('Link copied', 'success');
     }
     this.analytics.logAction('share_tracking', this.trackingInfo?.tracking_number);
   }
