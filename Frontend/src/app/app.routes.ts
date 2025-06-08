@@ -4,6 +4,8 @@ import { HomeComponent } from './features/home/home.component';
 import { RegisterComponent } from './features/auth/register/register.component';
 import { LoginComponent } from './features/auth/login/login.component';
 import { VerifyEmailComponent } from './features/auth/verify-email/verify-email.component';
+import { ForgotPasswordComponent } from './features/auth/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './features/auth/reset-password/reset-password.component';
 import { TrackResultComponent } from './features/tracking/track-result/track-result.component';
 import { GoogleCallbackComponent } from './features/auth/google-callback/google-callback.component';
 
@@ -27,4 +29,6 @@ export const routes: Routes = [
   { path: 'auth/login', component: LoginComponent },
   { path: 'verify-email', component: VerifyEmailComponent },
   { path: 'auth/callback', component: GoogleCallbackComponent },
+  { path: 'auth/forgot-password', component: ForgotPasswordComponent },
+  { path: 'auth/reset-password', component: ResetPasswordComponent },
 ];
