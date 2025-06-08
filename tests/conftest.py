@@ -18,10 +18,21 @@ try:
 except Exception:  # pragma: no cover - optional models package
     ModelsBase = None
 
+# Import all model modules so SQLAlchemy tables are registered even when only a
+# single test is executed. This guarantees ``Base.metadata`` is aware of every
+# table before ``create_all`` is invoked.
+import importlib
+import pkgutil
+
+
 
 @pytest.fixture
 def db_session():
     """Provide a fresh in-memory database session for each test."""
+    import backend.app.models as models_pkg
+    for _, name, _ in pkgutil.iter_modules(models_pkg.__path__):
+        importlib.import_module(f"{models_pkg.__name__}.{name}")
+
     Base.metadata.drop_all(bind=engine)
     if ModelsBase is not None:
         ModelsBase.metadata.drop_all(bind=engine)
