@@ -29,6 +29,11 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
   private marker: google.maps.Marker | null = null;
   private identifier = '';
 
+  // Progress bar related
+  progressSteps = ['Pending', 'In Transit', 'Delivered'];
+  currentStepIndex = 0;
+  hasException = false;
+
   constructor(
     private route: ActivatedRoute,
     private trackingService: TrackingService,
@@ -61,6 +66,7 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
       next: res => {
         if (res.success && res.data) {
           this.trackingData = res.data as FedexTrackingInfo;
+          this.updateProgressBar();
           this.waitForGoogleMaps().then(() => this.initializeMap());
         } else {
           this.useMockData();
@@ -110,6 +116,7 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
       tracking_history: [],
       currentLocation: { latitude: 33.5731, longitude: -7.5898 }
     } as FedexTrackingInfo;
+    this.updateProgressBar();
     this.waitForGoogleMaps().then(() => this.initializeMap());
   }
 
@@ -134,6 +141,45 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
       classes.push('in-transit');
     }
     return classes.join(' ');
+  }
+
+  getProgressClasses(index: number): string {
+    const classes: string[] = [];
+    if (!this.trackingData) {
+      return classes.join(' ');
+    }
+
+    if (index < this.currentStepIndex) {
+      classes.push('completed');
+    } else if (index === this.currentStepIndex) {
+      classes.push('current');
+      if (this.hasException) {
+        classes.push('exception');
+      }
+    } else {
+      classes.push('pending');
+    }
+
+    return classes.join(' ');
+  }
+
+  private updateProgressBar(): void {
+    if (!this.trackingData) {
+      this.currentStepIndex = 0;
+      this.hasException = false;
+      return;
+    }
+
+    const status = (this.trackingData.status.status || '').toLowerCase();
+    this.hasException = status.includes('exception');
+
+    if (status.includes('delivered')) {
+      this.currentStepIndex = 2;
+    } else if (status.includes('in transit')) {
+      this.currentStepIndex = 1;
+    } else {
+      this.currentStepIndex = 0;
+    }
   }
 
   private waitForGoogleMaps(): Promise<void> {
