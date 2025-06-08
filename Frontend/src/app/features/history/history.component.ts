@@ -86,4 +86,8 @@ export class HistoryComponent implements OnInit {
       window.URL.revokeObjectURL(url);
     });
   }
+
+  getStatusClass(item: TrackedShipment): string {
+    return (item.status || '').toLowerCase().includes('delivered') ? 'delivered' : '';
+  }
 }
