@@ -27,6 +27,25 @@
   margin-left: 5px;
 }
 
+@media (max-width: 600px) {
+  .tabs {
+    flex-direction: column;
+  }
+
+  .tab + .tab {
+    margin-left: 0;
+    margin-top: 5px;
+  }
+}
+
+@media (max-width: 480px) {
+  input,
+  textarea,
+  button {
+    width: 100%;
+  }
+}
+
 .single-form,
 .bulk-form,
 .barcode-form {

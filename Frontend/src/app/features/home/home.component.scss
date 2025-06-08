@@ -358,9 +358,9 @@ $error-color: #dc3545;
   background: $light-gray;
 
   &__list {
-    display: flex;
-    flex-direction: column;
-    gap: 40px; // Espace entre les éléments de service
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
   }
 
   &__display {
@@ -387,24 +387,17 @@ $error-color: #dc3545;
 
 .service-item {
   display: flex;
-  align-items: center;
-  gap: 40px;
+  flex-direction: column;
   background: white;
   border-radius: 10px;
   overflow: hidden;
   @include card-shadow();
-  max-width: 1200px; // Augmenter la largeur max
+  max-width: 1200px;
   width: 100%;
-  margin: 0 auto; // Centrer l'élément
-
-  &:nth-child(even) { // Inverser l'ordre pour les éléments pairs
-    flex-direction: row-reverse;
-  }
+  margin: 0 auto;
 
   &__image {
-    flex: 1;
-    min-width: 300px;
-    max-width: 50%; // Limiter la largeur de l'image
+    width: 100%;
     img {
       width: 100%;
       height: auto;
@@ -413,7 +406,6 @@ $error-color: #dc3545;
   }
 
   &__content {
-    flex: 1;
     padding: 2rem;
     display: flex;
     flex-direction: column;
@@ -459,7 +451,7 @@ $error-color: #dc3545;
 
   &__grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 2rem;
   }
 }
@@ -537,7 +529,7 @@ $error-color: #dc3545;
 
 .locations-container {
   display: grid;
-  grid-template-columns: 1fr 400px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 2rem;
   background: white;
   border-radius: 10px;

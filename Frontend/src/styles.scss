@@ -42,3 +42,40 @@ html, body {
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+/* Global Theme */
+$primary-color: #4d148c;
+$secondary-color: #ff6600;
+
+.navbar {
+  background-color: $primary-color;
+  color: #fff;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.btn {
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+
+  &--primary {
+    background: $secondary-color;
+    color: #fff;
+  }
+
+  &--secondary {
+    background: transparent;
+    border: 2px solid $secondary-color;
+    color: $secondary-color;
+  }
+}
+
+.card {
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
