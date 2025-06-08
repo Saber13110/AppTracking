@@ -94,6 +94,7 @@ async def create_package(
                     colis_data.id,
                     status=response.data.status if response.data else None,
                     meta_data=response.metadata,
+                    pinned=False,
                 )
             except Exception:
                 pass
@@ -190,6 +191,7 @@ async def track_package(
                     identifier,
                     status=response.data.status if response.data else None,
                     meta_data=response.metadata,
+                    pinned=False,
                 )
             except Exception:
                 pass

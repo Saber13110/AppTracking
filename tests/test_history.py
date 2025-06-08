@@ -15,7 +15,7 @@ from backend.app.database import Base, engine, SessionLocal
 from backend.app.models.database import Base as ModelsBase, TrackedShipmentDB
 from backend.app.services.tracking_history_service import TrackingHistoryService
 from backend.app.api.v1.endpoints import history as history_router
-from backend.app.models.tracking_history import TrackedShipmentCreate
+from backend.app.models.tracking_history import TrackedShipmentCreate, TrackedShipmentUpdate
 from backend.app.services import auth
 from backend.app.models.user import UserCreate
 
@@ -69,3 +69,17 @@ def test_delete_history_endpoint(db_session):
     asyncio.run(history_router.delete_history(user, db_session))
     remaining = service.get_history(user.id)
     assert remaining == []
+
+
+def test_update_history_endpoint(db_session):
+    user = create_user(db_session)
+    payload = TrackedShipmentCreate(tracking_number="UPD", status="X")
+    created = asyncio.run(history_router.add_history(payload, user, db_session))
+
+    update = TrackedShipmentUpdate(note="new note", pinned=True)
+    updated = asyncio.run(
+        history_router.update_history(created.id, update, user, db_session)
+    )
+
+    assert updated.note == "new note"
+    assert updated.pinned is True

@@ -11,6 +11,7 @@ export interface TrackedShipment {
   id?: string;
   meta_data?: any;
   note?: string | null;
+  pinned?: boolean;
 }
 
 @Injectable({
@@ -33,6 +34,7 @@ export class TrackingHistoryService {
       tracking_number: id,
       status: status ?? null,
       created_at: new Date().toISOString(),
+      pinned: false,
     };
     history.unshift(entry);
     if (history.length > this.maxItems) {
@@ -44,6 +46,8 @@ export class TrackingHistoryService {
     if (status !== undefined) payload.status = status;
     if (note !== undefined) payload.note = note;
     if (metaData !== undefined) payload.meta_data = metaData;
+
+    payload.pinned = false;
 
     this.http.post<TrackedShipment>(`${environment.apiUrl}/history`, payload).subscribe({
       next: (record) => {
@@ -68,6 +72,32 @@ export class TrackingHistoryService {
     this.clear();
     this.http.delete(`${environment.apiUrl}/history`).subscribe({
       next: () => {},
+      error: () => {}
+    });
+  }
+
+  updateEntry(id: string, note?: string | null, pinned?: boolean): void {
+    const history = this.getHistory();
+    const idx = history.findIndex(h => h.id === id);
+    if (idx !== -1) {
+      if (note !== undefined) history[idx].note = note;
+      if (pinned !== undefined) history[idx].pinned = pinned;
+      localStorage.setItem(this.storageKey, JSON.stringify(history));
+    }
+
+    const payload: any = {};
+    if (note !== undefined) payload.note = note;
+    if (pinned !== undefined) payload.pinned = pinned;
+
+    this.http.patch<TrackedShipment>(`${environment.apiUrl}/history/${id}`, payload).subscribe({
+      next: updated => {
+        const h = this.getHistory();
+        const i = h.findIndex(v => v.id === id);
+        if (i !== -1) {
+          h[i] = updated;
+          localStorage.setItem(this.storageKey, JSON.stringify(h));
+        }
+      },
       error: () => {}
     });
   }

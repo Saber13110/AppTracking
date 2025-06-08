@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 import io
 import csv
@@ -9,7 +9,11 @@ from ....services.auth import get_current_active_user
 from ....database import get_db
 from ....models.user import UserDB
 from ....services.tracking_history_service import TrackingHistoryService
-from ....models.tracking_history import TrackedShipment, TrackedShipmentCreate
+from ....models.tracking_history import (
+    TrackedShipment,
+    TrackedShipmentCreate,
+    TrackedShipmentUpdate,
+)
 
 router = APIRouter()
 
@@ -37,7 +41,27 @@ async def add_history(
         status=shipment.status,
         meta_data=shipment.meta_data,
         note=shipment.note,
+        pinned=shipment.pinned,
     )
+    return record
+
+
+@router.patch("/{history_id}", response_model=TrackedShipment)
+async def update_history(
+    history_id: str,
+    updates: TrackedShipmentUpdate,
+    current_user: UserDB = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    service = TrackingHistoryService(db)
+    record = service.update_history_item(
+        current_user.id,
+        history_id,
+        note=updates.note,
+        pinned=updates.pinned,
+    )
+    if not record:
+        raise HTTPException(status_code=404, detail="History item not found")
     return record
 
 
@@ -85,9 +109,9 @@ async def export_history(
 
     out = io.StringIO()
     writer = csv.writer(out)
-    writer.writerow(["created_at", "tracking_number", "status", "note"])
+    writer.writerow(["created_at", "tracking_number", "status", "note", "pinned"])
     for rec in records:
-        writer.writerow([rec.created_at, rec.tracking_number, rec.status, rec.note])
+        writer.writerow([rec.created_at, rec.tracking_number, rec.status, rec.note, rec.pinned])
     out.seek(0)
     headers = {"Content-Disposition": "attachment; filename=history.csv"}
     return StreamingResponse(io.BytesIO(out.getvalue().encode()), media_type="text/csv", headers=headers)

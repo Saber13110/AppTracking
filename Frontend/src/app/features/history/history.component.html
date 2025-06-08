@@ -13,6 +13,8 @@
         <tr>
           <th>Tracking #</th>
           <th>Status</th>
+          <th>Note</th>
+          <th>Pin</th>
           <th (click)="toggleSort()" class="sortable">
             Date
             <span *ngIf="sortAsc">&#9650;</span>
@@ -25,6 +27,12 @@
         <tr *ngFor="let item of sortedHistory">
           <td><a [routerLink]="['/track', item.tracking_number]">{{item.tracking_number}}</a></td>
           <td>{{item.status || '-'}}</td>
+          <td><input [(ngModel)]="item.note" (change)="updateNote(item)"></td>
+          <td>
+            <button (click)="togglePinned(item)">
+              {{item.pinned ? '★' : '☆'}}
+            </button>
+          </td>
           <td>{{item.created_at | date:'short'}}</td>
           <td>
             <button role="button"
