@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { TrackingService, TrackingInfo } from '../services/tracking.service';
 import { AnalyticsService } from '../../../core/services/analytics.service';
+import { showNotification } from '../../../shared/services/notification.util';
+import { environment } from '../../../../environments/environment';
 
 interface FedexTrackingInfo extends TrackingInfo {
   currentLocation?: {
@@ -56,24 +58,31 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
 
   private loadData(): void {
     this.loading = true;
+    if (environment.simulateFedexError) {
+      this.handleError();
+      return;
+    }
+
     this.trackingService.trackPackage(this.identifier).subscribe({
       next: res => {
         if (res.success && res.data) {
           this.trackingData = res.data as FedexTrackingInfo;
           this.waitForGoogleMaps().then(() => this.initializeMap());
         } else {
-          this.useMockData();
+          this.handleError();
         }
         this.loading = false;
       },
-      error: () => {
-        this.useMockData();
-        this.loading = false;
-      }
+      error: () => this.handleError()
     });
   }
 
   private updateLocation(): void {
+    if (environment.simulateFedexError) {
+      showNotification('Unable to fetch tracking information. Please try again.', 'error');
+      return;
+    }
+
     this.trackingService.trackPackage(this.identifier).subscribe({
       next: res => {
         const loc = (res.data as FedexTrackingInfo | undefined)?.currentLocation;
@@ -83,7 +92,9 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
           this.map.panTo(position);
         }
       },
-      error: () => {}
+      error: () => {
+        showNotification('Unable to fetch tracking information. Please try again.', 'error');
+      }
     });
   }
 
@@ -110,6 +121,12 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
       currentLocation: { latitude: 33.5731, longitude: -7.5898 }
     } as FedexTrackingInfo;
     this.waitForGoogleMaps().then(() => this.initializeMap());
+  }
+
+  private handleError(): void {
+    this.useMockData();
+    showNotification('Unable to fetch tracking information. Please try again.', 'error');
+    this.loading = false;
   }
 
   shareTracking(): void {
