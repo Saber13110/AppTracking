@@ -106,4 +106,37 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
     } as FedexTrackingInfo;
     this.initializeMap();
   }
+
+  shareTracking(): void {
+    if (!this.trackingData?.tracking_number) {
+      return;
+    }
+
+    if (navigator.share) {
+      navigator.share({
+        title: 'Tracking information',
+        text: `Tracking ${this.trackingData.tracking_number}`,
+        url: window.location.href
+      });
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(this.trackingData.tracking_number);
+    }
+  }
+
+  printTracking(): void {
+    window.print();
+  }
+
+  saveTracking(): void {
+    if (!this.trackingData?.tracking_number) {
+      return;
+    }
+
+    const key = 'savedTrackingNumbers';
+    const saved = JSON.parse(localStorage.getItem(key) || '[]');
+    if (!saved.includes(this.trackingData.tracking_number)) {
+      saved.push(this.trackingData.tracking_number);
+      localStorage.setItem(key, JSON.stringify(saved));
+    }
+  }
 }
