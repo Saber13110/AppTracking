@@ -55,7 +55,7 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
       next: res => {
         if (res.success && res.data) {
           this.trackingData = res.data as FedexTrackingInfo;
-          this.initializeMap();
+          this.waitForGoogleMaps().then(() => this.initializeMap());
         } else {
           this.useMockData();
         }
@@ -104,6 +104,69 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
       tracking_history: [],
       currentLocation: { latitude: 33.5731, longitude: -7.5898 }
     } as FedexTrackingInfo;
-    this.initializeMap();
+    this.waitForGoogleMaps().then(() => this.initializeMap());
+  }
+
+  shareTracking(): void {
+    if (navigator.share && this.trackingData) {
+      navigator.share({
+        title: 'Tracking',
+        text: `Tracking ${this.trackingData.tracking_number}`,
+        url: window.location.href
+      });
+    } else if (this.trackingData?.tracking_number) {
+      navigator.clipboard.writeText(this.trackingData.tracking_number);
+    }
+  }
+
+  printTracking(): void {
+    window.print();
+  }
+
+  saveTracking(): void {
+    if (!this.trackingData?.tracking_number) {
+      return;
+    }
+    const key = 'savedTrackingNumbers';
+    const saved: string[] = JSON.parse(localStorage.getItem(key) || '[]');
+    if (!saved.includes(this.trackingData.tracking_number)) {
+      saved.push(this.trackingData.tracking_number);
+      localStorage.setItem(key, JSON.stringify(saved));
+    }
+  }
+
+  getItemClasses(event: any, index: number): string {
+    const classes = ['timeline-item'];
+    if (!this.trackingData?.tracking_history) {
+      return classes.join(' ');
+    }
+    if (index === this.trackingData.tracking_history.length - 1) {
+      classes.push('current');
+    } else {
+      classes.push('past');
+    }
+
+    const status = (event.status || '').toLowerCase();
+    if (status.includes('delivered')) {
+      classes.push('delivered');
+    } else if (status.includes('exception')) {
+      classes.push('exception');
+    } else if (status.includes('transit')) {
+      classes.push('in-transit');
+    }
+    return classes.join(' ');
+  }
+
+  private waitForGoogleMaps(): Promise<void> {
+    return new Promise(resolve => {
+      const check = () => {
+        if (typeof window !== 'undefined' && (window as any).google && (window as any).google.maps) {
+          resolve();
+        } else {
+          setTimeout(check, 100);
+        }
+      };
+      check();
+    });
   }
 }
