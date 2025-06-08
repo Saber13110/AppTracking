@@ -17,6 +17,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from backend.app.database import Base, engine, SessionLocal
 from backend.app.models.user import UserCreate
+from pydantic import ValidationError
 from backend.app.services import auth
 
 @pytest.fixture
@@ -30,7 +31,7 @@ def db_session():
         db.close()
 
 def setup_user(db):
-    return auth.create_user(db, UserCreate(email='u@example.com', full_name='U', password='pw'))
+    return auth.create_user(db, UserCreate(email='u@example.com', full_name='U', password='Password1'))
 
 async def call_get_current_user(request, db, token=None):
     return await auth.get_current_user(request=request, db=db, token=token)
@@ -61,6 +62,11 @@ def parse_cookies(header_list):
     return {k: v.value for k, v in jar.items()}
 
 
+def test_password_validation():
+    with pytest.raises(ValidationError):
+        UserCreate(email="bad@example.com", full_name="Bad", password="short")
+
+
 @pytest.fixture
 def patched_router(monkeypatch):
     from backend.app.routers import auth as auth_router
@@ -86,7 +92,7 @@ def patched_router(monkeypatch):
 
 
 def test_register_and_verify_email(db_session, patched_router):
-    user_data = UserCreate(email="new@example.com", full_name="New", password="pw")
+    user_data = UserCreate(email="new@example.com", full_name="New", password="Password1")
     user = asyncio.run(patched_router.register(user_data, db_session))
     assert user.email == "new@example.com"
     assert user.is_verified is False
@@ -117,11 +123,11 @@ def test_verify_email_expired_token(db_session, patched_router):
 
 
 def test_login_returns_tokens(db_session, patched_router):
-    user_data = UserCreate(email="login@example.com", full_name="Login", password="pw")
+    user_data = UserCreate(email="login@example.com", full_name="Login", password="Password1")
     user = asyncio.run(patched_router.register(user_data, db_session))
     asyncio.run(patched_router.verify_email(patched_router.EmailVerification(token=user.verification_token), db_session))
 
-    form = patched_router.OAuth2PasswordRequestForm(username=user.email, password="pw", scope="")
+    form = patched_router.OAuth2PasswordRequestForm(username=user.email, password="Password1", scope="")
     response = patched_router.Response()
     token_model = asyncio.run(patched_router.login(response, form, db_session))
 
@@ -132,11 +138,11 @@ def test_login_returns_tokens(db_session, patched_router):
 
 
 def test_refresh_token_flow(db_session, patched_router):
-    user_data = UserCreate(email="ref@example.com", full_name="Ref", password="pw")
+    user_data = UserCreate(email="ref@example.com", full_name="Ref", password="Password1")
     user = asyncio.run(patched_router.register(user_data, db_session))
     asyncio.run(patched_router.verify_email(patched_router.EmailVerification(token=user.verification_token), db_session))
 
-    form = patched_router.OAuth2PasswordRequestForm(username=user.email, password="pw", scope="")
+    form = patched_router.OAuth2PasswordRequestForm(username=user.email, password="Password1", scope="")
     login_response = patched_router.Response()
     asyncio.run(patched_router.login(login_response, form, db_session))
     old_cookies = parse_cookies(login_response.headers.getlist("set-cookie"))
@@ -157,11 +163,11 @@ def test_refresh_token_flow(db_session, patched_router):
 
 
 def test_logout_revokes_refresh(db_session, patched_router):
-    user_data = UserCreate(email="out@example.com", full_name="Out", password="pw")
+    user_data = UserCreate(email="out@example.com", full_name="Out", password="Password1")
     user = asyncio.run(patched_router.register(user_data, db_session))
     asyncio.run(patched_router.verify_email(patched_router.EmailVerification(token=user.verification_token), db_session))
 
-    form = patched_router.OAuth2PasswordRequestForm(username=user.email, password="pw", scope="")
+    form = patched_router.OAuth2PasswordRequestForm(username=user.email, password="Password1", scope="")
     login_response = patched_router.Response()
     asyncio.run(patched_router.login(login_response, form, db_session))
     cookies = parse_cookies(login_response.headers.getlist("set-cookie"))
@@ -179,11 +185,11 @@ def test_logout_revokes_refresh(db_session, patched_router):
     assert cleared.get("access_token") == ""
 
 def test_register_verify_login_logout_flow(db_session, patched_router):
-    user_data = UserCreate(email="flow@example.com", full_name="Flow", password="pw")
+    user_data = UserCreate(email="flow@example.com", full_name="Flow", password="Password1")
     user = asyncio.run(patched_router.register(user_data, db_session))
     asyncio.run(patched_router.verify_email(patched_router.EmailVerification(token=user.verification_token), db_session))
 
-    form = patched_router.OAuth2PasswordRequestForm(username=user.email, password="pw", scope="")
+    form = patched_router.OAuth2PasswordRequestForm(username=user.email, password="Password1", scope="")
     login_resp = patched_router.Response()
     asyncio.run(patched_router.login(login_resp, form, db_session))
     cookies = parse_cookies(login_resp.headers.getlist("set-cookie"))
@@ -228,7 +234,7 @@ def test_google_callback_sets_cookies(db_session, monkeypatch):
 
 
 def test_password_reset_flow(db_session, patched_router):
-    user_data = UserCreate(email="reset@example.com", full_name="Res", password="pw")
+    user_data = UserCreate(email="reset@example.com", full_name="Res", password="Password1")
     user = asyncio.run(patched_router.register(user_data, db_session))
     asyncio.run(patched_router.verify_email(patched_router.EmailVerification(token=user.verification_token), db_session))
 
@@ -239,20 +245,20 @@ def test_password_reset_flow(db_session, patched_router):
     token_db = db_session.query(PasswordResetTokenDB).filter_by(user_id=user.id).first()
     assert token_db is not None
 
-    asyncio.run(patched_router.reset_password(patched_router.PasswordReset(token=token_db.token, new_password="newpw"), db_session))
+    asyncio.run(patched_router.reset_password(patched_router.PasswordReset(token=token_db.token, new_password="Newpass1"), db_session))
     db_session.refresh(user)
-    assert auth.verify_password("newpw", user.hashed_password)
+    assert auth.verify_password("Newpass1", user.hashed_password)
     assert token_db.revoked is True
 
 
 def test_last_login_timestamp_updated(db_session, patched_router):
-    user_data = UserCreate(email="ll@example.com", full_name="LastLogin", password="pw")
+    user_data = UserCreate(email="ll@example.com", full_name="LastLogin", password="Password1")
     user = asyncio.run(patched_router.register(user_data, db_session))
     asyncio.run(patched_router.verify_email(patched_router.EmailVerification(token=user.verification_token), db_session))
 
     assert user.last_login_at is None
 
-    form = patched_router.OAuth2PasswordRequestForm(username=user.email, password="pw", scope="")
+    form = patched_router.OAuth2PasswordRequestForm(username=user.email, password="Password1", scope="")
     resp = patched_router.Response()
     asyncio.run(patched_router.login(resp, form, db_session))
     db_session.refresh(user)
