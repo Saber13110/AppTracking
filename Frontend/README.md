@@ -3,3 +3,7 @@
 This directory contains the Dockerfile used to build and serve the Angular application for production.
 
 The image builds the Angular code from the `Frontend` directory, then serves the compiled files with Nginx. It is referenced by `docker-compose.yml` to run the production frontend.
+
+## Unit tests
+
+Run `npm test` to execute the Angular unit tests. Karma launches Chrome by default, so a local Chrome (or Chromium) installation is required. On headless systems you can set the `CHROME_BIN` environment variable to the path of a Chrome executable, such as the binary provided by the `chromium-browser` package.
