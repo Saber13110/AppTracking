@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { switchMap } from 'rxjs/operators';
 
@@ -12,15 +12,24 @@ import { switchMap } from 'rxjs/operators';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   error: string | null = null;
+  prompt: string | null = null;
 
-  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
+  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router, private route: ActivatedRoute) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
       totp_code: ['']
+    });
+  }
+
+  ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      if (params['loginRequired']) {
+        this.prompt = 'Please log in to continue.';
+      }
     });
   }
 
