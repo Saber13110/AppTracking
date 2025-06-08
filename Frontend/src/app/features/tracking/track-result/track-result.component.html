@@ -100,8 +100,7 @@
       <h3 class="font-bold mb-2">Historique</h3>
       <div class="timeline">
         <div *ngFor="let event of trackingInfo.tracking_history; let i = index"
-             class="timeline-item"
-             [class.current]="i === trackingInfo.tracking_history.length - 1"
+             [ngClass]="getItemClasses(event, i)"
              @timelineAnimation>
           <div class="timeline-icon">
             <span class="material-icons">local_shipping</span>
