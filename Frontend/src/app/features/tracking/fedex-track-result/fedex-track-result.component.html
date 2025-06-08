@@ -35,15 +35,96 @@
         </p>
       </div>
       <div class="summary-actions">
-        <button type="button" (click)="shareTracking()">Share</button>
-        <button type="button" (click)="printTracking()">Print</button>
-        <button type="button" (click)="saveTracking()">Save</button>
-        <button type="button" (click)="openDialog('schedule')">Schedule</button>
-        <button type="button" (click)="openDialog('change-address')">Change Address</button>
-        <button type="button" (click)="openDialog('hold-location')">Hold Location</button>
-        <button type="button" (click)="openDialog('instructions')">Add Instructions</button>
-        <button type="button" (click)="exportData('pdf')">Export PDF</button>
-        <button type="button" (click)="exportData('csv')">Export CSV</button>
+        <button
+          type="button"
+          role="button"
+          tabindex="0"
+          aria-label="Share tracking details"
+          (click)="shareTracking()"
+          (keydown)="onKeydown($event, shareTracking.bind(this))"
+        >
+          Share
+        </button>
+        <button
+          type="button"
+          role="button"
+          tabindex="0"
+          aria-label="Print tracking details"
+          (click)="printTracking()"
+          (keydown)="onKeydown($event, printTracking.bind(this))"
+        >
+          Print
+        </button>
+        <button
+          type="button"
+          role="button"
+          tabindex="0"
+          aria-label="Save tracking number"
+          (click)="saveTracking()"
+          (keydown)="onKeydown($event, saveTracking.bind(this))"
+        >
+          Save
+        </button>
+        <button
+          type="button"
+          role="button"
+          tabindex="0"
+          aria-label="Schedule delivery"
+          (click)="openDialog('schedule')"
+          (keydown)="onKeydown($event, () => openDialog('schedule'))"
+        >
+          Schedule
+        </button>
+        <button
+          type="button"
+          role="button"
+          tabindex="0"
+          aria-label="Change delivery address"
+          (click)="openDialog('change-address')"
+          (keydown)="onKeydown($event, () => openDialog('change-address'))"
+        >
+          Change Address
+        </button>
+        <button
+          type="button"
+          role="button"
+          tabindex="0"
+          aria-label="Hold at location"
+          (click)="openDialog('hold-location')"
+          (keydown)="onKeydown($event, () => openDialog('hold-location'))"
+        >
+          Hold Location
+        </button>
+        <button
+          type="button"
+          role="button"
+          tabindex="0"
+          aria-label="Add delivery instructions"
+          (click)="openDialog('instructions')"
+          (keydown)="onKeydown($event, () => openDialog('instructions'))"
+        >
+          Add Instructions
+        </button>
+        <button
+          type="button"
+          role="button"
+          tabindex="0"
+          aria-label="Export tracking as PDF"
+          (click)="exportData('pdf')"
+          (keydown)="onKeydown($event, () => exportData('pdf'))"
+        >
+          Export PDF
+        </button>
+        <button
+          type="button"
+          role="button"
+          tabindex="0"
+          aria-label="Export tracking as CSV"
+          (click)="exportData('csv')"
+          (keydown)="onKeydown($event, () => exportData('csv'))"
+        >
+          Export CSV
+        </button>
       </div>
     </div>
 
