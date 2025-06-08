@@ -1,6 +1,6 @@
 /// <reference types="google.maps" />
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
+import { of, throwError, Subscription } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -213,5 +213,17 @@ describe('FedexTrackResultComponent', () => {
     (component as any).updateLocation();
 
     expect(notificationUtil.showNotification).toHaveBeenCalledWith('Location update failed', 'error');
+  });
+
+  it('ngOnDestroy() should clean up subscriptions and interval', () => {
+    const sub = { unsubscribe: jasmine.createSpy('unsubscribe') } as unknown as Subscription;
+    (component as any).paramsSub = sub;
+    (component as any).refreshInterval = 123;
+    const clearSpy = spyOn(window, 'clearInterval');
+
+    component.ngOnDestroy();
+
+    expect(sub.unsubscribe).toHaveBeenCalled();
+    expect(clearSpy).toHaveBeenCalledWith(123 as any);
   });
 });
