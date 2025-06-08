@@ -8,9 +8,12 @@ from ..models.notification import (
     NotificationCreate,
     NotificationUpdate,
     NotificationResponse,
-    NotificationType
+    NotificationType,
+    NotificationPreference,
+    NotificationPreferenceResponse,
 )
 from ..models.database import NotificationDB
+from ..models.notification_preference import NotificationPreferenceDB
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -256,4 +259,49 @@ class NotificationService:
                 success=False,
                 error=error_msg,
                 metadata={'timestamp': datetime.now().isoformat()}
-            ) 
+            )
+
+    async def get_preferences(self, user_id: int) -> NotificationPreferenceResponse:
+        """Return notification preferences for a user, creating defaults if needed."""
+        try:
+            pref = (
+                self.db.query(NotificationPreferenceDB)
+                .filter(NotificationPreferenceDB.user_id == user_id)
+                .first()
+            )
+            if not pref:
+                pref = NotificationPreferenceDB(user_id=user_id, email_updates=True)
+                self.db.add(pref)
+                self.db.commit()
+                self.db.refresh(pref)
+            return NotificationPreferenceResponse(
+                success=True,
+                data=NotificationPreference(email_updates=pref.email_updates),
+            )
+        except Exception as e:
+            self.db.rollback()
+            return NotificationPreferenceResponse(success=False, error=str(e))
+
+    async def update_preferences(
+        self, user_id: int, email_updates: bool
+    ) -> NotificationPreferenceResponse:
+        """Update notification preferences for a user."""
+        try:
+            pref = (
+                self.db.query(NotificationPreferenceDB)
+                .filter(NotificationPreferenceDB.user_id == user_id)
+                .first()
+            )
+            if not pref:
+                pref = NotificationPreferenceDB(user_id=user_id)
+                self.db.add(pref)
+            pref.email_updates = email_updates
+            self.db.commit()
+            self.db.refresh(pref)
+            return NotificationPreferenceResponse(
+                success=True,
+                data=NotificationPreference(email_updates=pref.email_updates),
+            )
+        except Exception as e:
+            self.db.rollback()
+            return NotificationPreferenceResponse(success=False, error=str(e))

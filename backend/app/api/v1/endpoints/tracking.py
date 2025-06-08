@@ -24,6 +24,11 @@ class TrackingRequest(BaseModel):
 class BatchTrackingRequest(BaseModel):
     tracking_numbers: List[str]
 
+
+class TrackByEmailRequest(BaseModel):
+    tracking_number: str
+    email: str
+
 @router.post("/create", response_model=TrackingResponse)
 async def create_package(
     colis_data: ColisCreate,
@@ -178,6 +183,24 @@ async def track_multiple_packages(
     response = await tracking_service.track_multiple_packages(tracking_numbers)
     if not response:
         raise HTTPException(status_code=400, detail="Failed to track packages")
+    return response
+
+
+@router.post("/email", response_model=TrackingResponse)
+async def track_by_email(
+    request: TrackByEmailRequest,
+    db: Session = Depends(get_db),
+):
+    """Track a package and send the result via email."""
+    fedex_service = FedExService()
+    response = await fedex_service.track_package(request.tracking_number)
+    if response.success:
+        status = response.data.status if response.data else ""
+        try:
+            from ....services.email import send_tracking_update_email
+            send_tracking_update_email(request.email, request.tracking_number, status)
+        except Exception as e:
+            logger.error(f"Failed to send tracking email: {str(e)}")
     return response
 
 @router.post("/search", response_model=Dict[str, Any])

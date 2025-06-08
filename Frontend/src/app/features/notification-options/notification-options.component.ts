@@ -1,11 +1,32 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { NotificationService, NotificationPreferences } from '../../core/services/notification.service';
 
 @Component({
   selector: 'app-notification-options',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './notification-options.component.html',
   styleUrls: ['./notification-options.component.scss']
 })
-export class NotificationOptionsComponent {}
+export class NotificationOptionsComponent implements OnInit {
+  form: FormGroup;
+
+  constructor(private fb: FormBuilder, private notifService: NotificationService) {
+    this.form = this.fb.group({
+      email_updates: [true]
+    });
+  }
+
+  ngOnInit() {
+    this.notifService.getPreferences().subscribe(p => {
+      this.form.patchValue(p);
+    });
+  }
+
+  save() {
+    const prefs: NotificationPreferences = this.form.value;
+    this.notifService.updatePreferences(prefs).subscribe();
+  }
+}

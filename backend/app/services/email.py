@@ -84,3 +84,30 @@ def send_password_reset_email(email: str, token: str) -> bool:
     except Exception as e:
         print(f"Erreur lors de l'envoi de l'email: {str(e)}")
         return False
+
+
+def send_tracking_update_email(email: str, tracking_number: str, status: str) -> bool:
+    """Send a simple tracking update email."""
+    sender_email = settings.SMTP_USERNAME
+    sender_password = settings.SMTP_PASSWORD
+    smtp_server = settings.SMTP_SERVER
+    smtp_port = settings.SMTP_PORT
+
+    message = MIMEMultipart()
+    message["From"] = sender_email
+    message["To"] = email
+    message["Subject"] = f"Update for {tracking_number}"
+
+    body = f"Status for package {tracking_number}: {status}"
+    message.attach(MIMEText(body, "plain"))
+
+    try:
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()
+        server.login(sender_email, sender_password)
+        server.send_message(message)
+        server.quit()
+        return True
+    except Exception as e:
+        print(f"Erreur lors de l'envoi de l'email: {str(e)}")
+        return False
