@@ -14,7 +14,7 @@ import { GoogleCallbackComponent } from './features/auth/google-callback/google-
 
 export const routes: Routes = [
   // Route par défaut
-  { path: '', redirectTo: 'home', pathMatch: 'full' },
+  { path: '', redirectTo: '/home', pathMatch: 'full' },
   
   // Route vers la page d'accueil
   { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
