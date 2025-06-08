@@ -112,6 +112,9 @@ class TrackingResponse(BaseModel):
 
 class TrackingFilter(BaseModel):
     tracking_number: Optional[str] = None
+    reference: Optional[str] = None
+    sender: Optional[str] = None
+    recipient: Optional[str] = None
     status: Optional[PackageStatus] = None
     carrier: Optional[str] = None
     start_date: Optional[datetime] = None

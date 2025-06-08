@@ -3,7 +3,15 @@ from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime
 from .fedex_service import FedExService
 from ..models.tracking import (
-    TrackingInfo, TrackingResponse, TrackingFilter
+    TrackingInfo,
+    TrackingResponse,
+    TrackingFilter,
+    PackageDetails,
+    DeliveryDetails,
+    Location,
+    KeyDates,
+    CommercialInfo,
+    ServiceType,
 )
 from sqlalchemy.orm import Session
 from sqlalchemy import asc, desc, and_
@@ -140,6 +148,15 @@ class TrackingService:
             if filters.tracking_number:
                 query = query.filter(TrackingDB.tracking_number.ilike(f"%{filters.tracking_number}%"))
 
+            if filters.reference:
+                query = query.filter(TrackingDB.meta_data['reference'].astext.ilike(f"%{filters.reference}%"))
+
+            if filters.sender:
+                query = query.filter(TrackingDB.meta_data['sender'].astext.ilike(f"%{filters.sender}%"))
+
+            if filters.recipient:
+                query = query.filter(TrackingDB.meta_data['recipient'].astext.ilike(f"%{filters.recipient}%"))
+
             if filters.status:
                 query = query.filter(TrackingDB.status == filters.status)
 
@@ -202,6 +219,43 @@ class TrackingService:
         except Exception as e:
             logger.error(f"Error searching trackings: {str(e)}")
             raise
+
+    def _convert_db_to_tracking_info(self, db_tracking: TrackingDB) -> TrackingInfo:
+        """Convert database model to TrackingInfo"""
+        try:
+            package_service_type = None
+            if db_tracking.package_details and db_tracking.package_details.service_type:
+                package_service_type = db_tracking.package_details.service_type
+
+            return TrackingInfo(
+                tracking_number=db_tracking.tracking_number,
+                status=str(db_tracking.status),
+                carrier=db_tracking.carrier,
+                service_type=ServiceType(package_service_type) if package_service_type else ServiceType.UNKNOWN,
+                origin=Location(city="", state="", country=""),
+                destination=Location(city="", state="", country=""),
+                package_details=PackageDetails(service_type=package_service_type),
+                delivery_details=DeliveryDetails(),
+                events=[],
+                key_dates=KeyDates(),
+                commercial_info=CommercialInfo(),
+                tracking_url=db_tracking.meta_data.get("tracking_url") if db_tracking.meta_data else None,
+            )
+        except Exception:
+            # Fallback minimal info if conversion fails
+            return TrackingInfo(
+                tracking_number=db_tracking.tracking_number,
+                status=str(db_tracking.status),
+                carrier=db_tracking.carrier,
+                service_type=ServiceType.UNKNOWN,
+                origin=Location(city="", state="", country=""),
+                destination=Location(city="", state="", country=""),
+                package_details=PackageDetails(),
+                delivery_details=DeliveryDetails(),
+                events=[],
+                key_dates=KeyDates(),
+                commercial_info=CommercialInfo(),
+            )
 
     def get_tracking_stats(self) -> Dict[str, Any]:
         """

@@ -10,6 +10,7 @@ import { TrackingInfo, TrackingResponse } from '../models/tracking';
 })
 export class TrackingService {
   private baseUrl = `${environment.apiUrl}/track`;
+  private shipmentUrl = `${environment.apiUrl}/shipments`;
 
   constructor(private http: HttpClient) {}
 
@@ -56,6 +57,14 @@ export class TrackingService {
 
   trackByEmail(tracking_number: string, email: string): Observable<TrackingResponse> {
     return this.http.post<TrackingResponse>(`${this.baseUrl}/email`, { tracking_number, email });
+  }
+
+  searchShipments(filters: any): Observable<any> {
+    return this.http.post<any>(`${this.shipmentUrl}/search`, filters);
+  }
+
+  exportShipments(filters: any, format: string): Observable<Blob> {
+    return this.http.post(`${this.shipmentUrl}/export?format=${format}`, filters, { responseType: 'blob' });
   }
 
   decodeBarcodeClient(file: File): Promise<string> {
