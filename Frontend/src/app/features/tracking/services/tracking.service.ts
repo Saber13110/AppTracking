@@ -25,11 +25,11 @@ export class TrackingService {
   }
 
   trackReference(reference: string): Observable<TrackingResponse> {
-    return this.trackPackage(reference);
+    return this.http.get<TrackingResponse>(`${this.baseUrl}/reference/${reference}`);
   }
 
   trackTcn(tcn: string): Observable<TrackingResponse> {
-    return this.trackPackage(tcn);
+    return this.http.get<TrackingResponse>(`${this.baseUrl}/tcn/${tcn}`);
   }
 
   decodeBarcodeServer(file: File): Observable<{ value: string }> {
