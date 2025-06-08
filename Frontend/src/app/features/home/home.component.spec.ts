@@ -97,4 +97,19 @@ describe('HomeComponent', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('.tracking-form')).toBeTruthy();
   });
+
+  it('should stop scanning when selecting a non-scan feature', () => {
+    const stopSpy = jasmine.createSpy('stop');
+    const resetSpy = jasmine.createSpy('reset');
+    component.isScanning = true;
+    component['scannerControls'] = { stop: stopSpy } as any;
+    component['webcamReader'] = { reset: resetSpy } as any;
+
+    component.selectHeroFeature('obtain_proof');
+
+    expect(stopSpy).toHaveBeenCalled();
+    expect(resetSpy).toHaveBeenCalled();
+    expect(component.isScanning).toBeFalse();
+    expect(component.selectedHeroFeature).toBe('obtain_proof');
+  });
 });

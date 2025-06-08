@@ -9,7 +9,7 @@ import { TrackingService } from '../tracking/services/tracking.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { Subject, Observable } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { BrowserMultiFormatContinuousReader, BrowserCodeReader, IScannerControls, BrowserMultiFormatReader } from '@zxing/browser';
+import { BrowserCodeReader, IScannerControls, BrowserMultiFormatReader } from '@zxing/browser';
 
 // Import Google Maps types
 declare global {
@@ -85,7 +85,7 @@ interface ServiceItem {
 export class HomeComponent implements OnInit, OnDestroy {
   @ViewChild('videoPreview') videoPreview!: ElementRef<HTMLVideoElement>;
 
-  private webcamReader: BrowserMultiFormatContinuousReader | null = null;
+  private webcamReader: BrowserMultiFormatReader | null = null;
   private scannerControls?: IScannerControls;
   isScanning = false;
   
@@ -437,6 +437,11 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // === SÉLECTIONNER UNE CARTE DE FONCTIONNALITÉ HERO
   selectHeroFeature(feature: 'barcode_scan' | 'obtain_proof' | null): void {
+    if (this.isScanning && feature !== 'barcode_scan') {
+      this.scannerControls?.stop();
+      (this.webcamReader as any)?.reset();
+      this.isScanning = false;
+    }
     this.selectedHeroFeature = feature;
     // Logique additionnelle si nécessaire (ex: réinitialiser le formulaire de suivi)
     if (feature === null) {
@@ -472,12 +477,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   async startWebcamScan(): Promise<void> {
     if (this.isScanning) {
       this.scannerControls?.stop();
-      this.webcamReader?.reset();
+      (this.webcamReader as any)?.reset();
       this.isScanning = false;
       return;
     }
 
-    this.webcamReader = new BrowserMultiFormatContinuousReader();
+    this.webcamReader = new BrowserMultiFormatReader();
     try {
       const devices = await BrowserCodeReader.listVideoInputDevices();
       const deviceId = devices[0]?.deviceId;
