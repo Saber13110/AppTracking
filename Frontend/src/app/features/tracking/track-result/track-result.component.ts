@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { TrackingService, TrackingInfo } from '../services/tracking.service';
 import { AnalyticsService } from '../../../core/services/analytics.service';
+import { showNotification } from '../../../shared/services/notification.util';
 import { environment } from '../../../../environments/environment';
 
 declare global {
@@ -80,6 +81,7 @@ export class TrackResultComponent implements OnInit, OnDestroy {
     if (this.trackingInfo?.tracking_number) {
       navigator.clipboard.writeText(this.trackingInfo.tracking_number);
       this.analytics.logAction('copy_tracking', this.trackingInfo.tracking_number);
+      showNotification('Tracking number copied', 'success');
     }
   }
 
@@ -90,6 +92,7 @@ export class TrackResultComponent implements OnInit, OnDestroy {
         text: `Suivi ${this.trackingInfo.tracking_number}`,
         url: window.location.href,
       });
+      showNotification('Share dialog opened', 'info');
     } else {
       this.copyTracking();
     }
@@ -106,6 +109,7 @@ export class TrackResultComponent implements OnInit, OnDestroy {
 
   printTracking() {
     window.print();
+    showNotification('Printing...', 'info');
   }
 
   saveTracking() {
@@ -115,6 +119,7 @@ export class TrackResultComponent implements OnInit, OnDestroy {
       if (!saved.includes(this.trackingInfo.tracking_number)) {
         saved.push(this.trackingInfo.tracking_number);
         localStorage.setItem(key, JSON.stringify(saved));
+        showNotification('Tracking saved', 'success');
       }
     }
   }

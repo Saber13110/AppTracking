@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NotificationService, Notification } from '../../core/services/notification.service';
+import { showNotification } from '../../shared/services/notification.util';
 
 @Component({
   selector: 'app-notifications',
@@ -35,6 +36,7 @@ export class NotificationsComponent implements OnInit {
   markAllAsRead() {
     this.notificationService.markAllAsRead().subscribe(() => {
       this.fetchNotifications();
+      showNotification('All notifications marked as read', 'success');
     });
   }
 }
