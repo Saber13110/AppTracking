@@ -1,6 +1,6 @@
 /// <reference types="google.maps" />
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
+import { of, throwError, Subscription } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -163,5 +163,19 @@ describe('FedexTrackResultComponent', () => {
     expect(trackingService.exportTracking).toHaveBeenCalledWith('FEDEXID', 'pdf');
     expect(clickSpy).toHaveBeenCalled();
     expect(analytics.logAction).toHaveBeenCalledWith('export_data', 'pdf');
+  });
+
+  it('ngOnDestroy() should unsubscribe and clear interval', () => {
+    const sub = new Subscription();
+    component['paramsSub'] = sub;
+    component['refreshInterval'] = 123 as any;
+
+    const unsubSpy = spyOn(sub, 'unsubscribe');
+    const clearSpy = spyOn(window, 'clearInterval');
+
+    component.ngOnDestroy();
+
+    expect(unsubSpy).toHaveBeenCalled();
+    expect(clearSpy).toHaveBeenCalledWith(123);
   });
 });
