@@ -1,0 +1,35 @@
+<div class="advanced-tracking">
+  <h1>Advanced Shipment Tracking</h1>
+
+  <section class="stats" *ngIf="stats">
+    <div class="stat-card">
+      <h3>Total</h3>
+      <p>{{ stats.total_trackings }}</p>
+    </div>
+    <div class="stat-card">
+      <h3>Delivered</h3>
+      <p>{{ stats.delivered_trackings }}</p>
+    </div>
+    <div class="stat-card">
+      <h3>In Transit</h3>
+      <p>{{ stats.in_transit_trackings }}</p>
+    </div>
+    <div class="stat-card">
+      <h3>Exceptions</h3>
+      <p>{{ stats.exception_trackings }}</p>
+    </div>
+  </section>
+
+  <section class="search">
+    <input [(ngModel)]="query" placeholder="Tracking number" />
+    <button (click)="search()" [disabled]="loadingResults">Search</button>
+  </section>
+
+  <section class="results" *ngIf="results.length">
+    <div *ngFor="let item of results" class="result-item">
+      <span class="tracking-number">{{ item.tracking_number }}</span>
+      <span class="status">{{ item.status }}</span>
+      <span class="carrier">{{ item.carrier }}</span>
+    </div>
+  </section>
+</div>

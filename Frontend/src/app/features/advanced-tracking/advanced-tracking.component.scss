@@ -1,0 +1,39 @@
+.advanced-tracking {
+  padding: 2rem;
+
+  h1 {
+    margin-bottom: 1.5rem;
+  }
+
+  .stats {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+
+    .stat-card {
+      background: #f5f5f5;
+      padding: 1rem;
+      border-radius: 4px;
+      flex: 1;
+      text-align: center;
+    }
+  }
+
+  .search {
+    margin-bottom: 1rem;
+
+    input {
+      padding: 0.5rem;
+      margin-right: 0.5rem;
+    }
+  }
+
+  .results {
+    .result-item {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      gap: 1rem;
+    }
+  }
+}
