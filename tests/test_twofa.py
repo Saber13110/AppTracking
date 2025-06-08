@@ -51,7 +51,7 @@ def patched_router(monkeypatch):
 
 
 def setup_verified_user(router, db, email="twofa@example.com"):
-    user = asyncio.run(router.register(UserCreate(email=email, full_name="T", password="pw"), db))
+    user = asyncio.run(router.register(UserCreate(email=email, full_name="T", password="Password1"), db))
     asyncio.run(router.verify_email(router.EmailVerification(token=user.verification_token), db))
     return user
 
@@ -83,12 +83,12 @@ def test_login_requires_totp_when_enabled(db_session, patched_router):
     asyncio.run(patched_router.verify_2fa(patched_router.TwoFACode(code=code), current_user=user, db=db_session))
     db_session.refresh(user)
 
-    form = patched_router.OAuth2PasswordRequestForm(username=user.email, password="pw", scope="")
+    form = patched_router.OAuth2PasswordRequestForm(username=user.email, password="Password1", scope="")
     response = patched_router.Response()
     with pytest.raises(patched_router.HTTPException):
         asyncio.run(patched_router.login(response, form, db_session))
 
-    form2 = patched_router.OAuth2PasswordRequestForm(username=user.email, password="pw", scope="", totp_code=pyotp.TOTP(secret).now())
+    form2 = patched_router.OAuth2PasswordRequestForm(username=user.email, password="Password1", scope="", totp_code=pyotp.TOTP(secret).now())
     response2 = patched_router.Response()
     token_model = asyncio.run(patched_router.login(response2, form2, db_session))
     assert token_model.access_token

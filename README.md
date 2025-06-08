@@ -76,6 +76,12 @@ On the first run Docker Compose builds the backend and frontend images. Once the
 - Frontend: http://localhost:4200
 - Redis: localhost:6379
 
+## Password requirements
+
+User registration requires a strong password. The password must be at least 8
+characters long and include at least one digit and one uppercase letter. A
+validation error is returned if this rule is not met.
+
 ## Double authentification
 
 - exécutez `/auth/setup-2fa` pour obtenir l'URL du QR à scanner ;

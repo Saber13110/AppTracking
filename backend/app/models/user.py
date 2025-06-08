@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, field_validator
 from typing import Optional
 from datetime import datetime
 from sqlalchemy import Boolean, Column, Integer, String, DateTime, Enum as SQLEnum
@@ -39,6 +39,17 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str
+
+    @field_validator("password")
+    @classmethod
+    def strong_password(cls, v: str):
+        has_digit = any(c.isdigit() for c in v)
+        has_upper = any(c.isupper() for c in v)
+        if len(v) < 8 or not has_digit or not has_upper:
+            raise ValueError(
+                "Password must be at least 8 characters long and include at least one digit and one uppercase letter"
+            )
+        return v
 
 class UserLogin(BaseModel):
     email: EmailStr
