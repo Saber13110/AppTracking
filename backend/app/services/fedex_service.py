@@ -220,12 +220,27 @@ class FedExService:
 
     def _extract_location(self, location_data: Dict[str, Any]) -> Location:
         try:
+            latitude = location_data.get('latitude')
+            longitude = location_data.get('longitude')
+
+            if (latitude is None or longitude is None) and location_data.get('coordinates'):
+                coords = location_data.get('coordinates', {})
+                latitude = coords.get('latitude')
+                longitude = coords.get('longitude')
+
+            coordinates = None
+            if latitude is not None and longitude is not None:
+                coordinates = {
+                    'latitude': latitude,
+                    'longitude': longitude
+                }
+
             return Location(
                 city=location_data.get('city', ''),
                 state=location_data.get('stateOrProvinceCode', ''),
                 country=location_data.get('countryCode', ''),
                 postal_code=location_data.get('postalCode', ''),
-                coordinates=None
+                coordinates=coordinates
             )
         except Exception as e:
             logger.error(f"Error extracting location: {str(e)}")
