@@ -1,5 +1,6 @@
 import os
 import requests
+import httpx
 import json
 import yaml
 import logging
@@ -109,9 +110,10 @@ class FedExService:
                 }],
                 'includeDetailedScans': True
             }
-            response = requests.post(url, headers=headers, json=payload)
-            response.raise_for_status()
-            tracking_data = response.json()
+            async with httpx.AsyncClient() as client:
+                response = await client.post(url, headers=headers, json=payload)
+                response.raise_for_status()
+                tracking_data = response.json()
             
             if not tracking_data.get('output', {}).get('completeTrackResults', []):
                 error_msg = "No tracking results found"
@@ -143,6 +145,30 @@ class FedExService:
                 }
             )
 
+        except httpx.RequestError as e:
+            error_msg = f"HTTP request error while tracking package: {str(e)}"
+            logger.error(error_msg)
+            return TrackingResponse(
+                success=False,
+                data=None,
+                error=error_msg,
+                metadata={
+                    'timestamp': datetime.now().isoformat(),
+                    'tracking_number': tracking_number
+                }
+            )
+        except httpx.HTTPStatusError as e:
+            error_msg = f"FedEx API returned an error: {str(e)}"
+            logger.error(error_msg)
+            return TrackingResponse(
+                success=False,
+                data=None,
+                error=error_msg,
+                metadata={
+                    'timestamp': datetime.now().isoformat(),
+                    'tracking_number': tracking_number
+                }
+            )
         except Exception as e:
             error_msg = f"Error tracking package: {str(e)}"
             logger.error(error_msg)
