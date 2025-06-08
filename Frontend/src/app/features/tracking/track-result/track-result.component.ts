@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { TrackingService, TrackingInfo } from '../services/tracking.service';
+import { TrackActionsComponent } from './track-actions.component';
 
 @Component({
   selector: 'app-track-result',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TrackActionsComponent],
   templateUrl: './track-result.component.html',
   styleUrls: ['./track-result.component.scss']
 })
