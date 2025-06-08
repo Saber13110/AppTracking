@@ -24,3 +24,28 @@ class TrackingHistoryService:
             .order_by(TrackedShipmentDB.created_at.desc())
             .all()
         )
+
+    def update_record(self, record_id: str, user_id: int, pinned: bool | None = None, note: str | None = None):
+        record = (
+            self.db.query(TrackedShipmentDB)
+            .filter(TrackedShipmentDB.id == record_id, TrackedShipmentDB.user_id == user_id)
+            .first()
+        )
+        if not record:
+            return None
+        if pinned is not None:
+            record.pinned = pinned
+        if note is not None:
+            record.note = note
+        self.db.commit()
+        self.db.refresh(record)
+        return record
+
+    def delete_all(self, user_id: int) -> int:
+        deleted = (
+            self.db.query(TrackedShipmentDB)
+            .filter(TrackedShipmentDB.user_id == user_id)
+            .delete()
+        )
+        self.db.commit()
+        return deleted

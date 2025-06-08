@@ -2,22 +2,21 @@
   <h2>Tracking History</h2>
   <ng-container *ngIf="history.length; else none">
     <ul>
-      <li *ngFor="let id of history">
-        <a [routerLink]="['/track', id]">{{ id }}</a>
+      <li *ngFor="let rec of history">
+        <a [routerLink]="['/track', rec.tracking_number]">{{ rec.tracking_number }}</a>
+        <button (click)="togglePin(rec)" [attr.aria-label]="rec.pinned ? 'Unpin' : 'Pin'">{{ rec.pinned ? 'Unpin' : 'Pin' }}</button>
+        <input [(ngModel)]="rec.note" (blur)="saveNote(rec)" placeholder="Add note" />
         <button role="button"
                 tabindex="0"
-                aria-label="Delete {{id}} from history"
-                (click)="delete(id)"
-                (keydown.enter)="delete(id)"
-                (keydown.space)="delete(id)">Delete</button>
+                aria-label="Delete {{rec.tracking_number}} from history"
+                (click)="delete(rec.id)"
+                (keydown.enter)="delete(rec.id)"
+                (keydown.space)="delete(rec.id)">Delete</button>
       </li>
     </ul>
-    <button role="button"
-            tabindex="0"
-            aria-label="Clear tracking history"
-            (click)="clear()"
-            (keydown.enter)="clear()"
-            (keydown.space)="clear()">Clear History</button>
+    <button (click)="clear()">Delete all history</button>
+    <button (click)="historyService.exportHistory('csv').subscribe(blob => download(blob, 'history.csv'))">Export CSV</button>
+    <button (click)="historyService.exportHistory('pdf').subscribe(blob => download(blob, 'history.pdf'))">Export PDF</button>
   </ng-container>
   <ng-template #none>
     <p>No history yet.</p>

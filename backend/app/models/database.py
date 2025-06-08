@@ -129,5 +129,7 @@ class TrackedShipmentDB(Base):
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(Integer, nullable=False)
     tracking_number = Column(String, nullable=False)
+    pinned = Column(Boolean, default=False)
+    note = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
 
@@ -12,6 +12,22 @@ export class TrackingHistoryService {
   private maxItems = 10;
 
   constructor(private http: HttpClient, private auth: AuthService) {}
+
+  getServerHistory(): Observable<HistoryRecord[]> {
+    return this.http.get<HistoryRecord[]>(`${environment.apiUrl}/history`);
+  }
+
+  updateRecord(id: string, data: Partial<HistoryRecord>): Observable<HistoryRecord> {
+    return this.http.patch<HistoryRecord>(`${environment.apiUrl}/history/${id}`, data);
+  }
+
+  exportHistory(format: 'csv' | 'pdf'): Observable<Blob> {
+    return this.http.get(`${environment.apiUrl}/history/export?format=${format}`, { responseType: 'blob' });
+  }
+
+  deleteAll(): Observable<any> {
+    return this.http.delete(`${environment.apiUrl}/history`);
+  }
 
   getHistory(): string[] {
     const raw = localStorage.getItem(this.storageKey);
@@ -52,4 +68,12 @@ export class TrackingHistoryService {
       // ignore errors
     }
   }
+}
+
+export interface HistoryRecord {
+  id: string;
+  tracking_number: string;
+  pinned: boolean;
+  note?: string;
+  created_at: string;
 }
