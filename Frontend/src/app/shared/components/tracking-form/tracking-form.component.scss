@@ -1,1 +1,68 @@
-// @import '../../features/home/home.component.scss';
+@use "sass:color";
+
+$primary-color: #4D148C;
+$secondary-color: #FF6200;
+$border-color: #e0e0e0;
+$error-color: #dc3545;
+
+.tracking-form {
+  &__input-group {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  &__input {
+    flex: 1;
+    padding: 1rem;
+    border: 2px solid $border-color;
+    border-radius: 5px;
+    font-size: 1.1rem;
+
+    &:focus {
+      border-color: $primary-color;
+      outline: none;
+    }
+  }
+
+  &__btn {
+    background: linear-gradient(135deg, $primary-color, $secondary-color);
+    color: white;
+    border: none;
+    padding: 0 2rem;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background: linear-gradient(
+        135deg,
+        color.mix($primary-color, black, 90%),
+        color.mix($secondary-color, black, 90%)
+      );
+    }
+  }
+
+  .error-message {
+    color: $error-color;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .tracking-form {
+    &__input-group {
+      flex-direction: column;
+    }
+
+    &__btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
