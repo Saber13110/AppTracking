@@ -43,3 +43,13 @@ class TrackingHistoryService:
             .order_by(TrackedShipmentDB.created_at.desc())
             .all()
         )
+
+    def clear_history(self, user_id: int) -> int:
+        """Delete all history records for the given user."""
+        count = (
+            self.db.query(TrackedShipmentDB)
+            .filter(TrackedShipmentDB.user_id == user_id)
+            .delete()
+        )
+        self.db.commit()
+        return count

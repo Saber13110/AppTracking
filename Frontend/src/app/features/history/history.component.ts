@@ -29,7 +29,18 @@ export class HistoryComponent implements OnInit {
   }
 
   clear(): void {
-    this.historyService.clear();
+    this.historyService.deleteAll();
     this.loadHistory();
+  }
+
+  export(format: 'csv' | 'pdf' = 'csv'): void {
+    this.historyService.exportHistory(format).subscribe(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `history.${format}`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
   }
 }
