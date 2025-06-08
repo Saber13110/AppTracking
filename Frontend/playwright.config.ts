@@ -6,6 +6,20 @@ const config: PlaywrightTestConfig = {
     headless: true,
     baseURL: 'http://localhost:4200',
   },
+  projects: [
+    {
+      name: 'chromium',
+      use: { browserName: 'chromium' }
+    },
+    {
+      name: 'firefox',
+      use: { browserName: 'firefox' }
+    },
+    {
+      name: 'webkit',
+      use: { browserName: 'webkit' }
+    }
+  ]
 };
 
 export default config;
