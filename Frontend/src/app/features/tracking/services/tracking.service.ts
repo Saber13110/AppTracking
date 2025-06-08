@@ -27,6 +27,11 @@ export class TrackingService {
     const url = `${this.baseUrl}/${trackingNumber}/proof`;
     return this.http.get(url, { responseType: 'blob' });
   }
+
+  getBarcodeImage(value: string): Observable<Blob> {
+    const url = `${environment.apiUrl}/colis/codebar-image/${value}`;
+    return this.http.get(url, { responseType: 'blob' });
+  }
 }
 
 export type { TrackingInfo } from '../models/tracking';
