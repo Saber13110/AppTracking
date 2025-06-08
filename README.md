@@ -57,3 +57,21 @@ python backend/app/init_db.py
 pytest
 ```
 
+## Running with Docker Compose
+
+Create the environment files before starting the containers:
+
+- `backend/.env.local` &ndash; copy from `backend/.env.example` and provide the required backend secrets.
+- `.env` &ndash; copy from `.env.example` and set `GOOGLE_MAPS_API_KEY` for the frontend.
+
+From the project root run:
+
+```bash
+docker-compose up
+```
+
+On the first run Docker Compose builds the backend and frontend images. Once the build completes, the services are available on the default ports:
+
+- Backend: http://localhost:8000
+- Frontend: http://localhost:4200
+- Redis: localhost:6379
