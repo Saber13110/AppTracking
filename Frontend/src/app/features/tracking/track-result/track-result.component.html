@@ -1,0 +1,56 @@
+<div class="container">
+  <!-- Loading indicator -->
+  <div *ngIf="loading" class="flex justify-center items-center py-4">
+    <svg class="animate-spin h-5 w-5 text-gray-600" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+    </svg>
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="!loading && error" class="text-red-600 text-center mb-4">
+    {{ error }}
+  </div>
+
+  <!-- Tracking information -->
+  <div *ngIf="!loading && trackingInfo">
+    <div class="mb-4">
+      <h2 class="text-2xl font-bold">Statut</h2>
+      <p class="text-lg font-semibold">{{ trackingInfo.status.status }}</p>
+      <p class="text-sm text-gray-600">{{ trackingInfo.status.description }}</p>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 mb-4" *ngIf="trackingInfo.origin || trackingInfo.destination">
+      <div *ngIf="trackingInfo.origin">
+        <h3 class="font-bold mb-2">Origine</h3>
+        <p class="text-sm text-gray-500">
+          {{ trackingInfo.origin.address }}<br>
+          {{ trackingInfo.origin.city }} {{ trackingInfo.origin.state }} {{ trackingInfo.origin.postal_code }}<br>
+          {{ trackingInfo.origin.country }}
+        </p>
+      </div>
+      <div *ngIf="trackingInfo.destination">
+        <h3 class="font-bold mb-2">Destination</h3>
+        <p class="text-sm text-gray-500">
+          {{ trackingInfo.destination.address }}<br>
+          {{ trackingInfo.destination.city }} {{ trackingInfo.destination.state }} {{ trackingInfo.destination.postal_code }}<br>
+          {{ trackingInfo.destination.country }}
+        </p>
+      </div>
+    </div>
+
+    <div *ngIf="trackingInfo.tracking_history?.length">
+      <h3 class="font-bold mb-2">Historique</h3>
+      <ul class="space-y-4">
+        <li *ngFor="let event of trackingInfo.tracking_history" class="border-l-2 pl-4">
+          <div class="font-medium">{{ event.status }}</div>
+          <div class="text-sm text-gray-600">{{ event.timestamp | date:'medium' }}</div>
+          <div class="text-sm" *ngIf="event.description">{{ event.description }}</div>
+          <div class="text-sm text-gray-500" *ngIf="event.location">
+            {{ event.location.city }} {{ event.location.state }} {{ event.location.country }}
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
