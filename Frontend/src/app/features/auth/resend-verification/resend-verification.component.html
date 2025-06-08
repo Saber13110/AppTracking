@@ -1,0 +1,14 @@
+<div class="resend-verification-container">
+  <h2>Renvoyer l'email de vérification</h2>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input id="email" type="email" formControlName="email" />
+      <div class="error-message" *ngIf="form.get('email')?.invalid && form.get('email')?.touched">
+        Adresse email invalide
+      </div>
+    </div>
+    <button type="submit">Envoyer</button>
+  </form>
+  <div class="message" *ngIf="message">{{ message }}</div>
+</div>
