@@ -50,7 +50,9 @@ class Settings(BaseSettings):
     
     class Config:
         case_sensitive = True
-        env_file = ".env"
+        # Load environment variables from `.env.local` by default so local
+        # credentials don't need to be exported in the shell.
+        env_file = ".env.local"
 
 @lru_cache()
 def get_settings():
