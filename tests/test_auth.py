@@ -1,6 +1,7 @@
 import os
 import sys
 import asyncio
+from datetime import datetime, timedelta
 from starlette.requests import Request
 from starlette.datastructures import Headers
 import pytest
@@ -98,6 +99,21 @@ def test_register_and_verify_email(db_session, patched_router):
     db_session.refresh(user)
     assert user.is_verified is True
     assert user.verification_token is None
+
+
+def test_verify_email_expired_token(db_session, patched_router):
+    user_data = UserCreate(email="expire@example.com", full_name="Expire", password="pw")
+    user = asyncio.run(patched_router.register(user_data, db_session))
+    # Expire the token
+    user.verification_token_expires_at = datetime.utcnow() - timedelta(hours=1)
+    db_session.commit()
+    with pytest.raises(patched_router.HTTPException):
+        asyncio.run(
+            patched_router.verify_email(
+                patched_router.EmailVerification(token=user.verification_token),
+                db_session,
+            )
+        )
 
 
 def test_login_returns_tokens(db_session, patched_router):

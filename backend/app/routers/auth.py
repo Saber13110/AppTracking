@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 import secrets
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from fastapi.security import OAuth2PasswordRequestForm as BaseOAuth2PasswordRequestForm
@@ -82,6 +82,7 @@ async def register(user: UserCreate, db: Session = Depends(get_db)):
     # Créer l'utilisateur
     db_user = create_user(db, user)
     db_user.verification_token = verification_token
+    db_user.verification_token_expires_at = datetime.utcnow() + timedelta(hours=24)
     db.commit()
 
     # Envoyer l'email de vérification
@@ -93,10 +94,13 @@ async def register(user: UserCreate, db: Session = Depends(get_db)):
 @router.post("/verify-email")
 async def verify_email(verification: EmailVerification, db: Session = Depends(get_db)):
     user = db.query(UserDB).filter(UserDB.verification_token == verification.token).first()
-    if not user:
+    if not user or (
+        user.verification_token_expires_at is not None and
+        user.verification_token_expires_at < datetime.utcnow()
+    ):
         raise HTTPException(
             status_code=400,
-            detail="Invalid verification token"
+            detail="Invalid or expired verification token"
         )
     
     user.is_verified = True
