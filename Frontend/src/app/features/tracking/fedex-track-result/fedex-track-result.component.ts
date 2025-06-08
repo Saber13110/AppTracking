@@ -239,6 +239,13 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
     });
   }
 
+  onKeydown(event: KeyboardEvent, action: () => void): void {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      action();
+    }
+  }
+
   shareTracking(): void {
     if (navigator.share && this.trackingData) {
       navigator.share({
