@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { BrowserMultiFormatReader } from '@zxing/browser';
 import { environment } from '../../../../environments/environment';
 import { TrackingInfo } from '../models/tracking';
 
@@ -35,6 +36,23 @@ export class TrackingService {
 
   trackByEmail(tracking_number: string, email: string): Observable<TrackingResponse> {
     return this.http.post<TrackingResponse>(`${this.baseUrl}/email`, { tracking_number, email });
+  }
+
+  decodeBarcode(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const decoder = new BrowserMultiFormatReader();
+          const result = await decoder.decodeFromImageUrl(reader.result as string);
+          resolve(result.getText());
+        } catch (err) {
+          reject(err);
+        }
+      };
+      reader.onerror = err => reject(err);
+      reader.readAsDataURL(file);
+    });
   }
 }
 
