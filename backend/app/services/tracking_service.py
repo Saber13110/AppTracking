@@ -82,7 +82,7 @@ class TrackingService:
             responses.append(response)
         return responses
 
-    async def update_tracking(self, tracking_id: str, 
+    def update_tracking(self, tracking_id: str,
                             customer_name: Optional[str] = None,
                             note: Optional[str] = None) -> TrackingResponse:
         """
@@ -128,7 +128,7 @@ class TrackingService:
                 }
             )
 
-    async def search_trackings(self, filters: TrackingFilter) -> Tuple[List[TrackingInfo], int]:
+    def search_trackings(self, filters: TrackingFilter) -> Tuple[List[TrackingInfo], int]:
         """
         Search and filter tracking records
         """
@@ -203,7 +203,7 @@ class TrackingService:
             logger.error(f"Error searching trackings: {str(e)}")
             raise
 
-    async def get_tracking_stats(self) -> Dict[str, Any]:
+    def get_tracking_stats(self) -> Dict[str, Any]:
         """
         Get tracking statistics
         """

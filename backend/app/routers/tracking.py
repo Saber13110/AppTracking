@@ -39,7 +39,7 @@ async def track_package(
         fedex_service = FedExService()
 
         # Try to find the colis using any identifier type
-        colis = await colis_service.get_colis_by_identifier(identifier)
+        colis = colis_service.get_colis_by_identifier(identifier)
 
         if not colis:
             return TrackingResponse(

@@ -44,7 +44,7 @@ class ColisService:
         code128.save(filename.replace(".png", ""))
         return filename
 
-    async def create_colis(self, colis_data: ColisCreate) -> ColisDB:
+    def create_colis(self, colis_data: ColisCreate) -> ColisDB:
         """Crée un nouveau colis avec l'identifiant FedEx réel et génère les alias"""
         try:
             # Utiliser l'ID FedEx réel fourni
@@ -78,50 +78,50 @@ class ColisService:
             logger.error(f"Erreur lors de la création du colis avec ID {colis_data.id}: {str(e)}")
             raise
 
-    async def get_colis_by_id(self, colis_id: str) -> Optional[ColisDB]:
+    def get_colis_by_id(self, colis_id: str) -> Optional[ColisDB]:
         """Récupère un colis par son ID"""
         return self.db.query(ColisDB).filter(ColisDB.id == colis_id).first()
 
-    async def get_colis_by_reference(self, reference: str) -> Optional[ColisDB]:
+    def get_colis_by_reference(self, reference: str) -> Optional[ColisDB]:
         """Récupère un colis par sa référence"""
         return self.db.query(ColisDB).filter(ColisDB.reference == reference).first()
 
-    async def get_colis_by_tcn(self, tcn: str) -> Optional[ColisDB]:
+    def get_colis_by_tcn(self, tcn: str) -> Optional[ColisDB]:
         """Récupère un colis par son TCN"""
         return self.db.query(ColisDB).filter(ColisDB.tcn == tcn).first()
 
-    async def get_colis_by_code_barre(self, code_barre: str) -> Optional[ColisDB]:
+    def get_colis_by_code_barre(self, code_barre: str) -> Optional[ColisDB]:
         """Récupère un colis par son code-barre"""
         return self.db.query(ColisDB).filter(ColisDB.code_barre == code_barre).first()
 
-    async def get_colis_by_identifier(self, identifier: str) -> Optional[ColisDB]:
+    def get_colis_by_identifier(self, identifier: str) -> Optional[ColisDB]:
         """Récupère un colis par n'importe quel type d'identifiant"""
         # Essayer d'abord avec l'ID direct
-        colis = await self.get_colis_by_id(identifier)
+        colis = self.get_colis_by_id(identifier)
         if colis:
             return colis
 
         # Essayer avec la référence
-        colis = await self.get_colis_by_reference(identifier)
+        colis = self.get_colis_by_reference(identifier)
         if colis:
             return colis
 
         # Essayer avec le TCN
-        colis = await self.get_colis_by_tcn(identifier)
+        colis = self.get_colis_by_tcn(identifier)
         if colis:
             return colis
 
         # Essayer avec le code-barre
-        colis = await self.get_colis_by_code_barre(identifier)
+        colis = self.get_colis_by_code_barre(identifier)
         if colis:
             return colis
 
         return None
 
-    async def update_colis(self, colis_id: str, colis_update: ColisUpdate) -> Optional[ColisDB]:
+    def update_colis(self, colis_id: str, colis_update: ColisUpdate) -> Optional[ColisDB]:
         """Met à jour un colis existant"""
         try:
-            db_colis = await self.get_colis_by_id(colis_id)
+            db_colis = self.get_colis_by_id(colis_id)
             if not db_colis:
                 return None
 
@@ -139,7 +139,7 @@ class ColisService:
             raise
 
 
-    async def search_colis(self, filters: ColisFilter) -> Tuple[List[ColisDB], int]:
+    def search_colis(self, filters: ColisFilter) -> Tuple[List[ColisDB], int]:
         """Recherche des colis avec filtres"""
         query = self.db.query(ColisDB)
 
@@ -158,7 +158,7 @@ class ColisService:
         colis = query.offset((filters.page - 1) * filters.page_size).limit(filters.page_size).all()
         return colis, total
 
-    async def get_colis_stats(self) -> Dict[str, Any]:
+    def get_colis_stats(self) -> Dict[str, Any]:
         """Récupère les statistiques des colis"""
         total = self.db.query(ColisDB).count()
         status_counts = (
@@ -178,10 +178,10 @@ class ColisService:
             "location_distribution": dict(location_counts)
         }
 
-    async def delete_colis(self, colis_id: str) -> bool:
+    def delete_colis(self, colis_id: str) -> bool:
         """Delete a colis record and its barcode image"""
         try:
-            db_colis = await self.get_colis_by_id(colis_id)
+            db_colis = self.get_colis_by_id(colis_id)
             if not db_colis:
                 return False
 

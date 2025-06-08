@@ -36,7 +36,7 @@ def setup_colis(db, monkeypatch, colis_id="TEST123"):
     # Avoid actual barcode generation
     monkeypatch.setattr(ColisService, "generate_codebar_image", lambda self, val: "dummy.png")
     service = ColisService(db)
-    asyncio.run(service.create_colis(ColisCreate(id=colis_id, description="test")))
+    service.create_colis(ColisCreate(id=colis_id, description="test"))
     return colis_id
 
 

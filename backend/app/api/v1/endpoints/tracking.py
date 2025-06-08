@@ -41,7 +41,7 @@ async def create_package(
         colis_service = ColisService(db)
         
         # Create the colis
-        colis = await colis_service.create_colis(colis_data)
+        colis = colis_service.create_colis(colis_data)
         
         if not colis:
             return TrackingResponse(
@@ -102,7 +102,7 @@ async def track_package(
         fedex_service = FedExService()
 
         # Try to find the colis using any identifier type
-        colis = await colis_service.get_colis_by_identifier(identifier)
+        colis = colis_service.get_colis_by_identifier(identifier)
 
         if not colis:
             # If colis not found, try to create it with the identifier as FedEx ID
@@ -111,7 +111,7 @@ async def track_package(
                     id=identifier,
                     description=f"Package with FedEx ID {identifier}"
                 )
-                colis = await colis_service.create_colis(colis_data)
+                colis = colis_service.create_colis(colis_data)
                 if not colis:
                     return TrackingResponse(
                         success=False,
@@ -213,7 +213,7 @@ async def search_trackings(
     """
     tracking_service = TrackingService(db=db)
     try:
-        results, total_count = await tracking_service.search_trackings(filters)
+        results, total_count = tracking_service.search_trackings(filters)
         return {
             "success": True,
             "data": results,
@@ -234,7 +234,7 @@ async def get_tracking_stats(
     """
     tracking_service = TrackingService(db=db)
     try:
-        stats = await tracking_service.get_tracking_stats()
+        stats = tracking_service.get_tracking_stats()
         return {
             "success": True,
             "data": stats

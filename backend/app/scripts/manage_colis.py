@@ -146,7 +146,7 @@ async def create_colis_entry(db: Session, fedex_id: str, description: str = "Col
     colis_data = ColisCreate(id=fedex_id, description=description)
     colis_service = ColisService(db)
     try:
-        db_colis = await colis_service.create_colis(colis_data)
+        db_colis = colis_service.create_colis(colis_data)
         print(f"Successfully created colis with ID: {db_colis.id}, Reference: {db_colis.reference}, TCN: {db_colis.tcn}, Code Barre: {db_colis.code_barre}")
         return db_colis
     except Exception as e:
@@ -200,7 +200,7 @@ async def main():
         value = args[1]
         db = get_db_session()
         colis_service = ColisService(db)
-        colis = await colis_service.get_colis_by_identifier(value)
+        colis = colis_service.get_colis_by_identifier(value)
         if colis:
             print("Colis Found:")
             print(f"  ID: {colis.id}")
@@ -220,7 +220,7 @@ async def main():
     elif command == "list":
         db = get_db_session()
         colis_service = ColisService(db)
-        colis_list, total = await colis_service.search_colis(ColisFilter(page=1, page_size=1000)) # List up to 1000 for simplicity
+        colis_list, total = colis_service.search_colis(ColisFilter(page=1, page_size=1000)) # List up to 1000 for simplicity
         print(f"Found {total} colis:")
         for colis in colis_list:
              print(f"- ID: {colis.id}, Ref: {colis.reference}, TCN: {colis.tcn}, CB: {colis.code_barre}, Status: {colis.status}")
@@ -235,7 +235,7 @@ async def main():
         db = get_db_session()
         colis_service = ColisService(db)
         colis_update = ColisUpdate(status=status, location=location)
-        updated_colis = await colis_service.update_colis(colis_id, colis_update)
+        updated_colis = colis_service.update_colis(colis_id, colis_update)
         if updated_colis:
              print(f"Colis {colis_id} updated successfully.")
         else:
@@ -248,7 +248,7 @@ async def main():
          colis_id = args[1]
          db = get_db_session()
         colis_service = ColisService(db)
-        deleted = await colis_service.delete_colis(colis_id)
+        deleted = colis_service.delete_colis(colis_id)
         if deleted:
             print(f"Colis {colis_id} deleted.")
         else:
