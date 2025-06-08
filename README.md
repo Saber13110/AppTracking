@@ -198,6 +198,37 @@ the FedEx dashboard, set the same secret in `FEDEX_WEBHOOK_SECRET` inside
 `backend/.env.local`. FedEx will send events as POST requests and the
 application will refresh the tracking information automatically.
 
+## Tracking History API
+
+The `/api/v1/history` endpoints allow an authenticated user to manage and
+export their tracking history. Records are retained for a limited time as
+configured by the `HISTORY_RETENTION_DAYS` environment variable. A scheduled
+job runs daily to purge entries older than this value.
+
+- **`GET /api/v1/history/`** – list the user's recorded tracking searches.
+- **`POST /api/v1/history/`** – add a new history entry.
+- **`PATCH /api/v1/history/{id}`** – update a note or pinned state for an entry.
+- **`DELETE /api/v1/history/`** – remove all history entries.
+- **`DELETE /api/v1/history/{id}`** – delete a single entry.
+- **`GET /api/v1/history/export`** – download history in CSV or PDF using the
+  `format` query parameter.
+
+### Examples
+
+Retrieve history:
+
+```bash
+curl -H "Authorization: Bearer <TOKEN>" \
+    http://localhost:8000/api/v1/history/
+```
+
+Export in CSV:
+
+```bash
+curl -H "Authorization: Bearer <TOKEN>" \
+    http://localhost:8000/api/v1/history/export?format=csv -o history.csv
+```
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
