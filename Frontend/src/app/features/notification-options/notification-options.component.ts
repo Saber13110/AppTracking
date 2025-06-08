@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { NotificationService, NotificationPreferences } from '../../core/services/notification.service';
+import { showNotification } from '../../shared/show-notification';
 
 @Component({
   selector: 'app-notification-options',
@@ -27,6 +28,13 @@ export class NotificationOptionsComponent implements OnInit {
 
   save() {
     const prefs: NotificationPreferences = this.form.value;
-    this.notifService.updatePreferences(prefs).subscribe();
+    this.notifService.updatePreferences(prefs).subscribe({
+      next: () => {
+        showNotification('Preferences saved', 'success');
+      },
+      error: () => {
+        showNotification('Failed to save preferences', 'error');
+      }
+    });
   }
 }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { TrackingService, TrackingInfo } from '../services/tracking.service';
 import { environment } from '../../../../environments/environment';
+import { showNotification } from '../../../shared/show-notification';
 
 declare global {
   interface Window {
@@ -65,6 +66,7 @@ export class TrackResultComponent implements OnInit, OnDestroy {
   copyTracking() {
     if (this.trackingInfo?.tracking_number) {
       navigator.clipboard.writeText(this.trackingInfo.tracking_number);
+      showNotification('Num\u00e9ro copi\u00e9 dans le presse-papier', 'success');
     }
   }
 
@@ -74,9 +76,13 @@ export class TrackResultComponent implements OnInit, OnDestroy {
         title: 'Suivi de colis',
         text: `Suivi ${this.trackingInfo.tracking_number}`,
         url: window.location.href,
+      }).catch(() => {
+        showNotification('Erreur lors du partage', 'error');
       });
+      showNotification('Lien de suivi partag\u00e9', 'success');
     } else {
       this.copyTracking();
+      showNotification('Partage non support\u00e9, num\u00e9ro copi\u00e9', 'info');
     }
   }
 
