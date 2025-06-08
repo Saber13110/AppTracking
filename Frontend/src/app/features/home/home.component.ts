@@ -6,6 +6,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { TrackingService } from '../tracking/services/tracking.service';
+import { NotificationService } from '../../core/services/notification.service';
 import { Subject, Observable } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { BrowserMultiFormatReader } from '@zxing/browser';
@@ -111,6 +112,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   private map: any = null;
   private markers: any[] = [];
   private destroy$ = new Subject<void>();
+  private refreshIntervalId: any;
+  private shownNotificationIds = new Set<string>();
 
   // === GESTION DES CARTES DE FONCTIONNALITÉS HERO
   // Tracks the currently selected feature card in the hero section ('barcode_scan', 'obtain_proof', or null for default track by ID)
@@ -124,7 +127,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private router: Router,
     private authService: AuthService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private notificationService: NotificationService
   ) {
     this.trackingForm = this.fb.group({
       trackingNumber: ['', [Validators.required, Validators.pattern('^[A-Z0-9]{10,}$')]]
@@ -137,7 +141,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.isLoggedIn$ = this.authService.isLoggedIn();
-    this.autoPushNotifications();
+    this.fetchUnreadNotifications();
+    this.refreshIntervalId = setInterval(() => this.fetchUnreadNotifications(), 60000);
     this.initializeNews();
     this.initializeLocations();
     this.initializeFAQ();
@@ -149,6 +154,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+    if (this.refreshIntervalId) {
+      clearInterval(this.refreshIntervalId);
+    }
     // Clean up map resources
     if (this.map) {
       this.map = null;
@@ -402,30 +410,23 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.notifications = this.notifications.filter(n => n.id !== notification.id);
   }
 
-  // === NOTIFICATIONS AUTO (ex: alerte livraison)
-  autoPushNotifications(): void {
-    const auto: Array<{type: 'success' | 'warning' | 'error', title: string, message: string}> = [
-      {
-        type: 'success',
-        title: 'Livraison prévue',
-        message: 'Votre colis #GBX845 arrivera entre 10h et 13h.'
-      },
-      {
-        type: 'warning',
-        title: 'Retard possible',
-        message: 'Retard signalé sur le colis #GBX999 (météo).'
-      }
-    ];
-
-    let i = 0;
-    const interval = setInterval(() => {
-      if (i < auto.length) {
-        this.addNotification(auto[i].type, auto[i].title, auto[i].message);
-        i++;
-      } else {
-        clearInterval(interval);
-      }
-    }, 8000);
+  // === FETCH SERVER NOTIFICATIONS
+  fetchUnreadNotifications(): void {
+    this.notificationService.getUnreadNotifications()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (notifs) => {
+          notifs.forEach(n => {
+            if (!this.shownNotificationIds.has(n.id)) {
+              this.shownNotificationIds.add(n.id);
+              this.addNotification('success', n.title, n.message);
+            }
+          });
+        },
+        error: (err) => {
+          console.error('Failed to load notifications', err);
+        }
+      });
   }
 
   // === FONCTION POUR FAQ ACCORDÉON

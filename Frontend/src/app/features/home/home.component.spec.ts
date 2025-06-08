@@ -7,6 +7,7 @@ import { BrowserMultiFormatReader } from '@zxing/browser';
 import { HomeComponent } from './home.component';
 import { AuthService } from '../../core/services/auth.service';
 import { TrackingService } from '../tracking/services/tracking.service';
+import { NotificationService } from '../../core/services/notification.service';
 
 describe('HomeComponent', () => {
   let component: HomeComponent;
@@ -18,7 +19,8 @@ describe('HomeComponent', () => {
       imports: [HomeComponent, RouterTestingModule],
       providers: [
         { provide: AuthService, useValue: { isLoggedIn: () => of(true) } },
-        { provide: TrackingService, useValue: { trackPackage: () => of({ success: true, data: {} }) } }
+        { provide: TrackingService, useValue: { trackPackage: () => of({ success: true, data: {} }) } },
+        { provide: NotificationService, useValue: { getUnreadNotifications: () => of([]) } }
       ]
     })
       .compileComponents();
