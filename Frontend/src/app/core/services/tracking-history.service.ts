@@ -60,8 +60,13 @@ export class TrackingHistoryService {
   }
 
   removeIdentifier(id: string): void {
-    const history = this.getHistory().filter(item => item.tracking_number !== id);
+    const history = this.getHistory().filter(item => item.id !== id && item.tracking_number !== id);
     localStorage.setItem(this.storageKey, JSON.stringify(history));
+
+    this.http.delete(`${environment.apiUrl}/history/${id}`).subscribe({
+      next: () => {},
+      error: () => {}
+    });
   }
 
   clear(): void {

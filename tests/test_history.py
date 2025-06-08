@@ -71,6 +71,17 @@ def test_delete_history_endpoint(db_session):
     assert remaining == []
 
 
+def test_delete_single_history_item(db_session):
+    user = create_user(db_session)
+    service = TrackingHistoryService(db_session)
+    rec1 = service.log_search(user.id, "1")
+    service.log_search(user.id, "2")
+
+    asyncio.run(history_router.delete_history_item(rec1.id, user, db_session))
+    remaining = [r.tracking_number for r in service.get_history(user.id)]
+    assert remaining == ["2"]
+
+
 def test_update_history_endpoint(db_session):
     user = create_user(db_session)
     payload = TrackedShipmentCreate(tracking_number="UPD", status="X")

@@ -76,6 +76,20 @@ async def delete_history(
     return {"deleted": deleted}
 
 
+@router.delete("/{history_id}")
+async def delete_history_item(
+    history_id: str,
+    current_user: UserDB = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    """Delete a single history item."""
+    service = TrackingHistoryService(db)
+    deleted = service.delete_history_item(current_user.id, history_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="History item not found")
+    return {"deleted": deleted}
+
+
 @router.get("/export")
 async def export_history(
     format: str = "csv",

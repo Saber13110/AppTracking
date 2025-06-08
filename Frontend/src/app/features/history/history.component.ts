@@ -51,7 +51,7 @@ export class HistoryComponent implements OnInit {
 
   delete(id: string): void {
     this.historyService.removeIdentifier(id);
-    this.loadHistory();
+    this.history = this.history.filter(h => h.id !== id);
   }
 
   togglePinned(item: TrackedShipment): void {

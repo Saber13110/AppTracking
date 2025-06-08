@@ -38,9 +38,9 @@
             <button role="button"
                     tabindex="0"
                     aria-label="Delete {{item.tracking_number}} from history"
-                    (click)="delete(item.tracking_number)"
-                    (keydown.enter)="delete(item.tracking_number)"
-                    (keydown.space)="delete(item.tracking_number)">Delete</button>
+                    (click)="delete(item.id!)"
+                    (keydown.enter)="delete(item.id!)"
+                    (keydown.space)="delete(item.id!)">Delete</button>
           </td>
         </tr>
       </tbody>
