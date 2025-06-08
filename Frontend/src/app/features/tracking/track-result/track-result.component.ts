@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { TrackingService, TrackingInfo } from '../services/tracking.service';
@@ -15,7 +16,18 @@ declare global {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './track-result.component.html',
-  styleUrls: ['./track-result.component.scss']
+  styleUrls: ['./track-result.component.scss'],
+  animations: [
+    trigger('timelineAnimation', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateX(-10px)' }),
+        animate('300ms ease-out', style({ opacity: 1, transform: 'translateX(0)' }))
+      ]),
+      transition(':leave', [
+        animate('200ms', style({ opacity: 0 }))
+      ])
+    ])
+  ]
 })
 export class TrackResultComponent implements OnInit, OnDestroy {
   trackingInfo: TrackingInfo | null = null;
