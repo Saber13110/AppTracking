@@ -8,6 +8,7 @@ import { FedexTrackResultComponent } from './fedex-track-result.component';
 import { TrackingService } from '../services/tracking.service';
 import { AnalyticsService } from '../../../core/services/analytics.service';
 import { ScheduleDialogComponent } from './schedule-dialog.component';
+import { ChangeAddressDialogComponent } from './change-address-dialog.component';
 import { HoldLocationDialogComponent } from './hold-location-dialog.component';
 import { DeliveryInstructionsDialogComponent } from './delivery-instructions-dialog.component';
 import * as notificationUtil from '../../../shared/services/notification.util';
@@ -126,6 +127,13 @@ describe('FedexTrackResultComponent', () => {
 
     expect(dialog.open).toHaveBeenCalledWith(ScheduleDialogComponent, { width: '400px' });
     expect(analytics.logAction).toHaveBeenCalledWith('open_dialog', 'schedule');
+  });
+
+  it("openDialog('change-address') should open ChangeAddressDialogComponent and log action", () => {
+    component.openDialog('change-address');
+
+    expect(dialog.open).toHaveBeenCalledWith(ChangeAddressDialogComponent, { width: '400px' });
+    expect(analytics.logAction).toHaveBeenCalledWith('open_dialog', 'change-address');
   });
 
   it("openDialog('hold-location') should open HoldLocationDialogComponent and log action", () => {
