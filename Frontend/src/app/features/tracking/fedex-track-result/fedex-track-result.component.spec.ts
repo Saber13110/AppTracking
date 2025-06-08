@@ -17,7 +17,7 @@ describe('FedexTrackResultComponent', () => {
   let analytics: jasmine.SpyObj<AnalyticsService>;
 
   beforeEach(async () => {
-    trackingService = jasmine.createSpyObj('TrackingService', ['trackPackage']);
+    trackingService = jasmine.createSpyObj('TrackingService', ['trackPackage', 'exportTracking']);
     analytics = jasmine.createSpyObj('AnalyticsService', ['logAction']);
 
     await TestBed.configureTestingModule({
@@ -83,6 +83,22 @@ describe('FedexTrackResultComponent', () => {
     expect(saved).toContain('FEDEXID');
     expect(notificationUtil.showNotification).toHaveBeenCalledWith('Tracking saved', 'success');
     expect(analytics.logAction).toHaveBeenCalledWith('save_tracking', 'FEDEXID');
+  });
+
+  it('exportData() should notify on error', () => {
+    component.trackingData = {
+      tracking_number: 'FEDEXID',
+      carrier: 'FedEx',
+      status: { status: 'In transit', description: '', is_delivered: false },
+      tracking_history: []
+    } as any;
+
+    trackingService.exportTracking.and.returnValue(throwError(() => new Error('fail')));
+
+    component.exportData('pdf');
+
+    expect(notificationUtil.showNotification).toHaveBeenCalledWith('Export failed', 'error');
+    expect(analytics.logAction).toHaveBeenCalledWith('export_data', 'pdf');
   });
 
   it('should use fallback data when service fails', fakeAsync(() => {

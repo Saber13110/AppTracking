@@ -6,6 +6,8 @@ import { ActivatedRoute } from '@angular/router';
 import { TrackingService, TrackingInfo } from '../services/tracking.service';
 import { AnalyticsService } from '../../../core/services/analytics.service';
 import { showNotification } from '../../../shared/services/notification.util';
+import { catchError } from 'rxjs/operators';
+import { throwError } from 'rxjs';
 import { ScheduleDialogComponent } from './schedule-dialog.component';
 import { ChangeAddressDialogComponent } from './change-address-dialog.component';
 
@@ -276,6 +278,12 @@ export class FedexTrackResultComponent implements OnInit, OnDestroy {
 
     this.trackingService
       .exportTracking(this.trackingData.tracking_number, format)
+      .pipe(
+        catchError(error => {
+          showNotification('Export failed', 'error');
+          return throwError(() => error);
+        })
+      )
       .subscribe(blob => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
