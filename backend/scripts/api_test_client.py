@@ -30,7 +30,7 @@ def test_batch_tracking(tracking_ids: List[str]) -> Dict[str, Any]:
 def test_update_tracking(
     tracking_id: str, customer_name: str | None = None, note: str | None = None
 ) -> Dict[str, Any]:
-    """Test la mise à jour des informations d'un colis."""
+    """Test la mise à jour des informations d'un colis via PATCH."""
     url = f"{BASE_URL}/track/{tracking_id}"
     data: Dict[str, str] = {}
     if customer_name:
@@ -38,7 +38,7 @@ def test_update_tracking(
     if note:
         data["note"] = note
 
-    response = requests.put(url, json=data)
+    response = requests.patch(url, json=data)
     print(f"\n=== Test mise à jour colis {tracking_id} ===")
     print(f"Status Code: {response.status_code}")
     print("Response:", json.dumps(response.json(), indent=2, ensure_ascii=False))
@@ -58,7 +58,7 @@ def main() -> None:
     # Test 2: Suivi de plusieurs colis
     test_batch_tracking(tracking_ids)
 
-    # Test 3: Mise à jour d'un colis
+    # Test 3: Mise à jour d'un colis (PATCH)
     test_update_tracking(
         tracking_ids[0],
         customer_name="John Doe",
