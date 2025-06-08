@@ -1,0 +1,12 @@
+<div class="notifications">
+  <h2>Notifications</h2>
+  <button (click)="markAllAsRead()" [disabled]="notifications.length === 0">Mark all as read</button>
+  <div *ngIf="loading">Loading...</div>
+  <ul *ngIf="!loading && notifications.length">
+    <li *ngFor="let notif of notifications">
+      <h3>{{ notif.title }}</h3>
+      <p>{{ notif.message }}</p>
+    </li>
+  </ul>
+  <p *ngIf="!loading && notifications.length === 0">No unread notifications.</p>
+</div>

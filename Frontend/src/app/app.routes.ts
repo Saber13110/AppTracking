@@ -8,6 +8,7 @@ import { ForgotPasswordComponent } from './features/auth/forgot-password/forgot-
 import { ResetPasswordComponent } from './features/auth/reset-password/reset-password.component';
 import { TrackResultComponent } from './features/tracking/track-result/track-result.component';
 import { GoogleCallbackComponent } from './features/auth/google-callback/google-callback.component';
+import { NotificationsComponent } from './features/notifications/notifications.component';
 
 // Assuming you might have other standalone components or lazy-loaded routes
 // import { HomeComponent } from './features/home/home.component';
@@ -26,6 +27,7 @@ export const routes: Routes = [
 
   // Add other routes here, including for other standalone components
   { path: 'track/:identifier', component: TrackResultComponent, canActivate: [AuthGuard] },
+  { path: 'notifications', component: NotificationsComponent, canActivate: [AuthGuard] },
   { path: 'auth/login', component: LoginComponent },
   { path: 'verify-email', component: VerifyEmailComponent },
   { path: 'auth/callback', component: GoogleCallbackComponent },
