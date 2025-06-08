@@ -89,7 +89,12 @@ async def create_package(
         if request:
             try:
                 user = await get_current_user(request, db, token)
-                TrackingHistoryService(db).log_search(user.id, colis_data.id)
+                TrackingHistoryService(db).log_search(
+                    user.id,
+                    colis_data.id,
+                    status=response.data.status if response.data else None,
+                    meta_data=response.metadata,
+                )
             except Exception:
                 pass
 
@@ -180,7 +185,12 @@ async def track_package(
         if request:
             try:
                 user = await get_current_user(request, db, token)
-                TrackingHistoryService(db).log_search(user.id, identifier)
+                TrackingHistoryService(db).log_search(
+                    user.id,
+                    identifier,
+                    status=response.data.status if response.data else None,
+                    meta_data=response.metadata,
+                )
             except Exception:
                 pass
 
