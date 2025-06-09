@@ -6,4 +6,10 @@ The image builds the Angular code from the `Frontend` directory, then serves the
 
 ## Unit tests
 
-Run `npm test` to execute the Angular unit tests. Karma launches Chrome by default, so a local Chrome (or Chromium) installation is required. On headless systems you can set the `CHROME_BIN` environment variable to the path of a Chrome executable, such as the binary provided by the `chromium-browser` package.
+Run `npm test` to execute the Angular unit tests. Karma normally launches the system Chrome. In CI you can instead use Playwright's bundled Chromium with `--no-sandbox` or set `CHROME_BIN` to the path of that bundled executable.
+
+```bash
+npx playwright install chromium
+export CHROME_BIN=$(pwd)/node_modules/playwright-core/.local-browsers/chromium-*/chrome-linux/chrome
+CI=true npm test -- --watch=false --browsers=ChromeHeadless --no-sandbox
+```
