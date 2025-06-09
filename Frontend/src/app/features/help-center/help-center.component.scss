@@ -4,6 +4,12 @@
 
 #contact app-contact-card {
   max-width: 300px;
-  margin: 0 auto 1rem;
-  display: block;
+  margin-bottom: 1rem;
+}
+
+.card-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
 }

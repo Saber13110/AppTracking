@@ -1,0 +1,7 @@
+<div class="emergency-notice" *ngIf="visible" @fade role="alert">
+  <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+  <span class="notice-text">{{ message }}</span>
+  <button class="close" (click)="dismiss()" aria-label="Dismiss notification">
+    <i class="fas fa-times" aria-hidden="true"></i>
+  </button>
+</div>

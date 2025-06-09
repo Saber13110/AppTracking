@@ -15,6 +15,9 @@ export class QuickSearchComponent {
   @Output() search = new EventEmitter<string>();
 
   submit() {
-    this.search.emit(this.query);
+    const q = this.query.trim();
+    if (q) {
+      this.search.emit(q);
+    }
   }
 }

@@ -1,0 +1,22 @@
+.emergency-notice {
+  background: #c62828;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.notice-text {
+  flex: 1;
+  margin-left: 0.5rem;
+}
+
+.close {
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+}

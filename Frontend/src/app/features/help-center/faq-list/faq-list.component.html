@@ -6,6 +6,6 @@
             [attr.aria-controls]="'faq'+i">
       {{ f.question }}
     </button>
-    <p [id]="'faq'+i" *ngIf="f.open">{{ f.answer }}</p>
+    <p [id]="'faq'+i" *ngIf="f.open" @expand>{{ f.answer }}</p>
   </div>
 </div>

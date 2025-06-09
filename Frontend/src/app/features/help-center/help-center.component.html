@@ -1,37 +1,42 @@
 <section class="help-center">
   <app-breadcrumb [items]="[{label: 'Home', url: '/home'}, {label: 'Help Center'}]"></app-breadcrumb>
+  <app-emergency-notice *ngIf="showEmergency" [message]="emergencyMessage" (closed)="dismissEmergency()"></app-emergency-notice>
   <h1>Help Center</h1>
   <app-quick-search (search)="onSearch($event)"></app-quick-search>
   <app-simple-tabs [tabs]="tabs" [active]="activeTab" (select)="selectTab($event)"></app-simple-tabs>
 
   <div [ngSwitch]="activeTab">
-    <div *ngSwitchCase="'advice'" id="advice">
+    <div *ngSwitchCase="'advice'" id="advice" @fade>
       <h2>Advice</h2>
       <p>Find tips on how to get the most from our tracking services.</p>
     </div>
 
-    <div *ngSwitchCase="'tools'" id="tools">
+    <div *ngSwitchCase="'tools'" id="tools" @fade>
       <h2>Tracking Tools</h2>
       <p>Explore our suite of tracking tools for every need.</p>
     </div>
 
-    <div *ngSwitchCase="'faq'" id="faq">
+    <div *ngSwitchCase="'faq'" id="faq" @fade>
       <h2>Frequently Asked Questions</h2>
       <app-faq-list [faqs]="faqs"></app-faq-list>
     </div>
 
-    <div *ngSwitchCase="'contact'" id="contact">
+    <div *ngSwitchCase="'contact'" id="contact" class="contact-section" @fade>
       <h2>Contact Us</h2>
-      <app-contact-card
-        icon="fas fa-envelope"
-        heading="Email"
-        text="support@globex.ma"
-        link="mailto:support@globex.ma"></app-contact-card>
-      <app-contact-card
-        icon="fas fa-phone"
-        heading="Phone"
-        text="+212 522-123456"
-        link="tel:+212522123456"></app-contact-card>
+      <div class="card-grid">
+        <app-contact-card
+          icon="fas fa-envelope"
+          heading="Email"
+          text="support@globex.ma"
+          link="mailto:support@globex.ma"
+          linkLabel="Email Us"></app-contact-card>
+        <app-contact-card
+          icon="fas fa-phone"
+          heading="Phone"
+          text="+212 522-123456"
+          link="tel:+212522123456"
+          linkLabel="Call Now"></app-contact-card>
+      </div>
     </div>
   </div>
 </section>
