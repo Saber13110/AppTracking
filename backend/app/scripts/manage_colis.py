@@ -4,6 +4,7 @@ from app.models.database import ColisDB
 from app.config import settings
 import sys
 import os
+from pathlib import Path
 from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
@@ -14,6 +15,9 @@ from typing import List
 # Adjust the path to import modules from the backend directory
 sys.path.insert(0, os.path.abspath(
     os.path.join(os.path.dirname(__file__), '..', '..')))
+
+# Resolve the backend directory similar to generate_barcode and ColisService
+BACKEND_DIR = Path(__file__).resolve().parents[2]
 
 # Correct import for settings
 
@@ -123,7 +127,8 @@ def delete_colis(db: Session, colis_id: str) -> bool:
             return False
 
         # Supprimer l'image du code-barre
-        code_barre_path = f"static/barcodes/{db_colis.code_barre}.png"
+        code_barre_path = os.path.join(
+            BACKEND_DIR, "static", "barcodes", f"{db_colis.code_barre}.png")
         if os.path.exists(code_barre_path):
             os.remove(code_barre_path)
 
