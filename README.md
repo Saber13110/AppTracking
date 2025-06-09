@@ -137,6 +137,7 @@ Create the environment files before starting the containers:
 
 - `backend/.env.local` &ndash; copy from `backend/.env.example` and provide the required backend secrets.
 - `.env` &ndash; copy from `.env.example` and set `GOOGLE_MAPS_API_KEY` for the frontend.
+The Compose stack also starts a `db` service based on PostgreSQL. Database files are stored in the `db-data` volume so data persists between runs.
 
 From the project root run:
 
@@ -149,6 +150,7 @@ On the first run Docker Compose builds the backend and frontend images. Once the
 - Backend: http://localhost:8000
 - Frontend: http://localhost:4200
 - Redis: localhost:6379
+- Database: localhost:5432 (data in `db-data` volume)
 
 ## Running Tests
 
