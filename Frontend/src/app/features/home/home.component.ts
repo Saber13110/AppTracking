@@ -10,6 +10,7 @@ import { TrackingHistoryService } from '../../core/services/tracking-history.ser
 import { NotificationService } from '../../core/services/notification.service';
 import { AnalyticsService } from '../../core/services/analytics.service';
 import { NewsService } from '../news/services/news.service';
+import { NewsArticle } from '../news/models/news';
 import { Subject, Observable } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { BrowserCodeReader, IScannerControls, BrowserMultiFormatReader } from '@zxing/browser';
@@ -27,17 +28,6 @@ declare global {
   }
 }
 
-interface News {
-  id: number;
-  title: string;
-  content: string;
-  image: string;
-  imageUrl: string;
-  date: Date;
-  category: string;
-  summary: string;
-  slug: string;
-}
 
 interface Location {
   id: number;
@@ -119,7 +109,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   notifications: Notification[] = [];
 
   // === Liste d'actualités
-  news: News[] = [];
+  news: NewsArticle[] = [];
 
   // === Liste FAQ
   faqList: FAQ[] = [];
