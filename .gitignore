@@ -16,3 +16,6 @@ Frontend/dist/
 
 # Ignore test caches
 .pytest_cache/
+
+# Ignore generated static files
+static/
