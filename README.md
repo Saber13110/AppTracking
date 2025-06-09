@@ -165,9 +165,18 @@ pytest
 ```
 
 Angular unit tests are executed with Karma via `npm test` in the `Frontend`
-directory. Karma requires a local Chrome (or Chromium) installation. On headless
-systems you can set the `CHROME_BIN` environment variable to the path of a
-Chrome executable.
+directory. Karma launches Chrome so a local installation is normally
+required. On CI systems you can either run Playwright's bundled Chromium with
+`--no-sandbox` or set `CHROME_BIN` to the path of that bundled Chrome
+executable.
+
+Example using Playwright's browser:
+
+```bash
+npx playwright install chromium
+export CHROME_BIN=$(pwd)/node_modules/playwright-core/.local-browsers/chromium-*/chrome-linux/chrome
+CI=true npm test -- --watch=false --browsers=ChromeHeadless --no-sandbox
+```
 
 ## Password requirements
 
