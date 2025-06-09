@@ -19,6 +19,7 @@ from ..services.auth import (
     create_password_reset_token,
     verify_password_reset_token,
     get_password_hash,
+    verify_password,
     setup_twofa,
     verify_twofa,
 )
@@ -61,6 +62,11 @@ class PasswordResetRequest(BaseModel):
 
 class PasswordReset(BaseModel):
     token: str
+    new_password: str
+
+
+class PasswordChange(BaseModel):
+    current_password: str
     new_password: str
 
 
@@ -155,6 +161,21 @@ async def reset_password(payload: PasswordReset, db: Session = Depends(get_db)):
         db_token.revoked = True
 
     user.hashed_password = get_password_hash(payload.new_password)
+    db.commit()
+    return {"message": "Password updated"}
+
+
+@router.post("/change-password")
+async def change_password(
+    payload: PasswordChange,
+    current_user: UserDB = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    if current_user.hashed_password is None:
+        raise HTTPException(status_code=400, detail="Password not set for this user")
+    if not verify_password(payload.current_password, current_user.hashed_password):
+        raise HTTPException(status_code=400, detail="Incorrect current password")
+    current_user.hashed_password = get_password_hash(payload.new_password)
     db.commit()
     return {"message": "Password updated"}
 
