@@ -1,6 +1,11 @@
 <div class="faq-list">
-  <div class="faq-item" *ngFor="let f of faqs">
-    <h3 (click)="toggleFaq(f)">{{ f.question }}</h3>
-    <p *ngIf="f.open">{{ f.answer }}</p>
+  <div class="faq-item" *ngFor="let f of faqs; let i = index">
+    <button class="faq-question"
+            (click)="toggleFaq(f)"
+            [attr.aria-expanded]="f.open"
+            [attr.aria-controls]="'faq'+i">
+      {{ f.question }}
+    </button>
+    <p [id]="'faq'+i" *ngIf="f.open">{{ f.answer }}</p>
   </div>
 </div>

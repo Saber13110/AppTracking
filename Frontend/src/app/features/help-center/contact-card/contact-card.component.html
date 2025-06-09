@@ -1,0 +1,6 @@
+<div class="contact-card" role="region">
+  <i *ngIf="icon" [class]="icon" aria-hidden="true"></i>
+  <h3>{{ heading }}</h3>
+  <p>{{ text }}</p>
+  <a *ngIf="link" [href]="link">{{ linkLabel || link }}</a>
+</div>
