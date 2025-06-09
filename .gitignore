@@ -19,3 +19,4 @@ Frontend/dist/
 
 # Ignore generated static files
 static/
+backend/static/barcodes/
