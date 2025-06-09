@@ -7,6 +7,11 @@ import { AnalyticsService } from '../../core/services/analytics.service';
 import { TrackingFormComponent } from '../../shared/components/tracking-form/tracking-form.component';
 import { TrackingTabsComponent } from '../../shared/components/tracking-tabs/tracking-tabs.component';
 import { BarcodeUploadComponent } from '../barcode-upload/barcode-upload.component';
+import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
+import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
+import { FooterComponent } from '../../shared/components/footer/footer.component';
+import { TrackingOptionsComponent } from '../../shared/components/tracking-options/tracking-options.component';
+import { TrackingMobileComponent } from '../../shared/components/tracking-mobile/tracking-mobile.component';
 
 @Component({
   selector: 'app-all-tracking-services',
@@ -15,9 +20,14 @@ import { BarcodeUploadComponent } from '../barcode-upload/barcode-upload.compone
     CommonModule,
     ReactiveFormsModule,
     RouterModule,
+    NavbarComponent,
+    BreadcrumbComponent,
     TrackingFormComponent,
     TrackingTabsComponent,
-    BarcodeUploadComponent
+    BarcodeUploadComponent,
+    TrackingOptionsComponent,
+    TrackingMobileComponent,
+    FooterComponent
   ],
   templateUrl: './all-tracking-services.component.html',
   styleUrls: ['./all-tracking-services.component.scss']
