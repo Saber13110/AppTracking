@@ -8,7 +8,7 @@ class NewsArticleService:
         self.db = db
 
     def create_article(self, article: NewsArticleCreate) -> NewsArticleDB:
-        db_article = NewsArticleDB(**article.dict())
+        db_article = NewsArticleDB(**article.model_dump())
         self.db.add(db_article)
         self.db.commit()
         self.db.refresh(db_article)
@@ -31,7 +31,7 @@ class NewsArticleService:
             NewsArticleDB.id == article_id).first()
         if not article:
             return None
-        for key, value in updates.dict(exclude_unset=True).items():
+        for key, value in updates.model_dump(exclude_unset=True).items():
             setattr(article, key, value)
         self.db.commit()
         self.db.refresh(article)

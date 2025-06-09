@@ -127,7 +127,7 @@ class ColisService:
             if not db_colis:
                 return None
 
-            update_data = colis_update.dict(exclude_unset=True)
+            update_data = colis_update.model_dump(exclude_unset=True)
             for key, value in update_data.items():
                 setattr(db_colis, key, value)
 

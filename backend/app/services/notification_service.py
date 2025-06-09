@@ -29,7 +29,7 @@ class NotificationService:
         """
         try:
             notification_id = str(uuid4())
-            data = notification_data.dict()
+            data = notification_data.model_dump()
             # Rename metadata to meta_data
             if 'metadata' in data:
                 data['meta_data'] = data.pop('metadata')
@@ -165,7 +165,7 @@ class NotificationService:
                 )
 
             # Update notification fields
-            update_dict = update_data.dict(exclude_unset=True)
+            update_dict = update_data.model_dump(exclude_unset=True)
             if 'metadata' in update_dict:
                 update_dict['meta_data'] = update_dict.pop('metadata')
 
