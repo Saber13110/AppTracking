@@ -1,7 +1,8 @@
 import os
 import sys
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.testclient import TestClient
+import asyncio
 import pytest
 
 # Set required env vars before importing the app modules
@@ -16,7 +17,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from backend.app.database import get_db
 from backend.app.api.v1.endpoints import news as news_router
 from backend.app.services.news_service import NewsArticleService
-from backend.app.models.news import NewsArticleCreate
+from backend.app.models.news import NewsArticleCreate, NewsArticleUpdate
+from backend.app.models.user import UserCreate, UserRole
+from backend.app.services import auth
 
 
 @pytest.fixture
@@ -56,6 +59,16 @@ def news_client(db_session):
     return TestClient(app)
 
 
+def create_user_with_role(db, role: UserRole):
+    user = auth.create_user(
+        db, UserCreate(email=f"{role}@example.com", full_name="U", password="Password1")
+    )
+    user.role = role
+    db.commit()
+    db.refresh(user)
+    return user
+
+
 def test_list_news_returns_articles(news_client, db_session):
     service = NewsArticleService(db_session)
     service.create_article(
@@ -81,3 +94,27 @@ def test_get_article_by_slug(news_client, db_session):
 def test_get_article_not_found(news_client):
     resp = news_client.get('/news/unknown')
     assert resp.status_code == 404
+
+
+def test_create_update_delete_article(db_session):
+    admin = create_user_with_role(db_session, UserRole.admin)
+    article = NewsArticleCreate(title='T', slug='slug', content='C')
+    created = news_router.create_article(article, db_session, admin)
+    assert created.slug == 'slug'
+    assert created.id is not None
+
+    updates = NewsArticleUpdate(title='New')
+    updated = news_router.update_article('slug', updates, db_session, admin)
+    assert updated.title == 'New'
+
+    result = news_router.delete_article('slug', db_session, admin)
+    assert result["deleted"] is True
+    assert NewsArticleService(db_session).get_article('slug') is None
+
+
+def test_create_article_forbidden(db_session):
+    user = create_user_with_role(db_session, UserRole.client)
+    check = auth.require_role(UserRole.admin)
+    with pytest.raises(HTTPException) as exc:
+        asyncio.run(check(current_user=user))
+    assert exc.value.status_code == 403
