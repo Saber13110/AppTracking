@@ -23,5 +23,13 @@
                        (formSubmit)="submitTcn()">
       Track
     </app-tracking-form>
+
+    <app-tracking-form *ngIf="activeTab==='proof'"
+                       [form]="proofForm"
+                       [includePackageName]="false"
+                       buttonIcon="fas fa-download"
+                       (formSubmit)="submitProof()">
+      Download Proof
+    </app-tracking-form>
   </div>
 </div>

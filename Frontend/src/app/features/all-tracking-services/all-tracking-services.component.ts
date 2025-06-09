@@ -23,11 +23,12 @@ import { BarcodeUploadComponent } from '../barcode-upload/barcode-upload.compone
   styleUrls: ['./all-tracking-services.component.scss']
 })
 export class AllTrackingServicesComponent {
-  activeTab: 'number' | 'reference' | 'tcn' = 'number';
+  activeTab: 'number' | 'reference' | 'tcn' | 'proof' = 'number';
 
   numberForm: FormGroup;
   referenceForm: FormGroup;
   tcnForm: FormGroup;
+  proofForm: FormGroup;
 
   constructor(
     private fb: FormBuilder,
@@ -45,9 +46,12 @@ export class AllTrackingServicesComponent {
     this.tcnForm = this.fb.group({
       tcn: ['', Validators.required]
     });
+    this.proofForm = this.fb.group({
+      trackingNumber: ['', Validators.required]
+    });
   }
 
-  switchTab(tab: 'number' | 'reference' | 'tcn'): void {
+  switchTab(tab: 'number' | 'reference' | 'tcn' | 'proof'): void {
     this.activeTab = tab;
     this.analytics.logAction('switch_tab', tab);
   }
@@ -85,6 +89,23 @@ export class AllTrackingServicesComponent {
     this.analytics.logAction('submit_tcn', tcn);
     this.trackingService.trackTcn(tcn).subscribe(() => {
       this.router.navigate(['/track', tcn]);
+    });
+  }
+
+  submitProof(): void {
+    if (this.proofForm.invalid) {
+      this.proofForm.markAllAsTouched();
+      return;
+    }
+    const { trackingNumber } = this.proofForm.value;
+    this.analytics.logAction('download_proof', trackingNumber);
+    this.trackingService.downloadProof(trackingNumber).subscribe(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `proof_${trackingNumber}.pdf`;
+      a.click();
+      window.URL.revokeObjectURL(url);
     });
   }
 }
