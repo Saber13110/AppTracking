@@ -241,6 +241,18 @@ def test_password_reset_flow(db_session, patched_router):
     assert token_db.revoked is True
 
 
+def test_change_password_flow(db_session, patched_router):
+    user_data = UserCreate(email="changepw@example.com", full_name="Change", password="Password1")
+    user = asyncio.run(patched_router.register(user_data, db_session))
+    asyncio.run(patched_router.verify_email(patched_router.EmailVerification(token=user.verification_token), db_session))
+
+    payload = patched_router.PasswordChange(current_password="Password1", new_password="Newpass1")
+    result = asyncio.run(patched_router.change_password(payload, current_user=user, db=db_session))
+    assert result["message"] == "Password updated"
+    db_session.refresh(user)
+    assert auth.verify_password("Newpass1", user.hashed_password)
+
+
 def test_last_login_timestamp_updated(db_session, patched_router):
     user_data = UserCreate(email="ll@example.com", full_name="LastLogin", password="Password1")
     user = asyncio.run(patched_router.register(user_data, db_session))
