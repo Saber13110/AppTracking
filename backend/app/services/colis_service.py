@@ -3,6 +3,7 @@ import logging
 import uuid
 import random
 from datetime import datetime
+from pathlib import Path
 import barcode
 from barcode.writer import ImageWriter
 from sqlalchemy.orm import Session
@@ -13,11 +14,15 @@ from sqlalchemy.sql import func
 
 logger = logging.getLogger(__name__)
 
+# Resolve the backend directory and default barcode folder
+BACKEND_DIR = Path(__file__).resolve().parents[2]
+DEFAULT_BARCODE_FOLDER = os.path.join(BACKEND_DIR, "static", "barcodes")
+
 
 class ColisService:
     def __init__(self, db: Session):
         self.db = db
-        self.barcode_folder = "static/barcodes"
+        self.barcode_folder = DEFAULT_BARCODE_FOLDER
         os.makedirs(self.barcode_folder, exist_ok=True)
 
     def generate_id(self) -> str:

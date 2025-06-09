@@ -1,9 +1,14 @@
+import os
+from pathlib import Path
 import barcode
 from barcode.writer import ImageWriter
-import os
+
+# Resolve the backend directory based on this file's location
+BACKEND_DIR = Path(__file__).resolve().parents[2]
+DEFAULT_OUTPUT_DIR = os.path.join(BACKEND_DIR, "static", "barcodes")
 
 
-def generate_barcode(value: str, output_dir: str = "static/barcodes"):
+def generate_barcode(value: str, output_dir: str = DEFAULT_OUTPUT_DIR):
     """
     Génère un code-barre et sauvegarde l'image
 
