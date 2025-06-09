@@ -8,6 +8,9 @@ from datetime import datetime, timedelta
 from importlib import resources
 from pathlib import Path
 from threading import Lock
+import redis
+
+from ..config import settings
 from ..models.tracking import (
     TrackingInfo, TrackingEvent, TrackingResponse, Location,
     PackageDetails, DeliveryDetails, PackageStatus, PackageType,
@@ -20,6 +23,11 @@ logger = logging.getLogger(__name__)
 _token_lock = Lock()
 _token_cache: dict[str, datetime | str | None] = {
     "token": None, "expiry": None}
+
+# Redis client for cross-instance token storage
+redis_client = redis.from_url(settings.REDIS_URL, decode_responses=True)
+_REDIS_TOKEN_KEY = "fedex_token"
+_REDIS_EXPIRY_KEY = "fedex_token_expiry"
 
 
 class FedExService:
@@ -79,10 +87,29 @@ class FedExService:
             self._token = token
             self._token_expiry = expiry
 
+        # Persist token in Redis for other service instances
+        redis_client.set(_REDIS_TOKEN_KEY, token, ex=expires_in)
+        redis_client.set(_REDIS_EXPIRY_KEY, expiry.isoformat(), ex=expires_in)
+
     def _get_auth_token(self) -> str:
         with _token_lock:
             token = _token_cache.get("token")
             expiry = _token_cache.get("expiry")
+
+        if not token or not expiry or datetime.utcnow() >= expiry:
+            # Try to read token from Redis before fetching a new one
+            redis_token = redis_client.get(_REDIS_TOKEN_KEY)
+            redis_expiry = redis_client.get(_REDIS_EXPIRY_KEY)
+            if redis_token and redis_expiry:
+                redis_expiry_dt = datetime.fromisoformat(str(redis_expiry))
+                if datetime.utcnow() < redis_expiry_dt:
+                    token = str(redis_token)
+                    with _token_lock:
+                        _token_cache["token"] = token
+                        _token_cache["expiry"] = redis_expiry_dt
+                        self._token = token
+                        self._token_expiry = redis_expiry_dt
+                        expiry = redis_expiry_dt
 
         if not token or not expiry or datetime.utcnow() >= expiry:
             self._authenticate()

@@ -167,6 +167,18 @@ def test_token_cached_between_instances(monkeypatch):
     fs._token_cache["token"] = None
     fs._token_cache["expiry"] = None
 
+    class DummyRedis:
+        def __init__(self):
+            self.store = {}
+
+        def get(self, key):
+            return self.store.get(key)
+
+        def set(self, key, value, ex=None):
+            self.store[key] = value
+
+    fs.redis_client = DummyRedis()
+
     call_count = 0
 
     class DummyClient:
@@ -197,6 +209,18 @@ def test_token_refresh_after_expiry(monkeypatch):
     fs._token_cache["token"] = None
     fs._token_cache["expiry"] = None
 
+    class DummyRedis:
+        def __init__(self):
+            self.store = {}
+
+        def get(self, key):
+            return self.store.get(key)
+
+        def set(self, key, value, ex=None):
+            self.store[key] = value
+
+    fs.redis_client = DummyRedis()
+
     tokens = ["t1", "t2"]
 
     class DummyClient:
@@ -219,7 +243,9 @@ def test_token_refresh_after_expiry(monkeypatch):
     tok2 = service._get_auth_token()
     assert tok2 == "t1"
 
-    fs._token_cache["expiry"] = datetime.utcnow() - timedelta(seconds=1)
+    expired = datetime.utcnow() - timedelta(seconds=1)
+    fs._token_cache["expiry"] = expired
+    fs.redis_client.set(fs._REDIS_EXPIRY_KEY, expired.isoformat())
 
     tok3 = service._get_auth_token()
     assert tok3 == "t2"
