@@ -1,27 +1,43 @@
-<div class="ats">
-  <h1>All Tracking Services</h1>
-  <app-tracking-tabs (tabChange)="switchTab($event)"></app-tracking-tabs>
+<app-navbar></app-navbar>
 
-  <div class="tab-content">
-    <app-tracking-form *ngIf="activeTab==='number'"
-                       [form]="numberForm"
-                       (formSubmit)="submitNumber()">
-      Track
-    </app-tracking-form>
-    <app-barcode-upload *ngIf="activeTab==='number'" [control]="numberForm.get('trackingNumber')"></app-barcode-upload>
-
-    <app-tracking-form *ngIf="activeTab==='reference'"
-                       [form]="referenceForm"
-                       [includePackageName]="false"
-                       (formSubmit)="submitReference()">
-      Track
-    </app-tracking-form>
-
-    <app-tracking-form *ngIf="activeTab==='tcn'"
-                       [form]="tcnForm"
-                       [includePackageName]="false"
-                       (formSubmit)="submitTcn()">
-      Track
-    </app-tracking-form>
+<header class="ats-header">
+  <div class="container">
+    <h1 class="page-title">All Tracking Services</h1>
   </div>
-</div>
+</header>
+
+<main class="container ats-main">
+  <app-breadcrumb [items]="[{label: 'Home', url: '/home'}, {label: 'All Tracking Services'}]"></app-breadcrumb>
+
+  <section class="ats-section">
+    <app-tracking-tabs (tabChange)="switchTab($event)"></app-tracking-tabs>
+
+    <div class="tab-content">
+      <app-tracking-form *ngIf="activeTab==='number'"
+                         [form]="numberForm"
+                         (formSubmit)="submitNumber()">
+        Track
+      </app-tracking-form>
+      <app-barcode-upload *ngIf="activeTab==='number'" [control]="numberForm.get('trackingNumber')"></app-barcode-upload>
+
+      <app-tracking-form *ngIf="activeTab==='reference'"
+                         [form]="referenceForm"
+                         [includePackageName]="false"
+                         (formSubmit)="submitReference()">
+        Track
+      </app-tracking-form>
+
+      <app-tracking-form *ngIf="activeTab==='tcn'"
+                         [form]="tcnForm"
+                         [includePackageName]="false"
+                         (formSubmit)="submitTcn()">
+        Track
+      </app-tracking-form>
+    </div>
+  </section>
+
+  <app-tracking-options></app-tracking-options>
+  <app-tracking-mobile></app-tracking-mobile>
+</main>
+
+<app-footer></app-footer>
