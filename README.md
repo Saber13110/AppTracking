@@ -27,6 +27,7 @@ Both `backend/.env` and `backend/.env.local` are ignored by Git. Store your secr
 `HISTORY_RETENTION_DAYS` sets how many days of tracking history to keep. Old records older than this value are purged automatically (default: `30`).
 
 The frontend needs a Google Maps API key. Set `GOOGLE_MAPS_API_KEY` in a `.env` file at the project root or export it in your shell before running the Angular app.
+`API_URL` controls the backend base URL used by the frontend and defaults to `http://localhost:8000/api/v1`.
 
 ## Required variables
 
@@ -52,7 +53,7 @@ Follow these steps to run the project locally:
    ```
 
    Update `backend/.env.local` with your FedEx credentials and a `SECRET_KEY`.
-   Set `GOOGLE_MAPS_API_KEY` in `.env` for the frontend.
+   Set `GOOGLE_MAPS_API_KEY` and optionally `API_URL` in `.env` for the frontend.
 3. **Install backend dependencies and start the API**:
 
    ```bash
@@ -92,7 +93,7 @@ uvicorn app.main:app --reload
 
 ## Running the Frontend
 
-Install the Node modules, ensure `GOOGLE_MAPS_API_KEY` is defined, and start Angular:
+Install the Node modules, ensure `GOOGLE_MAPS_API_KEY` and `API_URL` are defined, and start Angular:
 
 ```bash
 cd Frontend
@@ -136,7 +137,7 @@ pytest
 Create the environment files before starting the containers:
 
 - `backend/.env.local` &ndash; copy from `backend/.env.example` and provide the required backend secrets.
-- `.env` &ndash; copy from `.env.example` and set `GOOGLE_MAPS_API_KEY` for the frontend.
+- `.env` &ndash; copy from `.env.example` and set `GOOGLE_MAPS_API_KEY` and `API_URL` for the frontend.
 
 From the project root run:
 
