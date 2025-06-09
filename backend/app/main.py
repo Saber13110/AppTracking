@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 import logging
+from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from dotenv import load_dotenv
@@ -33,6 +34,7 @@ def purge_old_history() -> None:
         db.close()
 
 
+@asynccontextmanager
 async def lifespan(app: FastAPI):
     redis_client = redis.from_url(
         settings.REDIS_URL, encoding="utf8", decode_responses=True
