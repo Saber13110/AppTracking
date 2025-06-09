@@ -1,4 +1,4 @@
-<form class="quick-search" (ngSubmit)="submit()">
+<form class="quick-search" role="search" (ngSubmit)="submit()">
   <input type="text" [(ngModel)]="query" name="query" placeholder="Search help topics..." aria-label="Search help topics">
   <button type="submit"><i class="fas fa-search" aria-hidden="true"></i><span class="visually-hidden">Search</span></button>
 </form>
