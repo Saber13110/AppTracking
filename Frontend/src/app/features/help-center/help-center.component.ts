@@ -4,6 +4,7 @@ import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcru
 import { SimpleTabsComponent, TabItem } from '../../shared/components/simple-tabs/simple-tabs.component';
 import { QuickSearchComponent } from './quick-search/quick-search.component';
 import { FaqListComponent, Faq } from './faq-list/faq-list.component';
+import { ContactCardComponent } from './contact-card/contact-card.component';
 
 @Component({
   selector: 'app-help-center',
@@ -13,7 +14,8 @@ import { FaqListComponent, Faq } from './faq-list/faq-list.component';
     BreadcrumbComponent,
     SimpleTabsComponent,
     QuickSearchComponent,
-    FaqListComponent
+    FaqListComponent,
+    ContactCardComponent
   ],
   templateUrl: './help-center.component.html',
   styleUrls: ['./help-center.component.scss']

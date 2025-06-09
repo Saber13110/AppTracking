@@ -1,7 +1,8 @@
-<div class="simple-tabs" *ngIf="tabs.length">
+<div class="simple-tabs" *ngIf="tabs.length" role="tablist">
   <button *ngFor="let tab of tabs"
           class="tab"
-          [class.active]="tab.id === active"
+          role="tab"
+          [attr.aria-selected]="tab.id === active"
           (click)="setActive(tab.id)">
     {{ tab.label }}
   </button>
